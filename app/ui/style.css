@@ -7,8 +7,15 @@
     margin: 7rem auto 5rem 15rem;
     border: 3px solid black;
     box-shadow: 0 0 50px yellow;
+    background-color: rgb(97, 136, 97);
 }
 
 #grid-item {
     border: 1px solid black;
+}
+
+.piece img {
+    max-width: 100%;
+    background: transparent;
+    height: auto;
 }
