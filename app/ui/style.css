@@ -1,0 +1,14 @@
+.container {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    height: 20rem;
+    width: 20rem;
+    margin: 7rem auto 5rem 15rem;
+    border: 3px solid black;
+    box-shadow: 0 0 50px yellow;
+}
+
+#grid-item {
+    border: 1px solid black;
+}
