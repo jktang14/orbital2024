@@ -1,6 +1,5 @@
 .container {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
     height: 20rem;
     width: 20rem;
@@ -10,11 +9,20 @@
     background-color: rgb(97, 136, 97);
 }
 
-#grid-item {
-    border: 1px solid black;
+.row {
+    display: flex;
+    flex-direction: row;
 }
 
-.piece img {
+.cell {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+  }
+
+img {
     max-width: 100%;
     background: transparent;
     height: auto;
