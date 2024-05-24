@@ -16,6 +16,13 @@ class game {
     }
 
     /*
+    Returns opponent
+    */
+    getOpponent() {
+        return this.currentPlayer == "black" ? "white" : "black";
+    }
+
+    /*
     Returns true if there is an opposing piece in current direction
     */
     hasOpponent(row, col, x, y, player) {
