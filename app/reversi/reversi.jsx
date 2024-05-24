@@ -12,7 +12,6 @@ const Reversi = () => {
         if (match.isValidMove(rowIndex, colIndex)) {
             match.makeMove(rowIndex, colIndex);
             setBoard(match.board);
-            setCurrentPlayer(match.getOpponent());
         }
     }
 
