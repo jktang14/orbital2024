@@ -114,6 +114,7 @@ class game {
             newBoard.push(row);
         }
         this.board = newBoard;
+        this.currentPlayer = this.getOpponent();
     }
 
     isValidMove(row, col) {
