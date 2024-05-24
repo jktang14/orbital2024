@@ -122,7 +122,4 @@ class game {
     }
 }
 
-const test = new game();
-test.makeMove(2, 4);
-console.log(test.board);
-//export default game;
+export default game;
