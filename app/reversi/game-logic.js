@@ -104,6 +104,16 @@ class game {
                 this.flipPieces(row, col, x, y, this.currentPlayer);
             }
         }
+        // Create entirely new board
+        let newBoard = []
+        for (let i = 0; i < 8; i++) {
+            let row = [];
+            for (let j = 0; j < 8; j++) {
+                row.push(this.board[i][j]);
+            }
+            newBoard.push(row);
+        }
+        this.board = newBoard;
     }
 
     isValidMove(row, col) {
@@ -112,4 +122,7 @@ class game {
     }
 }
 
-export default game;
+const test = new game();
+test.makeMove(2, 4);
+console.log(test.board);
+//export default game;
