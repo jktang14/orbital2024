@@ -91,13 +91,17 @@ class game {
     Select the cell that has been selected and flip the corresponding pieces
     */
     makeMove(row, col) {
-        let validMoves = this.getValidMoves(this.currentPlayer);
         // Only consider if move selected part of validMoves
-        if (validMoves.some(item => item[0] == row && item[1] == col)) {
+        if (this.isValidMove(row, col)) {
             for (let [x, y] of game.DIRECTIONS) {
                 this.flipPieces(row, col, x, y, this.currentPlayer);
             }
         }
+    }
+
+    isValidMove(row, col) {
+        let validMoves = this.getValidMoves(this.currentPlayer);
+        return validMoves.some(item => item[0] == row && item[1] == col);
     }
 }
 
