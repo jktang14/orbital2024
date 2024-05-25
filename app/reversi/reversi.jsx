@@ -32,7 +32,6 @@ const Reversi = () => {
             match.makeMove(rowIndex, colIndex);
             setBoard(match.board);
             setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
-            checkStatus();
         }
     }
 
