@@ -27,3 +27,11 @@ img {
     background: transparent;
     height: auto;
 }
+
+.valid-move-indicator {
+    border-radius: 50%;
+    background-color: red;
+    opacity: 0.4;
+    height: 20%;
+    width: 20%;
+}
