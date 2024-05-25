@@ -1,5 +1,5 @@
 "use client";
-import React, { createElement, useState} from 'react';
+import React, { createElement, useState, useEffect} from 'react';
 import '../ui/style.css';
 import game from './game-logic';
 
@@ -51,6 +51,7 @@ const Reversi = () => {
                     </div>
                 ))}
             </div>
+            {message && <div className="message">{message}</div>}
         </>
     );
 }
