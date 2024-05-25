@@ -140,6 +140,13 @@ class game {
     }
 
     /*
+    Get number of pieces for current player
+    */
+    getPieceNumber(player) {
+        return this.board.flat().filter(value => value == player).length;
+    }
+
+    /*
     Check if game is a draw or a victory for either player
     */
     isGameOver() {
