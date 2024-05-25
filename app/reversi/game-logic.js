@@ -117,9 +117,26 @@ class game {
         this.currentPlayer = this.getOpponent();
     }
 
+    /*
+    Checks if move selected at current index is a valid move
+    */
     isValidMove(row, col) {
         let validMoves = this.getValidMoves(this.currentPlayer);
         return validMoves.some(item => item[0] == row && item[1] == col);
+    }
+
+    /*
+    Checks if grid is all filled with pieces
+    */
+    isGridFull() {
+        return this.board.every(row => row.every(cell => cell != null));
+    }
+
+    /*
+    Check if game is a draw or a victory for either player
+    */
+    isGameOver() {
+
     }
 }
 
