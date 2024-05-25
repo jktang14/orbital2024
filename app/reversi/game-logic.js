@@ -129,7 +129,7 @@ class game {
     Checks if current player has any valid moves
     */
     hasValidMove(player) {
-        return this.getValidMoves(player).length == 0;
+        return this.getValidMoves(player).length > 0;
     }
 
     /*
