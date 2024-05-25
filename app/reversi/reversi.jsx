@@ -23,6 +23,7 @@ const Reversi = () => {
                     <div className="cell" key={colIndex} onClick={() => handleCellClick(rowIndex, colIndex)}>
                         {cell == 'black' && <img src="black.png" alt="Black piece" />}
                         {cell == 'white' && <img src="white.png" alt="White piece" />}
+                        {match.isValidMove(rowIndex, colIndex) && <div className='valid-move-indicator'></div>}
                     </div>
                 ))}
                 </div>
