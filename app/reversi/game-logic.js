@@ -150,8 +150,8 @@ class game {
     Get game status
     */
     checkGameStatus() {
-        currNum = this.getPieceNumber(this.currentPlayer);
-        opponentNum = this.getPieceNumber(this.getOpponent());
+        let currNum = this.getPieceNumber(this.currentPlayer);
+        let opponentNum = this.getPieceNumber(this.getOpponent());
 
         // If grid is full or both players have no valid moves
         if (this.isGridFull() || (!this.hasValidMove(this.currentPlayer) && !this.hasValidMove(this.getOpponent()))) {
