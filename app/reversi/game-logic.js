@@ -128,8 +128,8 @@ class game {
     /*
     Checks if current player has any valid moves
     */
-    hasValidMove() {
-        return this.getValidMoves(this.currentPlayer).length == 0;
+    hasValidMove(player) {
+        return this.getValidMoves(player).length == 0;
     }
 
     /*
@@ -147,10 +147,31 @@ class game {
     }
 
     /*
-    Check if game is a draw or a victory for either player
+    Get game status
     */
-    isGameOver() {
+    checkGameStatus() {
+        currNum = this.getPieceNumber(this.currentPlayer);
+        opponentNum = this.getPieceNumber(this.getOpponent());
 
+        // If grid is full or both players have no valid moves
+        if (this.isGridFull() || (!this.hasValidMove(this.currentPlayer) && !this.hasValidMove(this.getOpponent()))) {
+            if (currNum > opponentNum) {
+                return {status: "win", winner: this.currentPlayer};
+            } else if (opponentNum > currNum) {
+                return {status: "win", winner: this.getOpponent()};
+            } else {
+                return {status: "draw"};
+            }
+        }
+
+        // currentPlayer is the opponent, if opponent has no moves, swap back to player
+        if (!this.hasValidMove(this.currentPlayer)) {
+            // swap back to original player
+            this.currentPlayer = this.getOpponent();
+            return {status: "skip", message: `${this.getOpponent()} has no valid moves. Turn skipped.`};
+        }
+
+        return {status: "continue"};
     }
 }
 
