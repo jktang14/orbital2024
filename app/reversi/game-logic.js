@@ -126,6 +126,13 @@ class game {
     }
 
     /*
+    Checks if current player has any valid moves
+    */
+    hasValidMove() {
+        return this.getValidMoves(this.currentPlayer).length == 0;
+    }
+
+    /*
     Checks if grid is all filled with pieces
     */
     isGridFull() {
