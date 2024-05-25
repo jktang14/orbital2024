@@ -38,3 +38,11 @@ img {
     height: 20%;
     width: 20%;
 }
+
+.message {
+    color: white;
+}
+
+.player-turn {
+    color: white;
+}
