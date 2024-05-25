@@ -51,6 +51,9 @@ const Reversi = () => {
                     </div>
                 ))}
             </div>
+            <div className="player-turn">
+                {match.currentPlayer}'s turn
+            </div>
             {message && <div className="message">{message}</div>}
         </>
     );
