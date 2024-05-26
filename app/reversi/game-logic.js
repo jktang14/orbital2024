@@ -3,6 +3,10 @@ class game {
     constructor() {
         this.currentPlayer = "black";
         this.board = this.initialiseBoard();
+        this.players = {
+            black: {name: 'Player 1', color: "black"},
+            white: {name: 'Player 2', color: "white"}
+        };
     }
 
     // Set starting board for the game
