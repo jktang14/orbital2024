@@ -44,3 +44,30 @@ img {
     height: 20%;
     width: 20%;
 }
+
+p {
+    margin: 0;
+}
+
+.name-timer {
+    display: flex;
+    flex-direction: row;
+    width: 20rem;
+    justify-content: space-between;
+    margin: 5px;
+}
+
+.name {
+    padding-top: 0.2em;
+}
+
+.timer {
+    color: white;
+    border-style: solid;
+    border-radius: 10%;
+    border-color: black;
+    border-width: 3px;
+    padding: 1px 10px;
+    background-color: grey;
+    width: 35px;
+}
