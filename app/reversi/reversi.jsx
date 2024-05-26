@@ -38,6 +38,15 @@ const Reversi = () => {
         }
     }
 
+    function restartGame() {
+        let newGame = new game();
+        setMatch(newGame);
+        setBoard(newGame.board);
+        setCurrentPlayer(newGame.currentPlayer);
+        setMessage("");
+        setIsGameActive(true);
+    }
+
     return (
         <>
             <div className="container">
@@ -57,6 +66,7 @@ const Reversi = () => {
                 {isGameActive && <p>{match.currentPlayer} turn</p>}
             </div>
             {message && <div className="message">{message}</div>}
+            {!isGameActive && <button onClick={restartGame} className='restart-button'>Restart game!</button>}
         </>
     );
 }
