@@ -8,6 +8,7 @@ const Reversi = () => {
     const [board, setBoard] = useState(match.board);
     const [currentPlayer, setCurrentPlayer] = useState(match.currentPlayer);
     const [message, setMessage] = useState("");
+    const [isGameActive, setIsGameActive] = useState(true);
 
     useEffect(() => {
         checkStatus();
@@ -17,8 +18,10 @@ const Reversi = () => {
         const result = match.checkGameStatus();
         if (result.status === 'win') {
             setMessage(`${result.winner} wins!`);
+            setIsGameActive(false);
         } else if (result.status === 'draw') {
             setMessage('The game is a draw!');
+            setIsGameActive(false);
         } else if (result.status === 'skip') {
             setMessage(result.message);
             setCurrentPlayer(match.getOpponent()); // swap back to original player
@@ -51,7 +54,7 @@ const Reversi = () => {
                 ))}
             </div>
             <div className="player-turn">
-                {match.currentPlayer} turn
+                {isGameActive && <p>{match.currentPlayer} turn</p>}
             </div>
             {message && <div className="message">{message}</div>}
         </>
