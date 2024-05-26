@@ -110,8 +110,8 @@ const Reversi = () => {
         <>
             <div className='game-name-timer'>
                 <div className='name-timer'>
-                    <div className='name'> 
-                        <p>{match.players.white.name} ({match.players.white.color})</p>
+                    <div> 
+                        <p className = 'name'>{match.players.white.name} ({match.players.white.color})</p>
                     </div>
                     <div className='timer'>
                         <p>{formatTime(whiteTime)}</p>    
@@ -131,8 +131,8 @@ const Reversi = () => {
                     ))}
                 </div>
                 <div className='name-timer'>
-                    <div classname='name'> 
-                        <p>{match.players.black.name} ({match.players.black.color})</p>
+                    <div> 
+                        <p className='name'>{match.players.black.name} ({match.players.black.color})</p>
                     </div>
                     <div className='timer'>
                         <p>{formatTime(blackTime)}</p>    
