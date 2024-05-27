@@ -1,5 +1,6 @@
 body {
     background-color: #DDD0C8;
+    margin: 0;
 }
 .container {
     display: grid;
@@ -13,9 +14,8 @@ body {
 }
 
 .game-name-timer {
-    margin-top: 5rem;
-    margin-left: 15rem;
-
+    margin-top: 3rem;
+    margin-left: 14rem;
 }
 
 .row {
