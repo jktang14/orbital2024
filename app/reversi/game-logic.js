@@ -1,21 +1,21 @@
 class game {
     static DIRECTIONS = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
     constructor() {
-        this.currentPlayer = "black";
+        this.currentPlayer = "Black";
         this.board = this.initialiseBoard();
         this.players = {
-            black: {name: 'Player 1', color: "black"},
-            white: {name: 'Player 2', color: "white"}
+            black: {name: 'Player 1', color: "Black"},
+            white: {name: 'Player 2', color: "White"}
         };
     }
 
     // Set starting board for the game
     initialiseBoard() {
         let board = Array(8).fill(null).map(row => Array(8).fill(null));
-        board[3][3] = "black";
-        board[3][4] = "white";
-        board[4][3] = "white";
-        board[4][4] = "black";
+        board[3][3] = "Black";
+        board[3][4] = "White";
+        board[4][3] = "White";
+        board[4][4] = "Black";
         return board;
     }
 
@@ -23,7 +23,7 @@ class game {
     Returns opponent
     */
     getOpponent() {
-        return this.currentPlayer == "black" ? "white" : "black";
+        return this.currentPlayer == "Black" ? "White" : "Black";
     }
 
     /*
@@ -32,7 +32,7 @@ class game {
     hasOpponent(row, col, x, y, player) {
         let newRow = row + x;
         let newCol = col + y;
-        let opponent = player == "black" ? "white" : "black";
+        let opponent = player == "Black" ? "White" : "Black";
         let hasOpponentPiece = false;
         while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
             // Check if there is an opponent piece
@@ -78,7 +78,7 @@ class game {
     flipPieces(row, col, x, y, player) {
         let newRow = row + x;
         let newCol = col + y;
-        let opponent = player == "black" ? "white" : "black";
+        let opponent = player == "Black" ? "White" : "Black";
         let toFlip = [[row, col]];
         while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
             // if opponent piece, continue in direction
