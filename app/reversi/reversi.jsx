@@ -108,37 +108,43 @@ const Reversi = () => {
 
     return (
         <>
-            <div className='game-name-timer'>
-                <div className='name-timer'>
-                    <div> 
-                        <p className = 'name'>{match.players.white.name} ({match.players.white.color})</p>
+            <div className='enclosing-container'>
+                <div className='game-name-timer'>
+                    <div className='name-timer'>
+                        <div> 
+                            <p className = 'name'>{match.players.white.name} ({match.players.white.color})</p>
+                        </div>
+                        <div className='timer'>
+                            <p>{formatTime(whiteTime)}</p>    
+                        </div>
                     </div>
-                    <div className='timer'>
-                        <p>{formatTime(whiteTime)}</p>    
-                    </div>
-                </div>
-                <div className="container">
-                    {match.board.map((row, rowIndex) => (
-                        <div className="row" key={rowIndex}>
-                        {row.map((cell, colIndex) => (
-                            <div className="cell" key={colIndex} onClick={() => handleCellClick(rowIndex, colIndex)}>
-                                {cell == 'black' && <img src="black.png" alt="Black piece" />}
-                                {cell == 'white' && <img src="white.png" alt="White piece" />}
-                                {match.isValidMove(rowIndex, colIndex) && <div className='valid-move-indicator'></div>}
+                    <div className="container">
+                        {match.board.map((row, rowIndex) => (
+                            <div className="row" key={rowIndex}>
+                            {row.map((cell, colIndex) => (
+                                <div className="cell" key={colIndex} onClick={() => handleCellClick(rowIndex, colIndex)}>
+                                    {cell == 'black' && <img src="black.png" alt="Black piece" />}
+                                    {cell == 'white' && <img src="white.png" alt="White piece" />}
+                                    {match.isValidMove(rowIndex, colIndex) && <div className='valid-move-indicator'></div>}
+                                </div>
+                            ))}
                             </div>
                         ))}
+                    </div>
+                    <div className='name-timer'>
+                        <div> 
+                            <p className='name'>{match.players.black.name} ({match.players.black.color})</p>
                         </div>
-                    ))}
+                        <div className='timer'>
+                            <p>{formatTime(blackTime)}</p>    
+                        </div>
+                    </div>
                 </div>
-                <div className='name-timer'>
-                    <div> 
-                        <p className='name'>{match.players.black.name} ({match.players.black.color})</p>
-                    </div>
-                    <div className='timer'>
-                        <p>{formatTime(blackTime)}</p>    
-                    </div>
+                <div className='game-selection'>
+                    
                 </div>
             </div>
+
             <div className="player-turn">
                 {isGameActive && <p>{match.currentPlayer} turn</p>}
             </div>
