@@ -137,7 +137,7 @@ const Reversi = () => {
                     </div>
                     <div className='name-timer'>
                         <div> 
-                            <p className='name'>{match.players.black.name} ({match.players.black.color})</p>
+                            <p className='name'>{localStorage.getItem('username')} ({match.players.black.color})</p>
                         </div>
                         <div className='timer'>
                             <p>{formatTime(blackTime)}</p>    
