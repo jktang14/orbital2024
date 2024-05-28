@@ -110,6 +110,10 @@ const Reversi = () => {
         <>
             <div className='enclosing-container'>
                 <div className='game-name-timer'>
+                    <div className="player-turn">
+                        {isGameActive && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: match.currentPlayer == "black" ? "black": "white"}}>{match.currentPlayer} turn
+                        </p>}
+                    </div>
                     <div className='name-timer'>
                         <div> 
                             <p className = 'name'>{match.players.white.name} ({match.players.white.color})</p>
@@ -145,9 +149,7 @@ const Reversi = () => {
                 </div>
             </div>
 
-            <div className="player-turn">
-                {isGameActive && <p>{match.currentPlayer} turn</p>}
-            </div>
+            
             {message && <div className="message">{message}</div>}
             {!isGameActive && <button onClick={restartGame} className='restart-button'>Restart game!</button>}
         </>
