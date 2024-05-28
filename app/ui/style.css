@@ -81,3 +81,7 @@ p {
     border-style: double;
     border-width: 0.4rem;
 }
+
+.player-turn {
+    text-align: center;
+}
