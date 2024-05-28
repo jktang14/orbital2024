@@ -13,11 +13,6 @@ body {
     background-color: rgb(97, 136, 97);
 }
 
-.game-name-timer {
-    margin-top: 3rem;
-    margin-left: 14rem;
-}
-
 .row {
     display: flex;
     flex-direction: row;
@@ -70,4 +65,19 @@ p {
     padding: 1px 10px;
     background-color: grey;
     width: 35px;
+}
+
+.enclosing-container {
+    display: flex;
+    flex-direction: row;
+    margin-top: 3rem;
+    margin-left: 14rem;
+    gap: 2rem;
+}
+
+.game-selection {
+    background-color: rgb(92, 95, 92);
+    width: 20rem;
+    border-style: double;
+    border-width: 0.4rem;
 }
