@@ -32,7 +32,7 @@ const Reversi = () => {
         }
 
         const intervalId = setInterval(() => {
-            if (currentPlayer == 'black') {
+            if (currentPlayer == 'Black') {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, 0);
                     if (currTime == 0) {
@@ -111,7 +111,7 @@ const Reversi = () => {
             <div className='enclosing-container'>
                 <div className='game-name-timer'>
                     <div className="player-turn">
-                        {isGameActive && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: match.currentPlayer == "black" ? "black": "white"}}>{match.currentPlayer} turn
+                        {isGameActive && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: match.currentPlayer == "Black" ? "black": "white"}}>{match.currentPlayer} turn
                         </p>}
                     </div>
                     <div className='name-timer'>
@@ -127,8 +127,8 @@ const Reversi = () => {
                             <div className="row" key={rowIndex}>
                             {row.map((cell, colIndex) => (
                                 <div className="cell" key={colIndex} onClick={() => handleCellClick(rowIndex, colIndex)}>
-                                    {cell == 'black' && <img src="black.png" alt="Black piece" />}
-                                    {cell == 'white' && <img src="white.png" alt="White piece" />}
+                                    {cell == 'Black' && <img src="black.png" alt="Black piece" />}
+                                    {cell == 'White' && <img src="white.png" alt="White piece" />}
                                     {match.isValidMove(rowIndex, colIndex) && <div className='valid-move-indicator'></div>}
                                 </div>
                             ))}
