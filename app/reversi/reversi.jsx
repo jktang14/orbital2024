@@ -80,7 +80,7 @@ const Reversi = () => {
             setHasGameStarted(true);
         }
 
-        if (match.isValidMove(rowIndex, colIndex)) {
+        if (isGameActive && match.isValidMove(rowIndex, colIndex)) {
             match.makeMove(rowIndex, colIndex);
             setBoard(match.board);
             setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
@@ -145,11 +145,8 @@ const Reversi = () => {
                     </div>
                 </div>
                 <div className='game-selection'>
-                    
                 </div>
             </div>
-
-            
             {message && <div className="message">{message}</div>}
             {!isGameActive && <button onClick={restartGame} className='restart-button'>Restart game!</button>}
         </>
