@@ -1,14 +1,14 @@
 import React from 'react';
-import Reversi from './reversi/reversi.jsx';
-import ResponsiveAppBar from './navbar.jsx';
+import Registration from './registration/page';
+import Login from './login/page';
 
-function Home() {
+function Page() {
   return (
     <div>
-      <ResponsiveAppBar/>
-      <Reversi/>
+      <Registration/>
+      <Login/>
     </div>
   );
 }
 
-export default Home;
+export default Page;

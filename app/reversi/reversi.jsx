@@ -15,10 +15,21 @@ const Reversi = () => {
     const [blackTime, setBlackTime] = useState(initialTime);
     const [whiteTime, setWhiteTime] = useState(initialTime);
     const [timer, setTimer] = useState(null);
+    const [username, setUsername] = useState('');
 
     useEffect(() => {
         checkStatus();
     }, [board]);
+
+    useEffect(() => {
+        // Check if window and localStorage are available
+        if (typeof window !== 'undefined') {
+            const storedUsername = localStorage.getItem('username');
+            if (storedUsername) {
+                setUsername(storedUsername);
+            }
+        }
+    }, []);
 
     useEffect(() => {
         if (!isGameActive) {
@@ -137,7 +148,7 @@ const Reversi = () => {
                     </div>
                     <div className='name-timer'>
                         <div> 
-                            <p className='name'>{match.players.black.name} ({match.players.black.color})</p>
+                            <p className='name'>{username} ({match.players.black.color})</p>
                         </div>
                         <div className='timer'>
                             <p>{formatTime(blackTime)}</p>    
