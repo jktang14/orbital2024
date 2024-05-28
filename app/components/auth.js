@@ -3,7 +3,7 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
 // User sign up with email, password and username
-export const signUpUser = async (email, password, username) => {
+export const SignUpUser = async (email, password, username) => {
     let userCredential = await createUserWithEmailAndPassword(auth, email, password);
     // User signed up
     let user = userCredential.user;
@@ -15,7 +15,7 @@ export const signUpUser = async (email, password, username) => {
 };
 
 // Login current user
-export const loginUser = async (email, password) => {
+export const LoginUser = async (email, password) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
   
