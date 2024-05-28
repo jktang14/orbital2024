@@ -4,7 +4,7 @@ class game {
         this.currentPlayer = "Black";
         this.board = this.initialiseBoard();
         this.players = {
-            black: {name: 'Player 1', color: "Black"},
+            black: {name: localStorage.getItem('username'), color: "Black"},
             white: {name: 'Player 2', color: "White"}
         };
     }
