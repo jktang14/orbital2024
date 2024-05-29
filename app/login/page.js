@@ -7,14 +7,28 @@ import { useRouter } from 'next/navigation';
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
     const router = useRouter();
 
     async function handleLogin(e) {
         e.preventDefault();
-        let {user, username} = await LoginUser(email, password);
-        // Store username
-        localStorage.setItem('username', username);
-        router.push('../game') // Navigate to game page
+        try {
+            let {user, username} = await LoginUser(email, password);
+            // Store username
+            localStorage.setItem('username', username);
+            router.push('../game') // Navigate to game page
+        } catch (error) {
+            let errorCode = error.code;
+            if (errorCode == 'auth/invalid-credential') {
+                setError('Email or password is wrong!');
+            } else if (errorCode == 'auth/missing-password') {
+                setError('No password inputted!');
+            } else if (errorCode == 'auth/invalid-email') {
+                setError('Please input an email');
+            } else {
+                setError('');
+            }
+        }
     }
 
     return (
@@ -26,6 +40,7 @@ function Login() {
                 <input type="text" placeholder='Password' value={password} onChange={e => setPassword(e.target.value)}/><br/>
                 <button type="submit">Login</button>
             </form>
+            {error && <p>{error}</p>}
         </div>
     );
 }
