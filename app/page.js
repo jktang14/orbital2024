@@ -1,7 +1,5 @@
 'use client';
 import React from 'react';
-import Registration from './registration/page';
-import Login from './login/page';
 import { useRouter } from 'next/navigation';
 
 function Page() {
