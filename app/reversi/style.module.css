@@ -1,0 +1,80 @@
+.container {
+    display: grid;
+    grid-template-rows: repeat(8, 1fr);
+    height: 20rem;
+    width: 20rem;
+    margin: 0;
+    border: 3px solid black;
+    box-shadow: 0 0 1rem yellow;
+    background-color: rgb(97, 136, 97);
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.cell {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+  }
+
+.image {
+    max-width: 100%;
+    background: transparent;
+    height: auto;
+}
+
+.validMoveIndicator {
+    border-radius: 50%;
+    background-color: red;
+    opacity: 0.4;
+    height: 20%;
+    width: 20%;
+}
+
+.nameTimer {
+    display: flex;
+    flex-direction: row;
+    width: 20rem;
+    justify-content: space-between;
+    margin: 5px;
+}
+
+.name {
+    padding-top: 0.2em;
+
+}
+
+.timer {
+    color: white;
+    border-style: solid;
+    border-radius: 10%;
+    border-color: black;
+    border-width: 3px;
+    padding: 1px 10px;
+    background-color: grey;
+    width: 35px;
+}
+
+.enclosingContainer {
+    display: flex;
+    flex-direction: row;
+    margin-top: 3rem;
+    margin-left: 14rem;
+    gap: 2rem;
+}
+
+.gameSelection {
+    background-color: rgb(92, 95, 92);
+    width: 20rem;
+    border-style: double;
+    border-width: 0.4rem;
+}
+
+.playerTurn {
+    text-align: center;
+}
