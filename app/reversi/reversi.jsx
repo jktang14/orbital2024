@@ -1,6 +1,6 @@
 "use client";
 import React, { createElement, useState, useEffect} from 'react';
-import '../ui/style.css';
+import styles from './style.module.css';
 import game from './game-logic';
 
 const Reversi = () => {
@@ -118,49 +118,49 @@ const Reversi = () => {
     }
 
     return (
-        <>
-            <div className='enclosing-container'>
-                <div className='game-name-timer'>
-                    <div className="player-turn">
+        <div className={styles.body}>
+            <div className={styles.enclosingContainer}>
+                <div className={styles.gameNameTimer}>
+                    <div className={styles.playerTurn}>
                         {isGameActive && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: match.currentPlayer == "Black" ? "black": "white"}}>{match.currentPlayer} turn
                         </p>}
                     </div>
-                    <div className='name-timer'>
+                    <div className={styles.nameTimer}>
                         <div> 
-                            <p className = 'name'>{match.players.white.name} ({match.players.white.color})</p>
+                            <p className ={styles.name}>{match.players.white.name} ({match.players.white.color})</p>
                         </div>
-                        <div className='timer'>
+                        <div className={styles.timer}>
                             <p>{formatTime(whiteTime)}</p>    
                         </div>
                     </div>
-                    <div className="container">
+                    <div className={styles.container}>
                         {match.board.map((row, rowIndex) => (
-                            <div className="row" key={rowIndex}>
+                            <div className={styles.row} key={rowIndex}>
                             {row.map((cell, colIndex) => (
-                                <div className="cell" key={colIndex} onClick={() => handleCellClick(rowIndex, colIndex)}>
-                                    {cell == 'Black' && <img src="black.png" alt="Black piece" />}
-                                    {cell == 'White' && <img src="white.png" alt="White piece" />}
-                                    {match.isValidMove(rowIndex, colIndex) && <div className='valid-move-indicator'></div>}
+                                <div className={styles.cell} key={colIndex} onClick={() => handleCellClick(rowIndex, colIndex)}>
+                                    {cell == 'Black' && <img className={styles.image} src="black.png" alt="Black piece" />}
+                                    {cell == 'White' && <img className={styles.image} src="white.png" alt="White piece" />}
+                                    {match.isValidMove(rowIndex, colIndex) && <div className={styles.validMoveIndicator}></div>}
                                 </div>
                             ))}
                             </div>
                         ))}
                     </div>
-                    <div className='name-timer'>
+                    <div className={styles.nameTimer}>
                         <div> 
-                            <p className='name'>{username} ({match.players.black.color})</p>
+                            <p className={styles.name}>{username} ({match.players.black.color})</p>
                         </div>
-                        <div className='timer'>
+                        <div className={styles.timer}>
                             <p>{formatTime(blackTime)}</p>    
                         </div>
                     </div>
                 </div>
-                <div className='game-selection'>
+                <div className={styles.gameSelection}>
                 </div>
             </div>
-            {message && <div className="message">{message}</div>}
-            {!isGameActive && <button onClick={restartGame} className='restart-button'>Restart game!</button>}
-        </>
+            {message && <div className={styles.message}>{message}</div>}
+            {!isGameActive && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
+        </div>
     );
 }
 
