@@ -14,6 +14,13 @@ function Registration() {
     async function handleRegistration(e) {
         // Prevent page refresh
         e.preventDefault();
+        
+        // Force user to input a username
+        if (!username) {
+            setError('Please input a username');
+            return;
+        }
+        
         try {
             await SignUpUser(email, password, username);
             router.push('../login');
