@@ -8,13 +8,25 @@ function Registration() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
+    const [error, setError] = useState('');
     const router = useRouter();
     
     async function handleRegistration(e) {
         // Prevent page refresh
         e.preventDefault();
-        await SignUpUser(email, password, username);
-        router.push('../login');
+        try {
+            await SignUpUser(email, password, username);
+            router.push('../login');
+        } catch (error) {
+            let errorCode = error.code;
+            if (errorCode == 'auth/weak-password') {
+                setError('Password should be at least 6 letters!');
+            } else if (errorCode == 'auth/email-already-in-use') {
+                setError('Email address already in use!');
+            } else {
+                setError('');
+            }
+        }
     }
     
     return (
@@ -28,6 +40,7 @@ function Registration() {
                 <input type="text" placeholder='Username' value={username} onChange={e => setUsername(e.target.value)}/><br/>
                 <button type="submit">Register</button>
             </form>
+            {error && <p>{error}</p>}
         </>
     );
 }
