@@ -12,10 +12,21 @@ const pages = ['Cosmetics'];
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [username, setUsername] =   React.useState('');
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
+
+  React.useEffect(() => {
+    // Check if window and localStorage are available
+    if (typeof window !== 'undefined') {
+        const storedUsername = localStorage.getItem('username');
+        if (storedUsername) {
+            setUsername(storedUsername);
+        }
+    }
+}, []);
 
   return (
     <AppBar position="static" sx= {{bgcolor: 'rgba(83, 81, 81, 0.8)'}}>
@@ -47,6 +58,9 @@ function ResponsiveAppBar() {
               </Button>
             ))}
           </Box>
+          <div>
+              {<p>Welcome {username}!</p>}
+          </div>
         </Toolbar>
       </Container>
     </AppBar>
