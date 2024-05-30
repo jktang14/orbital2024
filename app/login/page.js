@@ -2,6 +2,7 @@
 import React from 'react';
 import { useState } from 'react';
 import { LoginUser } from '../components/auth';
+import styles from './style.module.css';
 import { useRouter } from 'next/navigation';
 
 function Login() {
@@ -32,8 +33,8 @@ function Login() {
     }
 
     return (
-        <div>
-            <form onSubmit={handleLogin}>
+        <div className={styles.root}>
+            <form className={styles.form} onSubmit={handleLogin}>
                 <label>Email: </label>
                 <input type="text" placeholder='Email' value={email} onChange={e => setEmail(e.target.value)}/><br/>
                 <label>Password: </label>
