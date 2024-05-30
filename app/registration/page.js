@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import React from 'react';
 import { SignUpUser } from '../components/auth';
+import styles from './style.module.css';
 import { Router, useRouter } from 'next/navigation';
 
 function Registration() {
@@ -37,8 +38,8 @@ function Registration() {
     }
     
     return (
-        <>
-            <form onSubmit={handleRegistration}>
+        <div className={styles.root}>
+            <form className={styles.form} onSubmit={handleRegistration}>
                 <label>Email: </label>
                 <input type="text" placeholder='Email' value={email} onChange={e => setEmail(e.target.value)}/><br/>
                 <label>Password: </label>
@@ -46,9 +47,10 @@ function Registration() {
                 <label>Username: </label>
                 <input type="text" placeholder='Username' value={username} onChange={e => setUsername(e.target.value)}/><br/>
                 <button type="submit">Register</button>
+                {error && <p>{error}</p>}
             </form>
-            {error && <p>{error}</p>}
-        </>
+            
+        </div>
     );
 }
 
