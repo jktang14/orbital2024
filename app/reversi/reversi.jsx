@@ -172,7 +172,10 @@ const Reversi = () => {
                 <div className={styles.gameSelection}>
                     <div className={styles.timeSelection}>
                         <label>Select a time!</label><br/>
-                        <input type="range" min="1" max="600" value={timer} className={styles.slider} onChange={handleSlider}/>
+                        {hasGameStarted 
+                        ? <input type="range" min="1" max="600" value={timer} className={styles.slider} onChange={handleSlider} disabled/> 
+                        : <input type="range" min="1" max="600" value={timer} className={styles.slider} onChange={handleSlider}/>
+                        }
                         <p>Time: {formatTime(timer)} </p>
                     </div>
                 </div>
