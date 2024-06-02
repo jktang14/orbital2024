@@ -40,32 +40,40 @@ const Reversi = () => {
             return;
         }
 
-        const intervalId = setInterval(() => {
+        const blackIntervalId = setInterval(() => {
             if (currentPlayer == 'Black') {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, 0);
                     if (currTime == 0) {
                         setMessage(`${currentPlayer} has run out of time, ${match.getOpponent()} wins!`)
                         setIsGameActive(false);
-                        clearInterval(intervalId);
+                        clearInterval(blackIntervalId);
                     }
                     return currTime;
                 }); 
-            } else {
+            } 
+        }, 1000);
+        const whiteIntervalId = setInterval(() => {
+            if (currentPlayer == 'White') {
                 setWhiteTime(prev => {
                     let currTime = Math.max(prev - 1, 0);
                     if (currTime == 0) {
                         setMessage(`${currentPlayer} has run out of time, ${match.getOpponent()} wins!`)
                         setIsGameActive(false);
-                        clearInterval(intervalId);
+                        clearInterval(whiteIntervalId);
                     }
                     return currTime;
                 });
             }
         }, 1000);
 
-        setTimer(intervalId);
-        return () => clearInterval(intervalId);
+        return () => {
+            if (currentPlayer === 'Black') {
+                clearInterval(blackIntervalId);
+            } else {
+                clearInterval(whiteIntervalId);
+            }
+        };
     }, [isGameActive, currentPlayer]);
 
     function handleSlider(event) {
@@ -111,9 +119,10 @@ const Reversi = () => {
         setMessage("");
         setIsGameActive(true);
         setHasGameStarted(false);
-        setTimer(300);
-        setBlackTime(timer);
-        setWhiteTime(timer);
+        const newTimer = 300;
+        setTimer(newTimer);
+        setBlackTime(newTimer);
+        setWhiteTime(newTimer);
     }
 
     function formatTime(seconds) {
