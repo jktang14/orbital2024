@@ -68,15 +68,6 @@ const Reversi = () => {
                 });
             }, 1000);
         }
-        /*
-        return () => {
-            if (currentPlayer == 'Black') {
-                clearInterval(blackIntervalId);
-            } else {
-                clearInterval(whiteIntervalId);
-            }
-        };
-        */
         return () => {
             clearInterval(blackIntervalId);
             clearInterval(whiteIntervalId);
@@ -101,7 +92,6 @@ const Reversi = () => {
         } else if (result.status == 'skip') {
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
-            //setCurrentPlayer(match.getOpponent()); // swap back to original player
         } else {
             setMessage("");
         }
