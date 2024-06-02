@@ -78,3 +78,8 @@
 .playerTurn {
     text-align: center;
 }
+
+.timeSelection {
+    margin-left: 0.5rem;
+    margin-top: 0.5rem;
+}
