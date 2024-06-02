@@ -4,17 +4,15 @@ import styles from './style.module.css';
 import game from './game-logic';
 
 const Reversi = () => {
-    let initialTime = 20;
-
     const [match, setMatch] = useState(new game());
     const [board, setBoard] = useState(match.board);
     const [currentPlayer, setCurrentPlayer] = useState(match.currentPlayer);
     const [message, setMessage] = useState("");
     const [isGameActive, setIsGameActive] = useState(true);
     const [hasGameStarted, setHasGameStarted] = useState(false);
-    const [blackTime, setBlackTime] = useState(initialTime);
-    const [whiteTime, setWhiteTime] = useState(initialTime);
-    const [timer, setTimer] = useState(null);
+    const [timer, setTimer] = useState(300);
+    const [blackTime, setBlackTime] = useState(timer);
+    const [whiteTime, setWhiteTime] = useState(timer);
     const [username, setUsername] = useState('');
 
     useEffect(() => {
@@ -70,6 +68,13 @@ const Reversi = () => {
         return () => clearInterval(intervalId);
     }, [isGameActive, currentPlayer]);
 
+    function handleSlider(event) {
+        const newTime = Number(event.target.value)
+        setTimer(newTime);
+        setBlackTime(newTime);
+        setWhiteTime(newTime);
+    }
+
     function checkStatus() {
         const result = match.checkGameStatus();
         if (result.status == 'win') {
@@ -106,9 +111,9 @@ const Reversi = () => {
         setMessage("");
         setIsGameActive(true);
         setHasGameStarted(false);
-        setBlackTime(initialTime);
-        setWhiteTime(initialTime);
-        setTimer(null);
+        setTimer(300);
+        setBlackTime(timer);
+        setWhiteTime(timer);
     }
 
     function formatTime(seconds) {
@@ -156,6 +161,11 @@ const Reversi = () => {
                     </div>
                 </div>
                 <div className={styles.gameSelection}>
+                    <div className={styles.timeSelection}>
+                        <label>Select a time!</label><br/>
+                        <input type="range" min="1" max="600" value={timer} className={styles.slider} onChange={handleSlider}/>
+                        <p>Time: {formatTime(timer)} </p>
+                    </div>
                 </div>
             </div>
             {message && <div className={styles.message}>{message}</div>}
