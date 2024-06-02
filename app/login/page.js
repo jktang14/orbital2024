@@ -40,8 +40,9 @@ function Login() {
                 <label>Password: </label>
                 <input type="text" placeholder='Password' value={password} onChange={e => setPassword(e.target.value)}/><br/>
                 <button type="submit">Login</button>
+                {error && <p>{error}</p>}
             </form>
-            {error && <p>{error}</p>}
+            
         </div>
     );
 }
