@@ -30,18 +30,21 @@ const Reversi = () => {
     }, []);
 
     useEffect(() => {
+        let blackIntervalId;
+        let whiteIntervalId;
         if (!isGameActive) {
-            clearInterval(timer);
+            clearInterval(blackIntervalId);
+            clearInterval(whiteIntervalId);
             return;
         }
 
         if (!hasGameStarted) {
-            clearInterval(timer);
+            clearInterval(blackIntervalId);
+            clearInterval(whiteIntervalId);
             return;
         }
-
-        const blackIntervalId = setInterval(() => {
-            if (currentPlayer == 'Black') {
+        if (currentPlayer == 'Black') {
+            blackIntervalId = setInterval(() => {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, 0);
                     if (currTime == 0) {
@@ -51,10 +54,9 @@ const Reversi = () => {
                     }
                     return currTime;
                 }); 
-            } 
-        }, 1000);
-        const whiteIntervalId = setInterval(() => {
-            if (currentPlayer == 'White') {
+            }, 1000);
+        } else {
+            whiteIntervalId = setInterval(() => {
                 setWhiteTime(prev => {
                     let currTime = Math.max(prev - 1, 0);
                     if (currTime == 0) {
@@ -64,15 +66,20 @@ const Reversi = () => {
                     }
                     return currTime;
                 });
-            }
-        }, 1000);
-
+            }, 1000);
+        }
+        /*
         return () => {
-            if (currentPlayer === 'Black') {
+            if (currentPlayer == 'Black') {
                 clearInterval(blackIntervalId);
             } else {
                 clearInterval(whiteIntervalId);
             }
+        };
+        */
+        return () => {
+            clearInterval(blackIntervalId);
+            clearInterval(whiteIntervalId);
         };
     }, [isGameActive, currentPlayer]);
 
@@ -93,7 +100,8 @@ const Reversi = () => {
             setIsGameActive(false);
         } else if (result.status == 'skip') {
             setMessage(result.message);
-            setCurrentPlayer(match.getOpponent()); // swap back to original player
+            setCurrentPlayer(match.currentPlayer);
+            //setCurrentPlayer(match.getOpponent()); // swap back to original player
         } else {
             setMessage("");
         }
