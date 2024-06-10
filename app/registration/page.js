@@ -31,9 +31,12 @@ function Registration() {
                 setError('Password should be at least 6 letters!');
             } else if (errorCode == 'auth/email-already-in-use') {
                 setError('Email address already in use!');
+            } else if (errorCode == 'auth/invalid-email') {
+                setError('Invalid email format!')
             } else {
                 setError('');
             }
+            
         }
     }
     
@@ -49,7 +52,6 @@ function Registration() {
                 <button type="submit">Register</button>
                 {error && <p>{error}</p>}
             </form>
-            
         </div>
     );
 }
