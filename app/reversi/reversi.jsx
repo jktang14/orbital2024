@@ -176,6 +176,13 @@ const Reversi = () => {
                         }
                         <p>Time: {formatTime(timer)} </p>
                     </div>
+                    <div className={styles.gridSelction}>
+                        <button>6x6</button>
+                        <button>8x8</button>
+                        <button>10x10</button>
+                        <button>12x12</button>
+
+                    </div>
                 </div>
             </div>
             {message && <div className={styles.message}>{message}</div>}
