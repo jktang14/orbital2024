@@ -15,9 +15,14 @@ function Login() {
         e.preventDefault();
         try {
             let {user, username} = await LoginUser(email, password);
-            // Store username
-            localStorage.setItem('username', username);
-            router.push('../game') // Navigate to game page
+            // Navigate to main page only if email verified
+            if (user.emailVerified) {
+                // Store username
+                localStorage.setItem('username', username);
+                router.push('../game') // Navigate to game page
+            } else {
+                setError('Please verify your email first!')
+            } 
         } catch (error) {
             let errorCode = error.code;
             if (errorCode == 'auth/invalid-credential') {
