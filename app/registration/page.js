@@ -33,6 +33,8 @@ function Registration() {
                 setError('Email address already in use!');
             } else if (errorCode == 'auth/invalid-email') {
                 setError('Invalid email format!')
+            } else if (errorCode == 'auth/missing-password') {
+                setError('No password inputted!');
             } else {
                 setError('');
             }
