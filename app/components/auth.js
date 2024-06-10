@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
@@ -8,8 +8,12 @@ export const SignUpUser = async (email, password, username) => {
     // User signed up
     let user = userCredential.user;
 
+    // send verification link to user
+    await sendEmailVerification(user);
+
     // Add a new document to 'users' collection
     await setDoc(doc(db, 'users', user.uid), { username });
+
 
     return user;
 };
