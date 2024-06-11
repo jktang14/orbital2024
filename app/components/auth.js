@@ -1,7 +1,7 @@
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db, realtimeDatabase} from '../firebase';
-import { ref, set } from "firebase/database";
+import { onDisconnect, ref, set } from "firebase/database";
 
 // User sign up with email, password and username
 export const SignUpUser = async (email, password, username) => {
@@ -27,11 +27,16 @@ export const LoginUser = async (email, password) => {
     const userDoc = await getDoc(doc(db, 'users', user.uid));
     const username = userDoc.data().username;
 
-    // Add user to realtime database
-    await set(ref(realtimeDatabase, 'users/' + user.uid), {
-        username: username,
-        email: email,
-      });
+    let userRef;
+    // Add user to realtime database if email has been verified
+    if (user.emailVerified) {
+        userRef = ref(realtimeDatabase, 'users/' + user.uid)
+        await set(userRef, {
+            username: username,
+            email: email
+          });
+        onDisconnect(userRef).remove();
+    }
   
     return { user, username };
 };
