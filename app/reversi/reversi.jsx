@@ -4,7 +4,8 @@ import styles from './style.module.css';
 import game from './game-logic';
 
 const Reversi = () => {
-    const [match, setMatch] = useState(new game());
+    const [boardSize, setBoardSize] = useState(8)
+    const [match, setMatch] = useState(new game(boardSize));
     const [board, setBoard] = useState(match.board);
     const [currentPlayer, setCurrentPlayer] = useState(match.currentPlayer);
     const [message, setMessage] = useState("");
@@ -79,6 +80,21 @@ const Reversi = () => {
         setTimer(newTime);
         setBlackTime(newTime);
         setWhiteTime(newTime);
+    }
+
+    function handleBoardSizeChange(size) {
+        setBoardSize(size);
+        let newGame = new game(size);
+        setMatch(newGame);
+        setBoard(newGame.board);
+        setCurrentPlayer(newGame.currentPlayer);
+        setMessage("");
+        setIsGameActive(true);
+        setHasGameStarted(false);
+        const newTimer = 300;
+        setTimer(newTimer);
+        setBlackTime(newTimer);
+        setWhiteTime(newTimer);
     }
 
     function checkStatus() {
@@ -175,6 +191,13 @@ const Reversi = () => {
                         : <input type="range" min="1" max="600" value={timer} className={styles.slider} onChange={handleSlider}/>
                         }
                         <p>Time: {formatTime(timer)} </p>
+                    </div>
+                    <div className={styles.gridSelction}>
+                        <button onClick={() => handleBoardSizeChange(6)}>6x6</button>
+                        <button onClick={() => handleBoardSizeChange(8)}>8x8</button>
+                        <button onClick={() => handleBoardSizeChange(10)}>10x10</button>
+                        <button onClick={() => handleBoardSizeChange(12)}>12x12</button>
+
                     </div>
                 </div>
             </div>
