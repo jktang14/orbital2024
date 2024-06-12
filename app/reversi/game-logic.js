@@ -10,7 +10,9 @@ class game {
         };
     }
 
-    // Set starting board for the game
+    /*
+    Set starting board for the game
+    */
     initialiseBoard(size) {
         let board = Array(size).fill(null).map(() => Array(size).fill(null));
         let mid = Math.floor(size / 2);
@@ -52,7 +54,9 @@ class game {
         return false;
     }
 
-    // get all valid moves for current player
+    /*
+    get all valid moves for current player
+    */
     getValidMoves(player) {
         let validMoves = [];
 
