@@ -1,21 +1,25 @@
 class game {
     static DIRECTIONS = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
-    constructor() {
+    constructor(size=8) {
+        this.size=size
         this.currentPlayer = "Black";
-        this.board = this.initialiseBoard();
+        this.board = this.initialiseBoard(size);
         this.players = {
             black: {name: 'Player 1', color: "Black"},
             white: {name: 'Player 2', color: "White"}
         };
     }
 
-    // Set starting board for the game
-    initialiseBoard() {
-        let board = Array(8).fill(null).map(row => Array(8).fill(null));
-        board[3][3] = "Black";
-        board[3][4] = "White";
-        board[4][3] = "White";
-        board[4][4] = "Black";
+    /*
+    Set starting board for the game
+    */
+    initialiseBoard(size) {
+        let board = Array(size).fill(null).map(() => Array(size).fill(null));
+        let mid = Math.floor(size / 2);
+        board[mid - 1][mid - 1] = "Black";
+        board[mid - 1][mid] = "White";
+        board[mid][mid - 1] = "White";
+        board[mid][mid] = "Black";
         return board;
     }
 
@@ -34,7 +38,7 @@ class game {
         let newCol = col + y;
         let opponent = player == "Black" ? "White" : "Black";
         let hasOpponentPiece = false;
-        while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+        while (newRow >= 0 && newRow < this.size && newCol >= 0 && newCol < this.size) {
             // Check if there is an opponent piece
             if (this.board[newRow][newCol] == opponent) {
                 hasOpponentPiece = true;
@@ -50,12 +54,14 @@ class game {
         return false;
     }
 
-    // get all valid moves for current player
+    /*
+    get all valid moves for current player
+    */
     getValidMoves(player) {
         let validMoves = [];
 
-        for (let row = 0; row < 8; row++) {
-            for (let col = 0; col < 8; col++) {
+        for (let row = 0; row < this.size; row++) {
+            for (let col = 0; col < this.size; col++) {
                 // skip cells that are non empty
                 if (this.board[row][col] != null) {
                     continue;
@@ -80,7 +86,7 @@ class game {
         let newCol = col + y;
         let opponent = player == "Black" ? "White" : "Black";
         let toFlip = [[row, col]];
-        while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+        while (newRow >= 0 && newRow < this.size && newCol >= 0 && newCol < this.size) {
             // if opponent piece, continue in direction
             if (this.board[newRow][newCol] == opponent) {
                 toFlip.push([newRow, newCol]);
@@ -110,9 +116,9 @@ class game {
         }
         // Create entirely new board
         let newBoard = []
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < this.size; i++) {
             let row = [];
-            for (let j = 0; j < 8; j++) {
+            for (let j = 0; j < this.size; j++) {
                 row.push(this.board[i][j]);
             }
             newBoard.push(row);

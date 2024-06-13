@@ -4,7 +4,8 @@ import styles from './style.module.css';
 import game from './game-logic';
 
 const Reversi = () => {
-    const [match, setMatch] = useState(new game());
+    const [boardSize, setBoardSize] = useState(8)
+    const [match, setMatch] = useState(new game(boardSize));
     const [board, setBoard] = useState(match.board);
     const [currentPlayer, setCurrentPlayer] = useState(match.currentPlayer);
     const [message, setMessage] = useState("");
@@ -81,6 +82,21 @@ const Reversi = () => {
         setWhiteTime(newTime);
     }
 
+    function handleBoardSizeChange(size) {
+        setBoardSize(size);
+        let newGame = new game(size);
+        setMatch(newGame);
+        setBoard(newGame.board);
+        setCurrentPlayer(newGame.currentPlayer);
+        setMessage("");
+        setIsGameActive(true);
+        setHasGameStarted(false);
+        const newTimer = 300;
+        setTimer(newTimer);
+        setBlackTime(newTimer);
+        setWhiteTime(newTimer);
+    }
+
     function checkStatus() {
         const result = match.checkGameStatus();
         if (result.status == 'win') {
@@ -110,7 +126,8 @@ const Reversi = () => {
     }
 
     function restartGame() {
-        let newGame = new game();
+        let newGame = new game(boardSize);
+        setBoardSize(boardSize);
         setMatch(newGame);
         setBoard(newGame.board);
         setCurrentPlayer(newGame.currentPlayer);
@@ -145,7 +162,7 @@ const Reversi = () => {
                             <p>{formatTime(whiteTime)}</p>    
                         </div>
                     </div>
-                    <div className={styles.container}>
+                    <div className={styles.container} style = {{gridTemplateRows: `repeat(${boardSize}, 1fr)`}}>
                         {match.board.map((row, rowIndex) => (
                             <div className={styles.row} key={rowIndex}>
                             {row.map((cell, colIndex) => (
@@ -175,6 +192,23 @@ const Reversi = () => {
                         : <input type="range" min="1" max="600" value={timer} className={styles.slider} onChange={handleSlider}/>
                         }
                         <p>Time: {formatTime(timer)} </p>
+                    </div>
+                    <div className={styles.gridSelection}>
+                        <div style={{color: "black", paddingBottom: "2px"}}>Change the grid size!</div>
+                        <div className={styles.gridButton}>
+                            {hasGameStarted 
+                            ? <button onClick={() => handleBoardSizeChange(6)} disabled>6x6</button>
+                            : <button onClick={() => handleBoardSizeChange(6)}>6x6</button>}
+                            {hasGameStarted 
+                            ? <button onClick={() => handleBoardSizeChange(8)} disabled>8x8</button>
+                            : <button onClick={() => handleBoardSizeChange(8)}>8x8</button>}
+                            {hasGameStarted 
+                            ? <button onClick={() => handleBoardSizeChange(10)} disabled>10x10</button>
+                            : <button onClick={() => handleBoardSizeChange(10)}>10x10</button>}
+                            {hasGameStarted 
+                            ? <button onClick={() => handleBoardSizeChange(12)} disabled>12x12</button>
+                            : <button onClick={() => handleBoardSizeChange(12)}>12x12</button>}
+                        </div>
                     </div>
                 </div>
             </div>

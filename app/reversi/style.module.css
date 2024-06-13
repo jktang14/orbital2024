@@ -83,3 +83,13 @@
     margin-left: 0.5rem;
     margin-top: 0.5rem;
 }
+
+.gridSelection {
+    margin-left: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.gridButton {
+    display: flex;
+    gap: 10px;
+}
