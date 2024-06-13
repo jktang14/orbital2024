@@ -12,7 +12,7 @@ export const createGame = async (playerId) => {
 
     await set(gameRef, {
         board : gameInstance.board,
-        players: {playerId},
+        players: {playerId: "Black"},
         moves : {}
     })
 }
