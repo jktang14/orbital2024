@@ -98,6 +98,20 @@ const Reversi = () => {
         };
     }, [isGameActive, currentPlayer]);
 
+    function convertSparseObjectTo2DArray(boardObject) {
+        const size = 8; // Assuming board size is known
+        let boardArray = Array(size).fill(null).map(() => Array(size).fill(null));
+    
+        // Iterate over keys in the boardObject and fill the boardArray
+        Object.keys(boardObject).forEach(rowIndex => {
+            Object.keys(boardObject[rowIndex]).forEach(colIndex => {
+                boardArray[parseInt(rowIndex)][parseInt(colIndex)] = boardObject[rowIndex][colIndex];
+            });
+        });
+    
+        return boardArray;
+    }
+
     const createNewGame = () => {
         const newGameRef = ref(realtimeDatabase, 'games');
         const newGameKey = push(newGameRef).key;
