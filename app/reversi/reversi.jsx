@@ -98,6 +98,17 @@ const Reversi = () => {
         };
     }, [isGameActive, currentPlayer]);
 
+    useEffect(() => {
+        const id = setInterval(() => {
+            updateGameState({blackTime: blackTime}),
+            updateGameState({whiteTime: whiteTime})
+        })
+
+        return (() => {
+            clearInterval(id);
+        })
+    }, [blackTime, whiteTime])
+
     function convertSparseObjectTo2DArray(boardObject) {
         const size = 8; // Assuming board size is known
         let boardArray = Array(size).fill(null).map(() => Array(size).fill(null));
