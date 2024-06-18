@@ -174,6 +174,13 @@ const Reversi = () => {
         }
     };
 
+    const updateGameState = (updates) => {
+        if (gameId) {
+            const gameRef = ref(realtimeDatabase, `games/${gameId}`);
+            update(gameRef, updates);
+        }
+    };
+
     function handleSlider(event) {
         const newTime = Number(event.target.value)
         setTimer(newTime);
