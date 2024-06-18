@@ -148,14 +148,13 @@ const Reversi = () => {
         if (inputGameId) {
             const gameRef = ref(realtimeDatabase, `games/${inputGameId}`);
             
-            // Try to fetch the game data to verify if the game exists
             onValue(gameRef, (snapshot) => {
                 const gameData = snapshot.val();
                 if (gameData) {
                         // Add the second player to the game
                         const updatedPlayers = {
                             ...gameData.players,
-                            white: { name: username || 'Player 2', color: "White" } // You can customize username handling here
+                            white: { name: username || 'Player 2', color: "White" }
                         };
     
                         // Update game data in Firebase
@@ -222,12 +221,17 @@ const Reversi = () => {
     function handleCellClick(rowIndex, colIndex) {
         if (!hasGameStarted) {
             setHasGameStarted(true);
+            updateGameState({ hasGameStarted: true });
         }
 
         if (isGameActive && match.isValidMove(rowIndex, colIndex)) {
             match.makeMove(rowIndex, colIndex);
             setBoard(match.board);
             setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+            updateGameState({
+                board: match.board,
+                currentPlayer: match.currentPlayer,
+            });
         }
     }
 
