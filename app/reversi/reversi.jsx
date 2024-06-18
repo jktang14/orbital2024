@@ -1,10 +1,12 @@
 "use client";
-import React, { createElement, useState, useEffect} from 'react';
+import React, { createElement, useState, useEffect, useRef} from 'react';
 import styles from './style.module.css';
 import game from './game-logic';
+import { realtimeDatabase } from '../firebase';
+import { ref, update, set, onValue, push } from 'firebase/database';
 
 const Reversi = () => {
-    const [boardSize, setBoardSize] = useState(8)
+    const [boardSize, setBoardSize] = useState(8);
     const [match, setMatch] = useState(new game(boardSize));
     const [board, setBoard] = useState(match.board);
     const [currentPlayer, setCurrentPlayer] = useState(match.currentPlayer);
@@ -15,6 +17,8 @@ const Reversi = () => {
     const [blackTime, setBlackTime] = useState(timer);
     const [whiteTime, setWhiteTime] = useState(timer);
     const [username, setUsername] = useState('');
+    const [gameId, setGameId] = useState(null);
+    const [inputGameId, setInputGameId] = useState("");
 
     useEffect(() => {
         checkStatus();
@@ -74,6 +78,38 @@ const Reversi = () => {
             clearInterval(whiteIntervalId);
         };
     }, [isGameActive, currentPlayer]);
+
+    const createNewGame = () => {
+        const newGameRef = ref(realtimeDatabase, 'games');
+        const newGameKey = push(newGameRef).key;
+
+        setGameId(newGameKey);
+        
+        const newMatch = new game(boardSize);
+
+        set(ref(realtimeDatabase, `games/${newGameKey}`), {
+            match: newMatch,
+            board: newMatch.board,
+            boardSize: boardSize,
+            currentPlayer: newMatch.currentPlayer,
+            players: {black: {name: username, color: "Black"}},
+            message: "",
+            isGameActive: true,
+            hasGameStarted: false,
+            blackTime: timer,
+            whiteTime: timer
+        });
+
+        setMatch(newMatch);
+        setBoard(newMatch.board);
+        setBoardSize(boardSize);
+        setCurrentPlayer(newMatch.currentPlayer);
+        setMessage("");
+        setIsGameActive(true);
+        setHasGameStarted(false);
+        setBlackTime(timer); 
+        setWhiteTime(timer);
+    };
 
     function handleSlider(event) {
         const newTime = Number(event.target.value)
