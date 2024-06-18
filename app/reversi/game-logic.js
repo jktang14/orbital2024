@@ -28,7 +28,7 @@ class game {
     */
     static fromData(boardSize, board, currentPlayer) {
         const gameInstance = new game(boardSize);
-        gameInstance.board = game.convertSparseObjectTo2DArray(board);
+        gameInstance.board = game.convertSparseObjectTo2DArray(board, boardSize);
         gameInstance.currentPlayer = currentPlayer;
         return gameInstance;
     }
@@ -36,8 +36,8 @@ class game {
     /*
     Converts and returns the board array from firebase's sparse object
     */
-    static convertSparseObjectTo2DArray(boardObject) {
-        const size = 8; // Assuming board size is known
+    static convertSparseObjectTo2DArray(boardObject, boardSize) {
+        const size = boardSize;
         let boardArray = Array(size).fill(null).map(() => Array(size).fill(null));
     
         // Iterate over keys in the boardObject and fill the boardArray

@@ -28,7 +28,8 @@ const Reversi = () => {
             onValue(gameRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    setBoard(convertSparseObjectTo2DArray(data.board));
+                    setBoardSize(data.boardSize);
+                    setBoard(convertSparseObjectTo2DArray(data.board, boardSize));
                     setCurrentPlayer(data.currentPlayer);
                     setMessage(data.message);
                     setIsGameActive(data.isGameActive);
@@ -111,8 +112,8 @@ const Reversi = () => {
         })
     }, [blackTime, whiteTime])
 
-    function convertSparseObjectTo2DArray(boardObject) {
-        const size = 8; // Assuming board size is known
+    function convertSparseObjectTo2DArray(boardObject, boardSize) {
+        const size = boardSize; // Assuming board size is known
         let boardArray = Array(size).fill(null).map(() => Array(size).fill(null));
     
         // Iterate over keys in the boardObject and fill the boardArray
