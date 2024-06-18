@@ -24,6 +24,23 @@ class game {
     }
 
     /*
+    Converts and returns the board array from firebase's sparse object
+    */
+    static convertSparseObjectTo2DArray(boardObject) {
+        const size = 8; // Assuming board size is known
+        let boardArray = Array(size).fill(null).map(() => Array(size).fill(null));
+    
+        // Iterate over keys in the boardObject and fill the boardArray
+        Object.keys(boardObject).forEach(rowIndex => {
+            Object.keys(boardObject[rowIndex]).forEach(colIndex => {
+                boardArray[parseInt(rowIndex)][parseInt(colIndex)] = boardObject[rowIndex][colIndex];
+            });
+        });
+    
+        return boardArray;
+    }
+
+    /*
     Returns opponent
     */
     getOpponent() {
