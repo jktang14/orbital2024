@@ -21,6 +21,25 @@ const Reversi = () => {
     const [inputGameId, setInputGameId] = useState("");
 
     useEffect(() => {
+        if (gameId) {
+            const gameRef = ref(realtimeDatabase, `games/${gameId}`);
+            onValue(gameRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    setBoard(convertSparseObjectTo2DArray(data.board));
+                    setCurrentPlayer(data.currentPlayer);
+                    setMessage(data.message);
+                    setIsGameActive(data.isGameActive);
+                    setHasGameStarted(data.hasGameStarted);
+                    setBlackTime(data.blackTime);
+                    setWhiteTime(data.whiteTime);
+                    setMatch(game.fromData(data.boardSize, data.board, data.currentPlayer));
+                }
+            });
+        }
+    }, [gameId]);
+    
+    useEffect(() => {
         checkStatus();
     }, [board]);
 
