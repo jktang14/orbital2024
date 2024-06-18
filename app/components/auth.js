@@ -35,7 +35,7 @@ export const LoginUser = async (email, password) => {
             username: username,
             email: email
           });
-        onDisconnect(userRef).remove();
+        //onDisconnect(userRef).remove();
     }
   
     return { user, username };
