@@ -4,6 +4,8 @@ import styles from './style.module.css';
 import game from './game-logic';
 import { realtimeDatabase } from '../firebase';
 import { ref, update, set, onValue, push } from 'firebase/database';
+import createNewGame from './online/create-game';
+import joinGame from './online/join-game';
 
 const Reversi = () => {
     const [boardSize, setBoardSize] = useState(8);
@@ -123,65 +125,12 @@ const Reversi = () => {
         return boardArray;
     }
 
-    const createNewGame = () => {
-        const newGameRef = ref(realtimeDatabase, 'games');
-        const newGameKey = push(newGameRef).key;
-
-        setGameId(newGameKey);
-        
-        const newMatch = new game(boardSize);
-
-        set(ref(realtimeDatabase, `games/${newGameKey}`), {
-            match: newMatch,
-            board: newMatch.board,
-            boardSize: boardSize,
-            currentPlayer: newMatch.currentPlayer,
-            players: {black: {name: username, color: "Black"}},
-            message: "",
-            isGameActive: true,
-            hasGameStarted: false,
-            blackTime: timer,
-            whiteTime: timer
-        });
-
-        setMatch(newMatch);
-        setBoard(newMatch.board);
-        setBoardSize(boardSize);
-        setCurrentPlayer(newMatch.currentPlayer);
-        setMessage("");
-        setIsGameActive(true);
-        setHasGameStarted(false);
-        setBlackTime(timer); 
-        setWhiteTime(timer);
+    const createGame = () => {
+        createNewGame(boardSize, username, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime);
     };
 
-    const joinGame = () => {
-        if (inputGameId) {
-            const gameRef = ref(realtimeDatabase, `games/${inputGameId}`);
-            
-            onValue(gameRef, (snapshot) => {
-                const gameData = snapshot.val();
-                if (gameData) {
-                        // Add the second player to the game
-                        const updatedPlayers = {
-                            ...gameData.players,
-                            white: { name: username || 'Player 2', color: "White" }
-                        };
-    
-                        // Update game data in Firebase
-                        update(gameRef, {
-                            players: updatedPlayers,
-                        });
-    
-                        // Set gameId in state to start listening for updates
-                        setGameId(inputGameId);
-                } else {
-                    alert("Game not found!");
-                }
-            });
-        } else {
-            alert("Please enter a valid Game ID!");
-        }
+    const joinCurrentGame = () => {
+        joinGame(inputGameId, username, setGameId);
     };
 
     const updateGameState = (updates) => {
@@ -336,14 +285,14 @@ const Reversi = () => {
             {message && <div className={styles.message}>{message}</div>}
             {!isGameActive && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
             <div>
-                <button onClick={createNewGame}>Create Game</button>
+                <button onClick={createGame}>Create Game</button>
                 <input 
                     type="text" 
                     placeholder="Enter Game ID" 
                     value={inputGameId} 
                     onChange={(e) => setInputGameId(e.target.value)} 
                 />
-                <button onClick={joinGame}>Join Game</button>
+                <button onClick={joinCurrentGame}>Join Game</button>
             </div>
         </div>
     );
