@@ -24,6 +24,16 @@ class game {
     }
 
     /*
+    Get an instance of game from realtime database data
+    */
+    static fromData(boardSize, board, currentPlayer) {
+        const gameInstance = new game(boardSize);
+        gameInstance.board = game.convertSparseObjectTo2DArray(board);
+        gameInstance.currentPlayer = currentPlayer;
+        return gameInstance;
+    }
+
+    /*
     Converts and returns the board array from firebase's sparse object
     */
     static convertSparseObjectTo2DArray(boardObject) {
