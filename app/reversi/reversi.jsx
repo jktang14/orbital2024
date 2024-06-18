@@ -111,6 +111,36 @@ const Reversi = () => {
         setWhiteTime(timer);
     };
 
+    const joinGame = () => {
+        if (inputGameId) {
+            const gameRef = ref(realtimeDatabase, `games/${inputGameId}`);
+            
+            // Try to fetch the game data to verify if the game exists
+            onValue(gameRef, (snapshot) => {
+                const gameData = snapshot.val();
+                if (gameData) {
+                        // Add the second player to the game
+                        const updatedPlayers = {
+                            ...gameData.players,
+                            white: { name: username || 'Player 2', color: "White" } // You can customize username handling here
+                        };
+    
+                        // Update game data in Firebase
+                        update(gameRef, {
+                            players: updatedPlayers,
+                        });
+    
+                        // Set gameId in state to start listening for updates
+                        setGameId(inputGameId);
+                } else {
+                    alert("Game not found!");
+                }
+            });
+        } else {
+            alert("Please enter a valid Game ID!");
+        }
+    };
+
     function handleSlider(event) {
         const newTime = Number(event.target.value)
         setTimer(newTime);
