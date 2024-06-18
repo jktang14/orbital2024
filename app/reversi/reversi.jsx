@@ -324,6 +324,16 @@ const Reversi = () => {
             </div>
             {message && <div className={styles.message}>{message}</div>}
             {!isGameActive && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
+            <div>
+                <button onClick={createNewGame}>Create Game</button>
+                <input 
+                    type="text" 
+                    placeholder="Enter Game ID" 
+                    value={inputGameId} 
+                    onChange={(e) => setInputGameId(e.target.value)} 
+                />
+                <button onClick={joinGame}>Join Game</button>
+            </div>
         </div>
     );
 }
