@@ -37,7 +37,7 @@ const Reversi = () => {
                     setHasGameStarted(data.hasGameStarted);
                     setBlackTime(data.blackTime);
                     setWhiteTime(data.whiteTime);
-                    setMatch(game.fromData(data.boardSize, data.board, data.currentPlayer));
+                    setMatch(game.fromData(data.boardSize, data.board, data.currentPlayer, data.players));
                 }
             });
         }
@@ -218,6 +218,10 @@ const Reversi = () => {
         return `${minutes}:${second < 10 ? `0${second}` : `${second}`}`;
     }
 
+    function opponentColor(userColor) {
+        return userColor == "Black" ? "White" : "Black";
+    }
+
     return (
         <div className={styles.body}>
             <div className={styles.enclosingContainer}>
@@ -228,7 +232,7 @@ const Reversi = () => {
                     </div>
                     <div className={styles.nameTimer}>
                         <div> 
-                            <p className ={styles.name}>{match.players.white.name} ({match.players.white.color})</p>
+                            {<p className ={styles.name}>{"white" in match.players ? match.players[userColor == "Black" ? "white" : "black"].name: "Player 2"} ({opponentColor(userColor)})</p>}
                         </div>
                         <div className={styles.timer}>
                             <p>{formatTime(whiteTime)}</p>    
@@ -251,7 +255,7 @@ const Reversi = () => {
                     </div>
                     <div className={styles.nameTimer}>
                         <div> 
-                            <p className={styles.name}>{username} ({match.players.black.color})</p>
+                            <p className={styles.name}>{username} ({userColor})</p>
                         </div>
                         <div className={styles.timer}>
                             <p>{formatTime(blackTime)}</p>    

@@ -9,6 +9,7 @@ const createNewGame = (boardSize, username, setGameId, setMatch, setBoard, setBo
     setGameId(newGameKey);
     
     const newMatch = new game(boardSize);
+    newMatch.players = {black: {name: username, color: "Black"}};
 
     set(ref(realtimeDatabase, `games/${newGameKey}`), {
         match: newMatch,

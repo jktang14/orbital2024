@@ -1,5 +1,6 @@
 import { realtimeDatabase } from "@/app/firebase";
 import { ref, update, onValue} from "firebase/database";
+import game from "../game-logic";
 
 const joinGame = (inputGameId, username, setGameId, setUserColor) => {
     if (inputGameId) {
@@ -11,12 +12,13 @@ const joinGame = (inputGameId, username, setGameId, setUserColor) => {
                 // Add the second player to the game
                 const updatedPlayers = {
                     ...gameData.players,
-                    white: { name: username || 'Player 2', color: "White" }
+                    white: { name: username, color: "White" }
                 };
 
                 // Update game data in Firebase
                 update(gameRef, {
                     players: updatedPlayers,
+                    match: game.fromData(gameData.boardSize, gameData.board, gameData.currentPlayer, updatedPlayers)
                 });
 
                 // Set user color for second player
