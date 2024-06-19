@@ -200,10 +200,6 @@ const Reversi = () => {
                 match.makeMove(rowIndex, colIndex);
                 setBoard(match.board);
                 setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
-                updateGameState({
-                    board: match.board,
-                    currentPlayer: match.currentPlayer,
-                });
             }
         }
     }
@@ -246,7 +242,7 @@ const Reversi = () => {
                             {<p className ={styles.name}>{"white" in match.players ? match.players[userColor == "Black" ? "white" : "black"].name: "Player 2"} ({opponentColor(userColor)})</p>}
                         </div>
                         <div className={styles.timer}>
-                            <p>{formatTime(whiteTime)}</p>    
+                            <p>{formatTime(userColor == "Black" ? whiteTime: blackTime)}</p>    
                         </div>
                     </div>
                     <div className={styles.container} style = {{gridTemplateRows: `repeat(${boardSize}, 1fr)`}}>
@@ -269,7 +265,7 @@ const Reversi = () => {
                             <p className={styles.name}>{username} ({userColor})</p>
                         </div>
                         <div className={styles.timer}>
-                            <p>{formatTime(blackTime)}</p>    
+                            <p>{formatTime(userColor == "Black" ? blackTime: whiteTime)}</p>    
                         </div>
                     </div>
                 </div>
