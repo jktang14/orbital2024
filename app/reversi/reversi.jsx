@@ -158,10 +158,9 @@ const Reversi = () => {
         setMessage("");
         setIsGameActive(true);
         setHasGameStarted(false);
-        const newTimer = 300;
-        setTimer(newTimer);
-        setBlackTime(newTimer);
-        setWhiteTime(newTimer);
+        setTimer(timer);
+        setBlackTime(timer);
+        setWhiteTime(timer);
     }
 
     function checkStatus() {
