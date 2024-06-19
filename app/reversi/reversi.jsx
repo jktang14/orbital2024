@@ -186,7 +186,7 @@ const Reversi = () => {
             updateGameState({ hasGameStarted: true });
         }
 
-        if (isGameActive && match.isValidMove(rowIndex, colIndex)) {
+        if (isGameActive && match.isValidMove(rowIndex, colIndex) && currentPlayer == userColor) {
             match.makeMove(rowIndex, colIndex);
             setBoard(match.board);
             setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
