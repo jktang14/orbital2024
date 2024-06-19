@@ -186,14 +186,26 @@ const Reversi = () => {
             updateGameState({ hasGameStarted: true });
         }
 
-        if (isGameActive && match.isValidMove(rowIndex, colIndex) && currentPlayer == userColor) {
-            match.makeMove(rowIndex, colIndex);
-            setBoard(match.board);
-            setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
-            updateGameState({
-                board: match.board,
-                currentPlayer: match.currentPlayer,
-            });
+        if (gameId) {
+            if (isGameActive && match.isValidMove(rowIndex, colIndex) && currentPlayer == userColor) {
+                match.makeMove(rowIndex, colIndex);
+                setBoard(match.board);
+                setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+                updateGameState({
+                    board: match.board,
+                    currentPlayer: match.currentPlayer,
+                });
+            }
+        } else {
+            if (isGameActive && match.isValidMove(rowIndex, colIndex)) {
+                match.makeMove(rowIndex, colIndex);
+                setBoard(match.board);
+                setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+                updateGameState({
+                    board: match.board,
+                    currentPlayer: match.currentPlayer,
+                });
+            }
         }
     }
 
