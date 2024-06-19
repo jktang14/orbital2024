@@ -1,7 +1,7 @@
 import { realtimeDatabase } from "@/app/firebase";
 import { ref, update, onValue} from "firebase/database";
 
-const joinGame = (inputGameId, username, setGameId) => {
+const joinGame = (inputGameId, username, setGameId, setUserColor) => {
     if (inputGameId) {
         const gameRef = ref(realtimeDatabase, `games/${inputGameId}`);
         
@@ -18,6 +18,9 @@ const joinGame = (inputGameId, username, setGameId) => {
                 update(gameRef, {
                     players: updatedPlayers,
                 });
+
+                // Set user color for second player
+                setUserColor('White');
 
                 // Set gameId in state to start listening for updates
                 setGameId(inputGameId);
