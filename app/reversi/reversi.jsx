@@ -12,6 +12,7 @@ const Reversi = () => {
     const [match, setMatch] = useState(new game(boardSize));
     const [board, setBoard] = useState(match.board);
     const [currentPlayer, setCurrentPlayer] = useState(match.currentPlayer);
+    const [userColor, setUserColor] = useState(match.currentPlayer);
     const [message, setMessage] = useState("");
     const [isGameActive, setIsGameActive] = useState(true);
     const [hasGameStarted, setHasGameStarted] = useState(false);
@@ -131,7 +132,7 @@ const Reversi = () => {
     };
 
     const joinCurrentGame = () => {
-        joinGame(inputGameId, username, setGameId);
+        joinGame(inputGameId, username, setGameId, setUserColor);
     };
 
     const updateGameState = (updates) => {
@@ -240,7 +241,9 @@ const Reversi = () => {
                                 <div className={styles.cell} key={colIndex} onClick={() => handleCellClick(rowIndex, colIndex)}>
                                     {cell == 'Black' && <img className={styles.image} src="black.png" alt="Black piece" />}
                                     {cell == 'White' && <img className={styles.image} src="white.png" alt="White piece" />}
-                                    {match.isValidMove(rowIndex, colIndex) && <div className={styles.validMoveIndicator}></div>}
+                                    {gameId
+                                    ? (currentPlayer == userColor && match.isValidMove(rowIndex, colIndex)) && <div className={styles.validMoveIndicator}></div>
+                                    : match.isValidMove(rowIndex, colIndex) && <div className={styles.validMoveIndicator}></div>}
                                 </div>
                             ))}
                             </div>
