@@ -1,10 +1,19 @@
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { collection, query, doc, setDoc, getDoc, getDocs, where} from 'firebase/firestore';
 import { auth, db, realtimeDatabase} from '../firebase';
 import { onDisconnect, ref, set } from "firebase/database";
 
 // User sign up with email, password and username
 export const SignUpUser = async (email, password, username) => {
+    // Check if username exists
+    const q = query(collection(db, 'users'), where('username', '==', username));
+    const querySnapshot = await getDocs(q);
+    
+    // username exists in query
+    if (!querySnapshot.empty) {
+        throw new Error('username-already-exists');
+    }
+
     let userCredential = await createUserWithEmailAndPassword(auth, email, password);
     // User signed up
     let user = userCredential.user;

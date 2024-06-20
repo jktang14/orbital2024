@@ -35,8 +35,10 @@ function Registration() {
                 setError('Invalid email format!')
             } else if (errorCode == 'auth/missing-password') {
                 setError('No password inputted!');
+            } else if (error.message == 'username-already-exists'){
+                setError('Username is in use!');
             } else {
-                setError('');
+                setError(errorCode);
             }
             
         }
