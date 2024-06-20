@@ -1,13 +1,18 @@
 "use client";
-import React, { createElement, useState, useEffect} from 'react';
+import React, { createElement, useState, useEffect, useRef} from 'react';
 import styles from './style.module.css';
 import game from './game-logic';
+import { realtimeDatabase } from '../firebase';
+import { ref, update, set, onValue, push } from 'firebase/database';
+import createNewGame from './online/create-game';
+import joinGame from './online/join-game';
 
 const Reversi = () => {
-    const [boardSize, setBoardSize] = useState(8)
+    const [boardSize, setBoardSize] = useState(8);
     const [match, setMatch] = useState(new game(boardSize));
     const [board, setBoard] = useState(match.board);
     const [currentPlayer, setCurrentPlayer] = useState(match.currentPlayer);
+    const [userColor, setUserColor] = useState(match.currentPlayer);
     const [message, setMessage] = useState("");
     const [isGameActive, setIsGameActive] = useState(true);
     const [hasGameStarted, setHasGameStarted] = useState(false);
@@ -15,10 +20,45 @@ const Reversi = () => {
     const [blackTime, setBlackTime] = useState(timer);
     const [whiteTime, setWhiteTime] = useState(timer);
     const [username, setUsername] = useState('');
+    const [gameId, setGameId] = useState(null);
+    const [inputGameId, setInputGameId] = useState("");
 
+    const setMessageWrapper = (msg) => {
+        console.log('Setting message:', msg);
+        setMessage(msg);
+    };
+    
     useEffect(() => {
+        if (gameId) {
+            const gameRef = ref(realtimeDatabase, `games/${gameId}`);
+            onValue(gameRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    console.log('Data from database:', data);
+                    setBoardSize(data.boardSize);
+                    setBoard(convertSparseObjectTo2DArray(data.board, boardSize));
+                    setCurrentPlayer(data.currentPlayer);
+                    //setMessage(data.message);
+                    setMessageWrapper(data.message); // Use wrapper
+                    console.log('Message after setMessage:', data.message);
+                    setIsGameActive(data.isGameActive);
+                    setHasGameStarted(data.hasGameStarted);
+                    setBlackTime(data.blackTime);
+                    setWhiteTime(data.whiteTime);
+                    setMatch(game.fromData(data.boardSize, data.board, data.currentPlayer, data.players));
+                }
+            });
+        }
+    }, [gameId]);
+    
+    useEffect(() => {
+        console.log('Board useEffect');
         checkStatus();
     }, [board]);
+
+    useEffect(() => {
+        console.log('Updated message state:', message);
+    }, [message]);
 
     useEffect(() => {
         // Check if window and localStorage are available
@@ -49,8 +89,10 @@ const Reversi = () => {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, 0);
                     if (currTime == 0) {
-                        setMessage(`${currentPlayer} has run out of time, ${match.getOpponent()} wins!`)
+                        const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
+                        setMessage(text);
                         setIsGameActive(false);
+                        updateGameState({message: text, isGameActive: false});
                         clearInterval(blackIntervalId);
                     }
                     return currTime;
@@ -61,8 +103,10 @@ const Reversi = () => {
                 setWhiteTime(prev => {
                     let currTime = Math.max(prev - 1, 0);
                     if (currTime == 0) {
-                        setMessage(`${currentPlayer} has run out of time, ${match.getOpponent()} wins!`)
+                        const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
+                        setMessage(text);
                         setIsGameActive(false);
+                        updateGameState({message: text, isGameActive: false});
                         clearInterval(whiteIntervalId);
                     }
                     return currTime;
@@ -74,6 +118,47 @@ const Reversi = () => {
             clearInterval(whiteIntervalId);
         };
     }, [isGameActive, currentPlayer]);
+
+    useEffect(() => {
+        if (gameId) {
+            const id = setInterval(() => {
+                updateGameState({blackTime: blackTime}),
+                updateGameState({whiteTime: whiteTime})
+            })
+            return (() => {
+                clearInterval(id);
+            })
+        }
+    }, [gameId, blackTime, whiteTime])
+
+    function convertSparseObjectTo2DArray(boardObject, boardSize) {
+        const size = boardSize; // Assuming board size is known
+        let boardArray = Array(size).fill(null).map(() => Array(size).fill(null));
+    
+        // Iterate over keys in the boardObject and fill the boardArray
+        Object.keys(boardObject).forEach(rowIndex => {
+            Object.keys(boardObject[rowIndex]).forEach(colIndex => {
+                boardArray[parseInt(rowIndex)][parseInt(colIndex)] = boardObject[rowIndex][colIndex];
+            });
+        });
+    
+        return boardArray;
+    }
+
+    const createGame = () => {
+        createNewGame(boardSize, username, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime);
+    };
+
+    const joinCurrentGame = () => {
+        joinGame(inputGameId, username, setGameId, setUserColor);
+    };
+
+    const updateGameState = (updates) => {
+        if (gameId) {
+            const gameRef = ref(realtimeDatabase, `games/${gameId}`);
+            update(gameRef, updates);
+        }
+    };
 
     function handleSlider(event) {
         const newTime = Number(event.target.value)
@@ -91,37 +176,63 @@ const Reversi = () => {
         setMessage("");
         setIsGameActive(true);
         setHasGameStarted(false);
-        const newTimer = 300;
-        setTimer(newTimer);
-        setBlackTime(newTimer);
-        setWhiteTime(newTimer);
+        setTimer(timer);
+        setBlackTime(timer);
+        setWhiteTime(timer);
     }
 
     function checkStatus() {
         const result = match.checkGameStatus();
         if (result.status == 'win') {
-            setMessage(`${result.winner} wins!`);
+            const text = `${result.winner} wins!`;
+            setMessage(text);
             setIsGameActive(false);
+            updateGameState({
+                message: text,
+                isGameActive: false
+            });
         } else if (result.status == 'draw') {
-            setMessage('The game is a draw!');
+            const text = 'The game is a draw!';
+            setMessage(text);
             setIsGameActive(false);
+            updateGameState({
+                message: text,
+                isGameActive: false
+            });
         } else if (result.status == 'skip') {
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
+            updateGameState({
+                message: result.message,
+                currentPlayer: match.currentPlayer
+            });
         } else {
-            setMessage("");
+            setMessage(message);
         }
     }
 
     function handleCellClick(rowIndex, colIndex) {
         if (!hasGameStarted) {
             setHasGameStarted(true);
+            updateGameState({ hasGameStarted: true });
         }
 
-        if (isGameActive && match.isValidMove(rowIndex, colIndex)) {
-            match.makeMove(rowIndex, colIndex);
-            setBoard(match.board);
-            setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+        if (gameId) {
+            if (isGameActive && match.isValidMove(rowIndex, colIndex) && currentPlayer == userColor) {
+                match.makeMove(rowIndex, colIndex);
+                setBoard(match.board);
+                setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+                updateGameState({
+                    board: match.board,
+                    currentPlayer: match.currentPlayer,
+                });
+            }
+        } else {
+            if (isGameActive && match.isValidMove(rowIndex, colIndex)) {
+                match.makeMove(rowIndex, colIndex);
+                setBoard(match.board);
+                setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+            }
         }
     }
 
@@ -146,6 +257,10 @@ const Reversi = () => {
         return `${minutes}:${second < 10 ? `0${second}` : `${second}`}`;
     }
 
+    function opponentColor(userColor) {
+        return userColor == "Black" ? "White" : "Black";
+    }
+
     return (
         <div className={styles.body}>
             <div className={styles.enclosingContainer}>
@@ -156,10 +271,10 @@ const Reversi = () => {
                     </div>
                     <div className={styles.nameTimer}>
                         <div> 
-                            <p className ={styles.name}>{match.players.white.name} ({match.players.white.color})</p>
+                            {<p className ={styles.name}>{"white" in match.players ? match.players[userColor == "Black" ? "white" : "black"].name: "Player 2"} ({opponentColor(userColor)})</p>}
                         </div>
                         <div className={styles.timer}>
-                            <p>{formatTime(whiteTime)}</p>    
+                            <p>{formatTime(userColor == "Black" ? whiteTime: blackTime)}</p>    
                         </div>
                     </div>
                     <div className={styles.container} style = {{gridTemplateRows: `repeat(${boardSize}, 1fr)`}}>
@@ -169,7 +284,9 @@ const Reversi = () => {
                                 <div className={styles.cell} key={colIndex} onClick={() => handleCellClick(rowIndex, colIndex)}>
                                     {cell == 'Black' && <img className={styles.image} src="black.png" alt="Black piece" />}
                                     {cell == 'White' && <img className={styles.image} src="white.png" alt="White piece" />}
-                                    {match.isValidMove(rowIndex, colIndex) && <div className={styles.validMoveIndicator}></div>}
+                                    {gameId
+                                    ? (currentPlayer == userColor && match.isValidMove(rowIndex, colIndex)) && <div className={styles.validMoveIndicator}></div>
+                                    : match.isValidMove(rowIndex, colIndex) && <div className={styles.validMoveIndicator}></div>}
                                 </div>
                             ))}
                             </div>
@@ -177,10 +294,10 @@ const Reversi = () => {
                     </div>
                     <div className={styles.nameTimer}>
                         <div> 
-                            <p className={styles.name}>{username} ({match.players.black.color})</p>
+                            <p className={styles.name}>{username} ({userColor})</p>
                         </div>
                         <div className={styles.timer}>
-                            <p>{formatTime(blackTime)}</p>    
+                            <p>{formatTime(userColor == "Black" ? blackTime: whiteTime)}</p>    
                         </div>
                     </div>
                 </div>
@@ -214,6 +331,16 @@ const Reversi = () => {
             </div>
             {message && <div className={styles.message}>{message}</div>}
             {!isGameActive && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
+            <div>
+                <button onClick={createGame}>Create Game</button>
+                <input 
+                    type="text" 
+                    placeholder="Enter Game ID" 
+                    value={inputGameId} 
+                    onChange={(e) => setInputGameId(e.target.value)} 
+                />
+                <button onClick={joinCurrentGame}>Join Game</button>
+            </div>
         </div>
     );
 }
