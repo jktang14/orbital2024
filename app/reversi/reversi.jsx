@@ -184,14 +184,28 @@ const Reversi = () => {
     function checkStatus() {
         const result = match.checkGameStatus();
         if (result.status == 'win') {
-            setMessage(`${result.winner} wins!`);
+            const text = `${result.winner} wins!`;
+            setMessage(text);
             setIsGameActive(false);
+            updateGameState({
+                message: text,
+                isGameActive: false
+            });
         } else if (result.status == 'draw') {
-            setMessage('The game is a draw!');
+            const text = 'The game is a draw!';
+            setMessage(text);
             setIsGameActive(false);
+            updateGameState({
+                message: text,
+                isGameActive: false
+            });
         } else if (result.status == 'skip') {
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
+            updateGameState({
+                message: result.message,
+                currentPlayer: match.currentPlayer
+            });
         } else {
             setMessage(message);
         }
