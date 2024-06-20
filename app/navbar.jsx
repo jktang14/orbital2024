@@ -11,6 +11,7 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
+import { useRouter } from 'next/navigation';
 
 const pages = ['Cosmetics', 'Friends'];
 const settings = ['Profile', 'Logout'];
@@ -19,6 +20,7 @@ function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [username, setUsername] =   React.useState('');
+  const router = useRouter();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -33,6 +35,15 @@ function ResponsiveAppBar() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+
+  const handleNavigation = (path) => {
+    router.push(path);
+  }
+
+  const handleMenuItemClick = (page) => {
+    handleCloseNavMenu();
+    handleNavigation(`/${page.toLowerCase()}`);
   };
 
   React.useEffect(() => {
@@ -65,7 +76,7 @@ function ResponsiveAppBar() {
           >
             ReversiPlus
           </Typography>
-
+          {/* Mobile view menu */}
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
               size="large"
@@ -95,12 +106,13 @@ function ResponsiveAppBar() {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <MenuItem key={page} onClick={() => handleMenuItemClick(page)}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
+          {/* Desktop view menu */}
           <Typography
             variant="h5"
             noWrap
@@ -123,14 +135,14 @@ function ResponsiveAppBar() {
             {pages.map((page) => (
               <Button
                 key={page}
-                onClick={handleCloseNavMenu}
+                onClick={() => handleMenuItemClick(page)}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
                 {page}
               </Button>
             ))}
           </Box>
-
+          {/* User menu */}
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
