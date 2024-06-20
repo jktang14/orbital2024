@@ -23,16 +23,24 @@ const Reversi = () => {
     const [gameId, setGameId] = useState(null);
     const [inputGameId, setInputGameId] = useState("");
 
+    const setMessageWrapper = (msg) => {
+        console.log('Setting message:', msg);
+        setMessage(msg);
+    };
+    
     useEffect(() => {
         if (gameId) {
             const gameRef = ref(realtimeDatabase, `games/${gameId}`);
             onValue(gameRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
+                    console.log('Data from database:', data);
                     setBoardSize(data.boardSize);
                     setBoard(convertSparseObjectTo2DArray(data.board, boardSize));
                     setCurrentPlayer(data.currentPlayer);
-                    setMessage(data.message);
+                    //setMessage(data.message);
+                    setMessageWrapper(data.message); // Use wrapper
+                    console.log('Message after setMessage:', data.message);
                     setIsGameActive(data.isGameActive);
                     setHasGameStarted(data.hasGameStarted);
                     setBlackTime(data.blackTime);
@@ -44,8 +52,13 @@ const Reversi = () => {
     }, [gameId]);
     
     useEffect(() => {
+        console.log('Board useEffect');
         checkStatus();
     }, [board]);
+
+    useEffect(() => {
+        console.log('Updated message state:', message);
+    }, [message]);
 
     useEffect(() => {
         // Check if window and localStorage are available
@@ -76,8 +89,10 @@ const Reversi = () => {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, 0);
                     if (currTime == 0) {
-                        setMessage(`${currentPlayer} has run out of time, ${match.getOpponent()} wins!`)
+                        const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
+                        setMessage(text);
                         setIsGameActive(false);
+                        updateGameState({message: text, isGameActive: false});
                         clearInterval(blackIntervalId);
                     }
                     return currTime;
@@ -88,8 +103,10 @@ const Reversi = () => {
                 setWhiteTime(prev => {
                     let currTime = Math.max(prev - 1, 0);
                     if (currTime == 0) {
-                        setMessage(`${currentPlayer} has run out of time, ${match.getOpponent()} wins!`)
+                        const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
+                        setMessage(text);
                         setIsGameActive(false);
+                        updateGameState({message: text, isGameActive: false});
                         clearInterval(whiteIntervalId);
                     }
                     return currTime;
@@ -103,15 +120,16 @@ const Reversi = () => {
     }, [isGameActive, currentPlayer]);
 
     useEffect(() => {
-        const id = setInterval(() => {
-            updateGameState({blackTime: blackTime}),
-            updateGameState({whiteTime: whiteTime})
-        })
-
-        return (() => {
-            clearInterval(id);
-        })
-    }, [blackTime, whiteTime])
+        if (gameId) {
+            const id = setInterval(() => {
+                updateGameState({blackTime: blackTime}),
+                updateGameState({whiteTime: whiteTime})
+            })
+            return (() => {
+                clearInterval(id);
+            })
+        }
+    }, [gameId, blackTime, whiteTime])
 
     function convertSparseObjectTo2DArray(boardObject, boardSize) {
         const size = boardSize; // Assuming board size is known
@@ -175,7 +193,7 @@ const Reversi = () => {
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
         } else {
-            setMessage("");
+            setMessage(message);
         }
     }
 
