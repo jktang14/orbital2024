@@ -11,7 +11,7 @@ const updateStatus = (userId, status) => {
     });
 };
 
-const handlePathChange = () => {
+const HandlePathChange = () => {
     const pathname = usePathname();
 
     useEffect(() => {
@@ -25,4 +25,4 @@ const handlePathChange = () => {
     }, [pathname]);
 }
 
-export { handlePathChange, updateStatus};
+export { HandlePathChange, updateStatus};
