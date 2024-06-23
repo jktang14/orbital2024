@@ -22,11 +22,6 @@ const Reversi = () => {
     const [username, setUsername] = useState('');
     const [gameId, setGameId] = useState(null);
     const [inputGameId, setInputGameId] = useState("");
-
-    const setMessageWrapper = (msg) => {
-        console.log('Setting message:', msg);
-        setMessage(msg);
-    };
     
     useEffect(() => {
         if (gameId) {
@@ -34,13 +29,9 @@ const Reversi = () => {
             onValue(gameRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    console.log('Data from database:', data);
                     setBoardSize(data.boardSize);
                     setBoard(convertSparseObjectTo2DArray(data.board, boardSize));
                     setCurrentPlayer(data.currentPlayer);
-                    //setMessage(data.message);
-                    setMessageWrapper(data.message); // Use wrapper
-                    console.log('Message after setMessage:', data.message);
                     setIsGameActive(data.isGameActive);
                     setHasGameStarted(data.hasGameStarted);
                     setBlackTime(data.blackTime);
@@ -52,12 +43,10 @@ const Reversi = () => {
     }, [gameId]);
     
     useEffect(() => {
-        console.log('Board useEffect');
         checkStatus();
     }, [board]);
 
     useEffect(() => {
-        console.log('Updated message state:', message);
     }, [message]);
 
     useEffect(() => {
