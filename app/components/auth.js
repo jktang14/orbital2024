@@ -1,7 +1,7 @@
-import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, onAuthStateChanged, sendEmailVerification, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { collection, query, doc, setDoc, getDoc, getDocs, where} from 'firebase/firestore';
 import { auth, db, realtimeDatabase} from '../firebase';
-import { onDisconnect, ref, set } from "firebase/database";
+import { ref, set, get, update } from "firebase/database";
 
 // User sign up with email, password and username
 export const SignUpUser = async (email, password, username) => {
@@ -28,6 +28,8 @@ export const SignUpUser = async (email, password, username) => {
         friends: []
     });
 
+    await signOut(auth);
+
     return user;
 };
 
@@ -46,9 +48,9 @@ export const LoginUser = async (email, password) => {
         userRef = ref(realtimeDatabase, 'users/' + user.uid)
         await set(userRef, {
             username: username,
-            email: email
-          });
-        //onDisconnect(userRef).remove();
+            email: email,
+            status: "online"
+        });
     }
   
     return { user, username };
