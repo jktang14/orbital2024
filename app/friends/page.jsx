@@ -72,7 +72,7 @@ const FriendsList = () => {
                 <ul>
                     {friends.map(friend => (
                         <li key = {friend} className={styles.listItem}>
-                            {friend}
+                            {friend.username} {friend.status}
                         </li>
                     ))}
                 </ul>
