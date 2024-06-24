@@ -22,10 +22,11 @@ export const SignUpUser = async (email, password, username) => {
     await sendEmailVerification(user);
 
     // Add a new document to 'users' collection
-    // Each userid has property username, friends array
+    // Each userid has property username, friends array, friendRequests array
     await setDoc(doc(db, 'users', user.uid), { 
         username: username,
-        friends: []
+        friends: [],
+        friendRequests: []
     });
 
     await signOut(auth);
