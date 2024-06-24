@@ -6,6 +6,7 @@ import { query, collection, where, getDocs, updateDoc, doc, onSnapshot} from "fi
 import { realtimeDatabase } from "../firebase";
 import { onValue, ref } from "firebase/database";
 import { GetFriends } from "../components/get-friends";
+import { InviteFriend } from "../components/invite-friend";
 
 const FriendsList = () => {
     const [friends, setFriends] = useState([]);
@@ -75,13 +76,14 @@ const FriendsList = () => {
         <div className={styles.body}>
             <div className={styles.friendsList}>
                 <h1 style = {{margin: 0}}>Friends List</h1>
-                <form className={styles.form}> 
+                <form className={styles.form} onSubmit={() => InviteFriend(username, searchUsername)}> 
                     <input 
                         type="text" 
                         onChange={(e) => setSearchUsername(e.target.value)}
                         value = {searchUsername}
                         placeholder="Search for username"
                     />
+                    <button type="submit">Add user</button>
                 </form>
                 <ul>
                     {Array.isArray(friends) && friends.map(friend => (
