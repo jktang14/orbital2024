@@ -11,6 +11,7 @@ const FriendsList = () => {
     const [friends, setFriends] = useState([]);
     const [username, setUsername] = useState('');
     const [searchUsername, setSearchUsername] = useState('');
+    const [friendRequests, setFriendRequests] = useState([]);
 
     useEffect(() => {
         // Check if window and localStorage are available
@@ -24,26 +25,23 @@ const FriendsList = () => {
 
     // useEffect to check for updates in friends list
     useEffect(() => {
-        console.log(Array.isArray(friends));
         const handleFriendsUpdates = async () => {
             if (username) {
-                if (friends.length == 0) {
+                const q = query(collection(db, 'users'), where('username', '==', username));
+                const querySnapshot = await getDocs(q);
+                const userId = querySnapshot.docs[0].id;
+                const userDoc = doc(db, 'users', userId);
+        
+                const unsubscribe = onSnapshot(userDoc, async (doc) => {
+                    const userData = doc.data();
                     const userFriends = await GetFriends(username);
                     if (Array.isArray(userFriends)) {
+                        setFriends(userFriends);
+                        setFriendRequests(userData.friendRequests);
                     }
-                } else {
-                    const q = query(collection(db, 'users'), where('username', '==', username));
-                    const querySnapshot = await getDocs(q);
-                    const userId = querySnapshot.docs[0].id;
-                    const userDoc = doc(db, 'users', userId);
+                })
         
-                    const unsubscribe = onSnapshot(userDoc, (doc) => {
-                        const userData = doc.data();
-                        setFriends(userData.friends);
-                    })
-        
-                    return () => unsubscribe();
-                }
+                return () => unsubscribe();
             } else {
                 console.log("Error");
             }
