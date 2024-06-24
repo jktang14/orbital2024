@@ -4,6 +4,7 @@ import styles from './style.module.css';
 import { db } from "../firebase";
 import { query, collection, where, getDocs, updateDoc, doc, onSnapshot} from "firebase/firestore";
 import { realtimeDatabase } from "../firebase";
+import { onValue, ref } from "firebase/database";
 import { GetFriends } from "../components/get-friends";
 
 const FriendsList = () => {
@@ -44,17 +45,37 @@ const FriendsList = () => {
         handleFriendsUpdates();
     }, [username])
 
-    //Each friend has 
+    //Check for status updates
+    useEffect(() => {   
+        const friendsStatusListener = friends.map(async friend => {
+            const q = query(collection(db, 'users'), where('username', '==', friend.username));
+            const querySnapshot = await getDocs(q);
+            const userId = querySnapshot.docs[0].id;
+            const onlineStatusRef = ref(realtimeDatabase, `users/${userId}`);
+            return onValue(onlineStatusRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    setFriends(prevFriends => prevFriends.map(f => f.username == friend.username ? {username: f.username, status: data.status} : f))
+                }
+            })
+        })
+
+        return () => {
+            friendsStatusListener.forEach(listener => off(listener));
+        };
+    }, [friends])
     
     return (
         <div className={styles.body}>
             <div className={styles.friendsList}>
                 <h1 style = {{margin: 0}}>Friends List</h1>
-                {friends.map(friend => (
-                    <li key = {friend} className={styles.listItem}>
-                        {friend}
-                    </li>
-                ))}
+                <ul>
+                    {friends.map(friend => (
+                        <li key = {friend} className={styles.listItem}>
+                            {friend}
+                        </li>
+                    ))}
+                </ul>
             </div>
         </div>
     )
