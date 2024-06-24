@@ -1,5 +1,5 @@
 import { db } from "../firebase";
-import { query, collection, where, getDocs, updateDoc, doc, arrayUnion} from "firebase/firestore";
+import { query, collection, where, getDocs, updateDoc, doc, arrayUnion, arrayRemove} from "firebase/firestore";
 
 export const AddFriend = async (username, friendName) => {
     // Check if friendName exists in database
@@ -25,6 +25,13 @@ export const AddFriend = async (username, friendName) => {
 
     // Update friend's friend array
     const friendRef = doc(db, 'users', friendId);
+    const friendRequestList = querySnapshot.docs[0].data().friendRequests;
+    if (friendRequestList.length != 0) {
+        await updateDoc(friendRef, {
+            friendRequests: arrayRemove(username)
+        })
+    }
+
     await updateDoc(friendRef, {
         friends: arrayUnion(username)
     })
