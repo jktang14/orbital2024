@@ -8,8 +8,9 @@ import { onValue, ref } from "firebase/database";
 import { GetFriends } from "../components/get-friends";
 
 const FriendsList = () => {
-    const [friends, setFriends] = useState(GetFriends());
+    const [friends, setFriends] = useState([]);
     const [username, setUsername] = useState('');
+    const [searchUsername, setSearchUsername] = useState('');
 
     useEffect(() => {
         // Check if window and localStorage are available
@@ -23,21 +24,26 @@ const FriendsList = () => {
 
     // useEffect to check for updates in friends list
     useEffect(() => {
+        console.log(Array.isArray(friends));
         const handleFriendsUpdates = async () => {
-            console.log(username)
             if (username) {
-                const q = query(collection(db, 'users'), where('username', '==', username));
-                const querySnapshot = await getDocs(q);
-    
-                const userId = querySnapshot.docs[0].id;
-                const userDoc = doc(db, 'users', userId);
-    
-                const unsubscribe = onSnapshot(userDoc, (doc) => {
-                    const userData = doc.data();
-                    setFriends(userData.friends)
-                })
-    
-                return () => unsubscribe();
+                if (friends.length == 0) {
+                    const userFriends = await GetFriends(username);
+                    if (Array.isArray(userFriends)) {
+                    }
+                } else {
+                    const q = query(collection(db, 'users'), where('username', '==', username));
+                    const querySnapshot = await getDocs(q);
+                    const userId = querySnapshot.docs[0].id;
+                    const userDoc = doc(db, 'users', userId);
+        
+                    const unsubscribe = onSnapshot(userDoc, (doc) => {
+                        const userData = doc.data();
+                        setFriends(userData.friends);
+                    })
+        
+                    return () => unsubscribe();
+                }
             } else {
                 console.log("Error");
             }
@@ -47,30 +53,40 @@ const FriendsList = () => {
 
     //Check for status updates
     useEffect(() => {   
-        const friendsStatusListener = friends.map(async friend => {
-            const q = query(collection(db, 'users'), where('username', '==', friend.username));
-            const querySnapshot = await getDocs(q);
-            const userId = querySnapshot.docs[0].id;
-            const onlineStatusRef = ref(realtimeDatabase, `users/${userId}`);
-            return onValue(onlineStatusRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    setFriends(prevFriends => prevFriends.map(f => f.username == friend.username ? {username: f.username, status: data.status} : f))
-                }
+        if (Array.isArray(friends)) {
+            const friendsStatusListener = friends.map(async friend => {
+                const q = query(collection(db, 'users'), where('username', '==', friend.username));
+                const querySnapshot = await getDocs(q);
+                const userId = querySnapshot.docs[0].id;
+                const onlineStatusRef = ref(realtimeDatabase, `users/${userId}`);
+                return onValue(onlineStatusRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        setFriends(prevFriends => prevFriends.map(f => f.username == friend.username ? {username: f.username, status: data.status} : f))
+                    }
+                })
             })
-        })
 
-        return () => {
-            friendsStatusListener.forEach(listener => off(listener));
-        };
+            return () => {
+                friendsStatusListener.forEach(listener => off(listener));
+            };
+        }
     }, [friends])
     
     return (
         <div className={styles.body}>
             <div className={styles.friendsList}>
                 <h1 style = {{margin: 0}}>Friends List</h1>
+                <form className={styles.form}> 
+                    <input 
+                        type="text" 
+                        onChange={(e) => setSearchUsername(e.target.value)}
+                        value = {searchUsername}
+                        placeholder="Search for username"
+                    />
+                </form>
                 <ul>
-                    {friends.map(friend => (
+                    {Array.isArray(friends) && friends.map(friend => (
                         <li key = {friend} className={styles.listItem}>
                             {friend.username} {friend.status}
                         </li>
