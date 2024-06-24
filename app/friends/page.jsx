@@ -2,11 +2,12 @@
 import {React, useEffect, useState} from "react";
 import styles from './style.module.css';
 import { db } from "../firebase";
-import { query, collection, where, getDocs, updateDoc, doc, onSnapshot} from "firebase/firestore";
+import { query, collection, where, getDocs, updateDoc, doc, onSnapshot, arrayRemove} from "firebase/firestore";
 import { realtimeDatabase } from "../firebase";
 import { onValue, ref } from "firebase/database";
 import { GetFriends } from "../components/get-friends";
 import { InviteFriend } from "../components/invite-friend";
+import { AddFriend } from "../components/add-friend";
 
 const FriendsList = () => {
     const [friends, setFriends] = useState([]);
@@ -71,6 +72,18 @@ const FriendsList = () => {
             };
         }
     }, [friends])
+
+    const handleDeclineInvite = async (friend) => {
+        // Remove friend from friendRequests
+        const q = query(collection(db, 'users'), where('username', '==', username));
+        const querySnapshot = await getDocs(q);
+        const userId = querySnapshot.docs[0].id;
+        const userDoc = doc(db, 'users', userId);
+
+        await updateDoc(userDoc, {
+            friendRequests: arrayUnion(friend)
+        })
+    }
     
     return (
         <div className={styles.body}>
@@ -92,6 +105,19 @@ const FriendsList = () => {
                         </li>
                     ))}
                 </ul>
+            </div>
+
+            <div className={styles.friendRequests}>
+                <ul>
+                    {Array.isArray(friendRequests) && friendRequests.map(request => (
+                        <li key={request}>
+                            {request}
+                            <button onClick={() => AddFriend(username, request)}>Accept</button>
+                            <button onClick={() => handleDeclineInvite(request)}>Decline</button>
+                        </li>
+                    ))}
+                </ul>
+                
             </div>
         </div>
     )
