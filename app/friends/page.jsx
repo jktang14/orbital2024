@@ -8,7 +8,7 @@ import { onValue, ref } from "firebase/database";
 import { GetFriends } from "../components/get-friends";
 
 const FriendsList = () => {
-    const [friends, setFriends] = useState([]);
+    const [friends, setFriends] = useState(GetFriends());
     const [username, setUsername] = useState('');
 
     useEffect(() => {
