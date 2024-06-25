@@ -2,7 +2,7 @@ import { realtimeDatabase } from "@/app/firebase";
 import game from "../game-logic";
 import { ref, push, set } from "firebase/database";
 
-const createNewGame = (boardSize, username, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime) => {
+const createNewGame = (boardSize, username, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime) => {
     const newGameRef = ref(realtimeDatabase, 'games');
     const newGameKey = push(newGameRef).key;
 
@@ -13,6 +13,7 @@ const createNewGame = (boardSize, username, setGameId, setMatch, setBoard, setBo
 
     set(ref(realtimeDatabase, `games/${newGameKey}`), {
         match: newMatch,
+        status: "online",
         board: newMatch.board,
         boardSize: boardSize,
         currentPlayer: newMatch.currentPlayer,
@@ -25,14 +26,17 @@ const createNewGame = (boardSize, username, setGameId, setMatch, setBoard, setBo
     });
 
     setMatch(newMatch);
+    setStatus('online');
     setBoard(newMatch.board);
     setBoardSize(boardSize);
     setCurrentPlayer(newMatch.currentPlayer);
     setMessage("");
     setIsGameActive(true);
     setHasGameStarted(false);
-    setBlackTime(timer); 
+    setBlackTime(timer);
     setWhiteTime(timer);
+
+    return newGameKey;
 };
 
 export default createNewGame;
