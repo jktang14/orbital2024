@@ -16,7 +16,7 @@ const HandlePathChange = () => {
 
     useEffect(() => {
         if (auth.currentUser) {
-            if (pathname == '/game') {
+            if (pathname == '/game' || pathname == '/friends') {
                 updateStatus(auth.currentUser.uid, 'online');
             } else {
                 updateStatus(auth.currentUser.uid, 'offline');
