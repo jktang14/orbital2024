@@ -26,7 +26,8 @@ export const SignUpUser = async (email, password, username) => {
     await setDoc(doc(db, 'users', user.uid), { 
         username: username,
         friends: [],
-        friendRequests: []
+        friendRequests: [],
+        gameRequests: []
     });
 
     await signOut(auth);
