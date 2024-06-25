@@ -9,12 +9,14 @@ import { GetFriends } from "../components/get-friends";
 import { InviteFriend } from "../components/invite-friend";
 import { AddFriend } from "../components/add-friend";
 import { RemoveFriend } from "../components/remove-friend";
+import { useRouter } from "next/navigation";
 
 const FriendsList = () => {
     const [friends, setFriends] = useState([]);
     const [username, setUsername] = useState('');
     const [searchUsername, setSearchUsername] = useState('');
     const [friendRequests, setFriendRequests] = useState([]);
+    const router = useRouter();
 
     useEffect(() => {
         // Check if window and localStorage are available
@@ -108,6 +110,10 @@ const FriendsList = () => {
         }
     }
 
+    const handlePlay = () => {
+        router.push('../game');
+    }
+
     return (
         <div className={styles.body}>
             <div className={styles.friendsList}>
@@ -128,6 +134,7 @@ const FriendsList = () => {
                             <div>
                                 Status: {friend.status}
                                 <button onClick={() => handleRemoveFriend(username, friend.username)}>Remove friend</button>
+                                <button onClick={handlePlay}>Play</button>
                             </div>
                         </li>
                     ))}
