@@ -13,7 +13,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { useRouter } from 'next/navigation';
 
-const pages = ['Cosmetics', 'Friends'];
+const pages = ['Cosmetics', 'Friends', 'Game requests'];
 const settings = ['Profile', 'Logout'];
 
 function ResponsiveAppBar() {
@@ -43,7 +43,12 @@ function ResponsiveAppBar() {
 
   const handleMenuItemClick = (page) => {
     handleCloseNavMenu();
-    handleNavigation(`/${page.toLowerCase()}`);
+    if (page.toLowerCase() == "game requests") {
+      handleNavigation('/gameRequests')      
+    } else {
+      handleNavigation(`/${page.toLowerCase()}`);
+    }
+    
   };
 
   React.useEffect(() => {
