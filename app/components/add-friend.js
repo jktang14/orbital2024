@@ -25,10 +25,10 @@ export const AddFriend = async (username, friendName) => {
 
     // Update friend's friend array
     const friendRef = doc(db, 'users', friendId);
-    const friendRequestList = querySnapshot.docs[0].data().friendRequests;
+    const friendRequestList = userSnapshot.docs[0].data().friendRequests;
     if (friendRequestList.length != 0) {
-        await updateDoc(friendRef, {
-            friendRequests: arrayRemove(username)
+        await updateDoc(userRef, {
+            friendRequests: arrayRemove(friendName)
         })
     }
 

@@ -4,10 +4,11 @@ import styles from './style.module.css';
 import { db } from "../firebase";
 import { query, collection, where, getDocs, updateDoc, doc, onSnapshot, arrayRemove} from "firebase/firestore";
 import { realtimeDatabase } from "../firebase";
-import { onValue, ref } from "firebase/database";
+import { onValue, ref, off } from "firebase/database";
 import { GetFriends } from "../components/get-friends";
 import { InviteFriend } from "../components/invite-friend";
 import { AddFriend } from "../components/add-friend";
+import { RemoveFriend } from "../components/remove-friend";
 
 const FriendsList = () => {
     const [friends, setFriends] = useState([]);
@@ -66,10 +67,6 @@ const FriendsList = () => {
                     }
                 })
             })
-
-            return () => {
-                friendsStatusListener.forEach(listener => off(listener));
-            };
         }
     }, [friends])
 
@@ -84,12 +81,38 @@ const FriendsList = () => {
             friendRequests: arrayUnion(friend)
         })
     }
+
+    const handleInvite = async (e) => {
+        e.preventDefault(); // Prevent form from submitting
+        try {
+            await InviteFriend(username, searchUsername);
+            alert(`Friend request sent to ${searchUsername}`);
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+
+    const handleAddFriend = async (username, request) => {
+        try {
+            await AddFriend(username, request);
+        } catch (error) {
+            alert(error.message);
+        }
+    };
     
+    const handleRemoveFriend = async (username, friend) => {
+        try {
+            await RemoveFriend(username, friend);
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
     return (
         <div className={styles.body}>
             <div className={styles.friendsList}>
                 <h1 style = {{margin: 0}}>Friends List</h1>
-                <form className={styles.form} onSubmit={() => InviteFriend(username, searchUsername)}> 
+                <form className={styles.form} onSubmit={handleInvite}> 
                     <input 
                         type="text" 
                         onChange={(e) => setSearchUsername(e.target.value)}
@@ -98,22 +121,29 @@ const FriendsList = () => {
                     />
                     <button type="submit">Add user</button>
                 </form>
-                <ul>
+                <ul className={styles.list}>
                     {Array.isArray(friends) && friends.map(friend => (
                         <li key = {friend} className={styles.listItem}>
-                            {friend.username} {friend.status}
+                            {friend.username} 
+                            <div>
+                                Status: {friend.status}
+                                <button onClick={() => handleRemoveFriend(username, friend.username)}>Remove friend</button>
+                            </div>
                         </li>
                     ))}
                 </ul>
             </div>
 
             <div className={styles.friendRequests}>
-                <ul>
+            <h1 style = {{margin: 0}}> Friend requests </h1>
+                <ul className={styles.requests}>
                     {Array.isArray(friendRequests) && friendRequests.map(request => (
-                        <li key={request}>
+                        <li key={request} className={styles.request}>
                             {request}
-                            <button onClick={() => AddFriend(username, request)}>Accept</button>
-                            <button onClick={() => handleDeclineInvite(request)}>Decline</button>
+                            <div className={styles.selectionButtons}>
+                                <button onClick={() => handleAddFriend(username, request)}>Accept</button>
+                                <button onClick={() => handleDeclineInvite(request)}>Decline</button>
+                            </div>
                         </li>
                     ))}
                 </ul>
