@@ -78,7 +78,7 @@ const FriendsList = () => {
         const userDoc = doc(db, 'users', userId);
 
         await updateDoc(userDoc, {
-            friendRequests: arrayUnion(friend)
+            friendRequests: arrayRemove(friend)
         })
     }
 
