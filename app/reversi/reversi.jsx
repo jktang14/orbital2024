@@ -2,11 +2,16 @@
 import React, { createElement, useState, useEffect, useRef, forwardRef, useImperativeHandle} from 'react';
 import styles from './style.module.css';
 import game from './game-logic';
-import { realtimeDatabase } from '../firebase';
+import { realtimeDatabase, db } from '../firebase';
 import { ref, update, set, onValue, push } from 'firebase/database';
 import createNewGame from './online/create-game';
 import joinGame from './online/join-game';
-import { toast } from 'react-toastify';
+import { toast, Bounce } from 'react-toastify';
+import { AddGameRequest } from '../components/add-game-request';
+import { GameInvitation } from '../components/game-invitation';
+import { DeclineGameRequest } from '../components/decline-game-request';
+import { query, collection, where, getDocs, doc, onSnapshot} from "firebase/firestore";
+
 
 const Reversi = () => {
     const [boardSize, setBoardSize] = useState(8);
@@ -45,6 +50,45 @@ const Reversi = () => {
             });
         }
     }, [gameId]);
+
+    // Check for updates in gameRequests array
+    useEffect(() => {
+        const handleGameRequests = async () => {
+            if (username) {
+                const q = query(collection(db, 'users'), where('username', '==', username));
+                const querySnapshot = await getDocs(q);
+                const userId = querySnapshot.docs[0].id;
+                const userDoc = doc(db, 'users', userId);
+        
+                const unsubscribe = onSnapshot(userDoc, async (doc) => {
+                    const userData = doc.data();
+                    const gameRequests = userData.gameRequests;
+                    if (Array.isArray(gameRequests)) {
+                        gameRequests.forEach(request => {
+                            toast(<GameInvitation 
+                                request={request.username} 
+                                onAccept={() => joinCurrentGame(request.gameId, request)}
+                                onDecline={() => declineGame(request)}
+                        />, {
+                            position: "top-left",
+                            autoClose: false,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "light",
+                            transition: Bounce,
+                            })
+                        })
+                    }
+                })
+        
+                return () => unsubscribe();
+            }
+        }
+        handleGameRequests();
+    }, [username])
     
     useEffect(() => {
         checkStatus();
@@ -145,16 +189,31 @@ const Reversi = () => {
         return boardArray;
     }
 
-    const handleSendInvitation = () => {
-        const gameId = createGame();
+    const handleSendInvitation = async () => {
+        try {
+            const gameId = createGame();
+            await AddGameRequest(username, friendToPlay, gameId);
+            alert(`Invitation sent to ${friendToPlay}`)
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const declineGame = async (request) => {
+        try {
+            await DeclineGameRequest(request, username);
+        } catch (error) {
+            console.log(error.message);
+        }
     }
 
     const createGame = () => {
         return createNewGame(boardSize, username, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime);
     };
 
-    const joinCurrentGame = () => {
-        joinGame(inputGameId, username, setGameId, setUserColor);
+    const joinCurrentGame = (gameId, request) => {
+        joinGame(gameId, username, setGameId, setUserColor);
+        declineGame(request);
     };
 
     const updateGameState = (updates) => {
@@ -333,7 +392,7 @@ const Reversi = () => {
                             : <button onClick={() => handleBoardSizeChange(12)}>12x12</button>}
                         </div>
                     </div>
-                    {!hasGameStarted && <button onClick={() => handleSendInvitation}>Start</button>}
+                    {!hasGameStarted && <button onClick={handleSendInvitation}>Start</button>}
                 </div>
             </div>
             {message && <div className={styles.message}>{message}</div>}
