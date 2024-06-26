@@ -1,7 +1,7 @@
 import { db } from "../firebase";
 import { query, collection, where, getDocs, updateDoc, doc, arrayUnion, arrayRemove} from "firebase/firestore";
 
-export const AddGameRequest = async (username, friendName) => {
+export const AddGameRequest = async (username, friendName, gameId) => {
     // Check if friendName exists in database
     const q = query(collection(db, 'users'), where('username', '==', friendName));
     const querySnapshot = await getDocs(q);
@@ -15,6 +15,6 @@ export const AddGameRequest = async (username, friendName) => {
     const friendRef = doc(db, 'users', friendId);
 
     await updateDoc(friendRef, {
-        gameRequests: arrayUnion(username)
+        gameRequests: arrayUnion({username: username, gameId: gameId})
     })
 }
