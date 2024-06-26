@@ -65,19 +65,20 @@ const Reversi = () => {
                     const gameRequests = userData.gameRequests;
                     if (Array.isArray(gameRequests)) {
                         gameRequests.forEach(request => {
-                            toast(<GameInvitation 
+                            const toastId = toast(<GameInvitation 
                                 request={request.username} 
-                                onAccept={() => joinCurrentGame(request.gameId, request)}
-                                onDecline={() => declineGame(request)}
+                                onAccept={() => joinCurrentGame(request.gameId, request, toastId)}
+                                onDecline={() => declineGame(request, toastId)}
                         />, {
                             position: "top-left",
                             autoClose: false,
                             hideProgressBar: false,
-                            closeOnClick: true,
+                            closeOnClick: false,
                             pauseOnHover: true,
                             draggable: true,
                             progress: undefined,
                             theme: "light",
+                            closeButton: false,
                             transition: Bounce,
                             })
                         })
@@ -199,9 +200,10 @@ const Reversi = () => {
         }
     }
 
-    const declineGame = async (request) => {
+    const declineGame = async (request, toastId) => {
         try {
             await DeclineGameRequest(request, username);
+            toast.dismiss(toastId);
         } catch (error) {
             console.log(error.message);
         }
@@ -211,9 +213,9 @@ const Reversi = () => {
         return createNewGame(boardSize, username, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime);
     };
 
-    const joinCurrentGame = (gameId, request) => {
+    const joinCurrentGame = (gameId, request, toastId) => {
         joinGame(gameId, username, setGameId, setUserColor);
-        declineGame(request);
+        declineGame(request, toastId);
     };
 
     const updateGameState = (updates) => {
