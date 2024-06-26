@@ -1,15 +1,17 @@
 "use client";
-import React, { createElement, useState, useEffect, useRef} from 'react';
+import React, { createElement, useState, useEffect, useRef, forwardRef, useImperativeHandle} from 'react';
 import styles from './style.module.css';
 import game from './game-logic';
 import { realtimeDatabase } from '../firebase';
 import { ref, update, set, onValue, push } from 'firebase/database';
 import createNewGame from './online/create-game';
 import joinGame from './online/join-game';
+import { toast } from 'react-toastify';
 
 const Reversi = () => {
     const [boardSize, setBoardSize] = useState(8);
     const [match, setMatch] = useState(new game(boardSize));
+    const [status, setStatus] = useState('local');
     const [board, setBoard] = useState(match.board);
     const [currentPlayer, setCurrentPlayer] = useState(match.currentPlayer);
     const [userColor, setUserColor] = useState(match.currentPlayer);
@@ -22,6 +24,7 @@ const Reversi = () => {
     const [username, setUsername] = useState('');
     const [gameId, setGameId] = useState(null);
     const [inputGameId, setInputGameId] = useState("");
+    const [friendToPlay, setFriendToPlay] = useState('');
     
     useEffect(() => {
         if (gameId) {
@@ -30,6 +33,7 @@ const Reversi = () => {
                 const data = snapshot.val();
                 if (data) {
                     setBoardSize(data.boardSize);
+                    setStatus(data.status);
                     setBoard(convertSparseObjectTo2DArray(data.board, boardSize));
                     setCurrentPlayer(data.currentPlayer);
                     setIsGameActive(data.isGameActive);
@@ -47,7 +51,14 @@ const Reversi = () => {
     }, [board]);
 
     useEffect(() => {
-    }, [message]);
+        // Check if window and localStorage are available
+        if (typeof window !== 'undefined') {
+            const friendToPlay = localStorage.getItem('friendToPlay');
+            if (friendToPlay) {
+                setFriendToPlay(friendToPlay);
+            }
+        }
+    }, []);
 
     useEffect(() => {
         // Check if window and localStorage are available
@@ -134,8 +145,12 @@ const Reversi = () => {
         return boardArray;
     }
 
+    const handleSendInvitation = () => {
+        const gameId = createGame();
+    }
+
     const createGame = () => {
-        createNewGame(boardSize, username, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime);
+        return createNewGame(boardSize, username, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime);
     };
 
     const joinCurrentGame = () => {
@@ -226,18 +241,20 @@ const Reversi = () => {
     }
 
     function restartGame() {
-        let newGame = new game(boardSize);
-        setBoardSize(boardSize);
-        setMatch(newGame);
-        setBoard(newGame.board);
-        setCurrentPlayer(newGame.currentPlayer);
-        setMessage("");
-        setIsGameActive(true);
-        setHasGameStarted(false);
-        const newTimer = 300;
-        setTimer(newTimer);
-        setBlackTime(newTimer);
-        setWhiteTime(newTimer);
+        if (status == 'local') {
+            let newGame = new game(boardSize);
+            setBoardSize(boardSize);
+            setMatch(newGame);
+            setBoard(newGame.board);
+            setCurrentPlayer(newGame.currentPlayer);
+            setMessage("");
+            setIsGameActive(true);
+            setHasGameStarted(false);
+            const newTimer = 300;
+            setTimer(newTimer);
+            setBlackTime(newTimer);
+            setWhiteTime(newTimer);
+        }
     }
 
     function formatTime(seconds) {
@@ -316,22 +333,13 @@ const Reversi = () => {
                             : <button onClick={() => handleBoardSizeChange(12)}>12x12</button>}
                         </div>
                     </div>
+                    {!hasGameStarted && <button onClick={() => handleSendInvitation}>Start</button>}
                 </div>
             </div>
             {message && <div className={styles.message}>{message}</div>}
             {!isGameActive && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
-            <div>
-                <button onClick={createGame}>Create Game</button>
-                <input 
-                    type="text" 
-                    placeholder="Enter Game ID" 
-                    value={inputGameId} 
-                    onChange={(e) => setInputGameId(e.target.value)} 
-                />
-                <button onClick={joinCurrentGame}>Join Game</button>
-            </div>
         </div>
     );
-}
+};
 
 export default Reversi;
