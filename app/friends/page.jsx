@@ -110,7 +110,8 @@ const FriendsList = () => {
         }
     }
 
-    const handlePlay = () => {
+    const handlePlay = (friendUsername) => {
+        localStorage.setItem('friendToPlay', friendUsername);
         router.push('../game');
     }
 
@@ -134,7 +135,7 @@ const FriendsList = () => {
                             <div>
                                 Status: {friend.status}
                                 <button onClick={() => handleRemoveFriend(username, friend.username)}>Remove friend</button>
-                                <button onClick={handlePlay}>Play</button>
+                                <button onClick={() => handlePlay(friend.username)}>Play</button>
                             </div>
                         </li>
                     ))}
