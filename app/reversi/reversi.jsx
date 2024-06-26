@@ -41,6 +41,7 @@ const Reversi = () => {
                     setStatus(data.status);
                     setBoard(convertSparseObjectTo2DArray(data.board, boardSize));
                     setCurrentPlayer(data.currentPlayer);
+                    setMessage(data.message);
                     setIsGameActive(data.isGameActive);
                     setHasGameStarted(data.hasGameStarted);
                     setBlackTime(data.blackTime);
