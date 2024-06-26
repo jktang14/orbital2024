@@ -28,7 +28,6 @@ const Reversi = () => {
     const [whiteTime, setWhiteTime] = useState(timer);
     const [username, setUsername] = useState('');
     const [gameId, setGameId] = useState(null);
-    const [inputGameId, setInputGameId] = useState("");
     const [friendToPlay, setFriendToPlay] = useState('');
     
     useEffect(() => {
@@ -133,8 +132,8 @@ const Reversi = () => {
         if (currentPlayer == 'Black') {
             blackIntervalId = setInterval(() => {
                 setBlackTime(prev => {
-                    let currTime = Math.max(prev - 1, 0);
-                    if (currTime == 0) {
+                    let currTime = Math.max(prev - 1, -1);
+                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == -1)) {
                         const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
                         setMessage(text);
                         setIsGameActive(false);
@@ -147,8 +146,8 @@ const Reversi = () => {
         } else {
             whiteIntervalId = setInterval(() => {
                 setWhiteTime(prev => {
-                    let currTime = Math.max(prev - 1, 0);
-                    if (currTime == 0) {
+                    let currTime = Math.max(prev - 1, -1);
+                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == -1)) {
                         const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
                         setMessage(text);
                         setIsGameActive(false);
@@ -160,6 +159,7 @@ const Reversi = () => {
             }, 1000);
         }
         return () => {
+            console.log("Clearing intervals on cleanup");
             clearInterval(blackIntervalId);
             clearInterval(whiteIntervalId);
         };
@@ -168,10 +168,14 @@ const Reversi = () => {
     useEffect(() => {
         if (gameId) {
             const id = setInterval(() => {
-                updateGameState({blackTime: blackTime}),
-                updateGameState({whiteTime: whiteTime})
+                updateGameState({
+                    blackTime: blackTime,
+                    whiteTime: whiteTime
+                })
+                // updateGameState({whiteTime: whiteTime})
             })
             return (() => {
+                console.log("Clearing gameId interval");
                 clearInterval(id);
             })
         }
@@ -319,6 +323,11 @@ const Reversi = () => {
         }
     }
 
+    function rematch() {
+        const gameId = createGame();
+        joinGame(gameId, friendToPlay, setGameId, setUserColor);
+    }
+
     function formatTime(seconds) {
         let minutes = Math.floor(seconds / 60);
         let second = seconds % 60;
@@ -399,7 +408,8 @@ const Reversi = () => {
                 </div>
             </div>
             {message && <div className={styles.message}>{message}</div>}
-            {!isGameActive && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
+            {!isGameActive && status == "local" && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
+            {!isGameActive && status == "online" && <button onClick={rematch} className={styles.restartButton}>Rematch!</button>}
         </div>
     );
 };
