@@ -12,6 +12,7 @@ export const AddGameRequest = async (username, friendName) => {
     }
 
     let friendId = querySnapshot.docs[0].id
+    const friendRef = doc(db, 'users', friendId);
 
     await updateDoc(friendRef, {
         gameRequests: arrayUnion(username)
