@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }) {
   const pathName = usePathname();
-  const pathsWithToast = ['/game', 'friends', 'cosmetics']
+  const pathWithToast = '/game';
 
   const [mounted, setMounted] = useState(false);
 
@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>{children}</body>
-      {mounted && pathsWithToast.includes(pathName) && <ToastContainer />}
+      {mounted && pathWithToast == pathName && <ToastContainer />}
     </html>
   );
 }
