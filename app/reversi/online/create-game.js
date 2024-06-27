@@ -21,6 +21,7 @@ const createNewGame = (boardSize, username, setStatus, setGameId, setMatch, setB
         message: "",
         isGameActive: true,
         hasGameStarted: false,
+        timer: timer,
         blackTime: timer,
         whiteTime: timer
     });
