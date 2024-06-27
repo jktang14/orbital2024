@@ -67,28 +67,42 @@ const Reversi = () => {
                 const querySnapshot = await getDocs(q);
                 const userId = querySnapshot.docs[0].id;
                 const userDoc = doc(db, 'users', userId);
+
+                let gameIds = new Set();
         
                 const unsubscribe = onSnapshot(userDoc, async (doc) => {
                     const userData = doc.data();
                     const gameRequests = userData.gameRequests;
+
+                    // Update gameIds with gameRequests
+                    const requestIds = gameRequests.map(obj => obj.gameId);
+                    gameIds.forEach(id => {
+                        if (!requestIds.includes(id)) {
+                            gameIds.delete(id);
+                        }
+                    })
                     if (Array.isArray(gameRequests)) {
                         gameRequests.forEach(request => {
-                            const toastId = toast(<GameInvitation 
-                                request={request.username} 
-                                onAccept={() => joinCurrentGame(request.gameId, request, toastId)}
-                                onDecline={() => declineGame(request, toastId)}
-                        />, {
-                            position: "top-left",
-                            autoClose: false,
-                            hideProgressBar: false,
-                            closeOnClick: false,
-                            pauseOnHover: true,
-                            draggable: true,
-                            progress: undefined,
-                            theme: "light",
-                            closeButton: false,
-                            transition: Bounce,
-                            })
+                            // Only create toast if gameId has not been done before
+                            if (!gameIds.has(request.gameId)) {
+                                const toastId = toast(<GameInvitation 
+                                    request={request.username} 
+                                    onAccept={() => joinCurrentGame(request.gameId, request, toastId)}
+                                    onDecline={() => declineGame(request, toastId)}
+                            />, {
+                                position: "top-left",
+                                autoClose: false,
+                                hideProgressBar: false,
+                                closeOnClick: false,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "light",
+                                closeButton: false,
+                                transition: Bounce,
+                                });
+                                gameIds.add(request.gameId);
+                            }
                         })
                     }
                 })
