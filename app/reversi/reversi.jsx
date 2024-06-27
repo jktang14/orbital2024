@@ -29,6 +29,7 @@ const Reversi = () => {
     const [username, setUsername] = useState('');
     const [gameId, setGameId] = useState(null);
     const [friendToPlay, setFriendToPlay] = useState('');
+    const [rematchFriend, setRematchFriend] = useState('');
     
     useEffect(() => {
         if (gameId) {
@@ -43,9 +44,16 @@ const Reversi = () => {
                     setMessage(data.message);
                     setIsGameActive(data.isGameActive);
                     setHasGameStarted(data.hasGameStarted);
+                    setTimer(data.timer);
                     setBlackTime(data.blackTime);
                     setWhiteTime(data.whiteTime);
                     setMatch(game.fromData(data.boardSize, data.board, data.currentPlayer, data.players));
+
+                    if (!data.isGameActive) {
+                        setRematchFriend(friendToPlay);
+                        localStorage.removeItem('friendToPlay');
+                        setFriendToPlay('');
+                    }
                 }
             });
         }
@@ -138,6 +146,9 @@ const Reversi = () => {
                         setMessage(text);
                         setIsGameActive(false);
                         updateGameState({message: text, isGameActive: false});
+                        setRematchFriend(friendToPlay);
+                        localStorage.removeItem('friendToPlay');
+                        setFriendToPlay('');
                         clearInterval(blackIntervalId);
                     }
                     return currTime;
@@ -152,6 +163,9 @@ const Reversi = () => {
                         setMessage(text);
                         setIsGameActive(false);
                         updateGameState({message: text, isGameActive: false});
+                        setRematchFriend(friendToPlay);
+                        localStorage.removeItem('friendToPlay');
+                        setFriendToPlay('');
                         clearInterval(whiteIntervalId);
                     }
                     return currTime;
@@ -159,7 +173,6 @@ const Reversi = () => {
             }, 1000);
         }
         return () => {
-            console.log("Clearing intervals on cleanup");
             clearInterval(blackIntervalId);
             clearInterval(whiteIntervalId);
         };
@@ -172,10 +185,8 @@ const Reversi = () => {
                     blackTime: blackTime,
                     whiteTime: whiteTime
                 })
-                // updateGameState({whiteTime: whiteTime})
             })
             return (() => {
-                console.log("Clearing gameId interval");
                 clearInterval(id);
             })
         }
@@ -198,8 +209,16 @@ const Reversi = () => {
     const handleSendInvitation = async () => {
         try {
             const gameId = createGame();
-            await AddGameRequest(username, friendToPlay, gameId);
-            alert(`Invitation sent to ${friendToPlay}`)
+            if (!friendToPlay) {
+                setUserColor('Black');
+                setFriendToPlay(rematchFriend);
+                await AddGameRequest(username, rematchFriend, gameId);
+                alert(`Invitation sent to ${rematchFriend}`);
+            } else {
+                await AddGameRequest(username, friendToPlay, gameId);
+                alert(`Invitation sent to ${friendToPlay}`);
+            }
+            
         } catch (error) {
             console.log(error.message);
         }
@@ -209,6 +228,8 @@ const Reversi = () => {
         try {
             await DeclineGameRequest(request, username);
             toast.dismiss(toastId);
+            localStorage.removeItem('friendToPlay');
+            setFriendToPlay('');
         } catch (error) {
             console.log(error.message);
         }
@@ -220,6 +241,7 @@ const Reversi = () => {
 
     const joinCurrentGame = (gameId, request, toastId) => {
         joinGame(gameId, username, setGameId, setUserColor);
+        setFriendToPlay(request.username);
         declineGame(request, toastId);
     };
 
@@ -261,6 +283,9 @@ const Reversi = () => {
                 message: text,
                 isGameActive: false
             });
+            setRematchFriend(friendToPlay);
+            localStorage.removeItem('friendToPlay');
+            setFriendToPlay('');
         } else if (result.status == 'draw') {
             const text = 'The game is a draw!';
             setMessage(text);
@@ -269,6 +294,9 @@ const Reversi = () => {
                 message: text,
                 isGameActive: false
             });
+            setRematchFriend(friendToPlay);
+            localStorage.removeItem('friendToPlay');
+            setFriendToPlay('');
         } else if (result.status == 'skip') {
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
@@ -323,14 +351,13 @@ const Reversi = () => {
         }
     }
 
-    function rematch() {
-        const gameId = createGame();
-        joinGame(gameId, friendToPlay, setGameId, setUserColor);
-    }
-
     function formatTime(seconds) {
         let minutes = Math.floor(seconds / 60);
         let second = seconds % 60;
+        if (seconds == -1) {
+            minutes = 0
+            second = 0
+        }
         return `${minutes}:${second < 10 ? `0${second}` : `${second}`}`;
     }
 
@@ -404,12 +431,12 @@ const Reversi = () => {
                             : <button onClick={() => handleBoardSizeChange(12)}>12x12</button>}
                         </div>
                     </div>
-                    {!hasGameStarted && <button onClick={handleSendInvitation}>Start</button>}
+                    {!hasGameStarted && friendToPlay && <button onClick={handleSendInvitation}>Start</button>}
                 </div>
             </div>
             {message && <div className={styles.message}>{message}</div>}
             {!isGameActive && status == "local" && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
-            {!isGameActive && status == "online" && <button onClick={rematch} className={styles.restartButton}>Rematch!</button>}
+            {!isGameActive && status == "online" && <button onClick={handleSendInvitation} className={styles.restartButton}>Rematch!</button>}
         </div>
     );
 };
