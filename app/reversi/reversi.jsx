@@ -389,6 +389,8 @@ const Reversi = () => {
             newGame = new game(boardSize);
         } else if (mode == 'reverse') {
             newGame = new game(boardSize, 'reverse');
+        } else if (mode == 'random') {
+            newGame = new game(boardSize, 'random');
         }
         setMatch(newGame);
         setBoard(newGame.board);

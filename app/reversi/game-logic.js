@@ -3,12 +3,13 @@ class game {
     constructor(size=8, mode='standard') {
         this.size=size
         this.currentPlayer = "Black";
+        this.mode = mode;
         this.board = this.initialiseBoard(size);
         this.players = {
             black: {name: 'Player 1', color: "Black"},
             white: {name: 'Player 2', color: "White"}
         };
-        this.mode = mode;
+        
     }
 
     /*
@@ -16,14 +17,29 @@ class game {
     */
     initialiseBoard(size) {
         let board = Array(size).fill(null).map(() => Array(size).fill(null));
-        let mid = Math.floor(size / 2);
-        board[mid - 1][mid - 1] = "Black";
-        board[mid - 1][mid] = "White";
-        board[mid][mid - 1] = "White";
-        board[mid][mid] = "Black";
+        if (this.mode == 'random') {
+            let randRow = this.getRandomInt(this.size - 1);
+            let randCol = this.getRandomInt(this.size - 1);
+            board[randRow][randCol] = "Black";
+            board[randRow][randCol + 1] = "White";
+            board[randRow + 1][randCol] = "White";
+            board[randRow + 1][randCol + 1] = "Black";
+        } else {
+            let mid = Math.floor(size / 2);
+            board[mid - 1][mid - 1] = "Black";
+            board[mid - 1][mid] = "White";
+            board[mid][mid - 1] = "White";
+            board[mid][mid] = "Black";
+        }
         return board;
     }
 
+    /*
+    Get random integer for the random variant
+    */
+    getRandomInt(max) {
+        return Math.floor(Math.random() * max);
+    }
     /*
     Get an instance of game from realtime database data
     */
