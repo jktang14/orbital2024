@@ -12,7 +12,6 @@ import { GameInvitation } from '../components/game-invitation';
 import { DeclineGameRequest } from '../components/decline-game-request';
 import { query, collection, where, getDocs, doc, onSnapshot} from "firebase/firestore";
 
-
 const Reversi = () => {
     const [boardSize, setBoardSize] = useState(8);
     const [match, setMatch] = useState(new game(boardSize));
@@ -31,6 +30,10 @@ const Reversi = () => {
     const [gameId, setGameId] = useState(null);
     const [friendToPlay, setFriendToPlay] = useState('');
     const [rematchFriend, setRematchFriend] = useState('');
+    // true when player has made a move and can now choose which square to block
+    const [blockModeActive, setBlockModeActive] = useState(false);
+    const [availableCellsToBlock, setAvailableCellsToBlock] = useState(null);
+    const [boardStable, setBoardStable] = useState(true);
     
     useEffect(() => {
         if (gameId) {
@@ -331,21 +334,49 @@ const Reversi = () => {
             updateGameState({ hasGameStarted: true });
         }
 
-        if (gameId) {
-            if (isGameActive && match.isValidMove(rowIndex, colIndex) && currentPlayer == userColor) {
-                match.makeMove(rowIndex, colIndex);
-                setBoard(match.board);
-                setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
-                updateGameState({
-                    board: match.board,
-                    currentPlayer: match.currentPlayer,
-                });
+        // If we are currently in state to choose which square to block
+        if (blockModeActive) {
+            // check if move is valid
+            if (match.isValidMove(rowIndex, colIndex)) {
+                match.blockCell(rowIndex, colIndex);
+                setBlockModeActive(false); // Exit block mode after setting cell
+                setAvailableCellsToBlock(null);
+                setMessage(`${currentPlayer} blocked a cell. Now it's ${match.currentPlayer}'s turn.`);
+                setCurrentPlayer(match.currentPlayer); //Current player now swapped to opponent
             }
         } else {
-            if (isGameActive && match.isValidMove(rowIndex, colIndex)) {
-                match.makeMove(rowIndex, colIndex);
-                setBoard(match.board);
-                setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+            if (gameId) {
+                if (isGameActive && match.isValidMove(rowIndex, colIndex) && currentPlayer == userColor) {
+                    match.makeMove(rowIndex, colIndex);
+                    setBoard(match.board);
+                    setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+                    updateGameState({
+                        board: match.board,
+                        currentPlayer: match.currentPlayer,
+                    });
+                }
+            } else {
+                if (isGameActive && match.isValidMove(rowIndex, colIndex)) {
+                    if (mode == 'block') {
+                        match.makeMove(rowIndex, colIndex); //Current player internally swapped
+                        setBoard(match.board);
+                        // Handle condition when skip turn
+                        if (currentPlayer != match.currentPlayer){
+                            // No need to set CurrentPlayer state yet as it is still user's turn, to block a cell
+                            const validMoves = match.getValidMoves(match.currentPlayer);
+                            // if opponent has only 1 validmove, do not enter block mode
+                            if (validMoves.length > 1) {
+                                setBlockModeActive(true); // User enters state to block move
+                                setAvailableCellsToBlock(validMoves); // All moves that user can block
+                                setMessage(`Select a cell to block for ${match.currentPlayer}`);
+                            }
+                        }
+                    } else {
+                        match.makeMove(rowIndex, colIndex);
+                        setBoard(match.board);
+                        setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+                    }
+                }
             }
         }
     }
@@ -364,6 +395,8 @@ const Reversi = () => {
             setTimer(newTimer);
             setBlackTime(newTimer);
             setWhiteTime(newTimer);
+            setBlockModeActive(false);
+            setAvailableCellsToBlock(null);
         }
     }
 
@@ -391,6 +424,10 @@ const Reversi = () => {
             newGame = new game(boardSize, 'reverse');
         } else if (mode == 'random') {
             newGame = new game(boardSize, 'random');
+        } else if (mode == 'block') {
+            newGame = new game(boardSize, 'block');
+            setBlockModeActive(false);
+            setAvailableCellsToBlock(null);
         }
         setMatch(newGame);
         setBoard(newGame.board);
@@ -408,7 +445,7 @@ const Reversi = () => {
             <div className={styles.enclosingContainer}>
                 <div className={styles.gameNameTimer}>
                     <div className={styles.playerTurn}>
-                        {isGameActive && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: match.currentPlayer == "Black" ? "black": "white"}}>{match.currentPlayer} turn
+                        {isGameActive && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: currentPlayer == "Black" ? "black": "white"}}>{currentPlayer} turn
                         </p>}
                     </div>
                     <div className={styles.nameTimer}>
@@ -426,6 +463,7 @@ const Reversi = () => {
                                 <div className={styles.cell} key={colIndex} onClick={() => handleCellClick(rowIndex, colIndex)}>
                                     {cell == 'Black' && <img className={styles.image} src="black.png" alt="Black piece" />}
                                     {cell == 'White' && <img className={styles.image} src="white.png" alt="White piece" />}
+                                    {cell == 'Blocked' && <img className={styles.image} src="cross.png" alt="Red cross" />}
                                     {gameId
                                     ? (currentPlayer == userColor && match.isValidMove(rowIndex, colIndex)) && <div className={styles.validMoveIndicator}></div>
                                     : match.isValidMove(rowIndex, colIndex) && <div className={styles.validMoveIndicator}></div>}
