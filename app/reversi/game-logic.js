@@ -194,12 +194,23 @@ class game {
 
         // If grid is full or both players have no valid moves
         if (this.isGridFull() || (!this.hasValidMove(this.currentPlayer) && !this.hasValidMove(this.getOpponent()))) {
-            if (currNum > opponentNum) {
-                return {status: "win", winner: this.currentPlayer};
-            } else if (opponentNum > currNum) {
-                return {status: "win", winner: this.getOpponent()};
+            // If game mode is reverse reversi, flip winning logic
+            if (this.mode == 'reverse') {
+                if (currNum > opponentNum) {
+                    return {status: "win", winner: this.getOpponent()};
+                } else if (opponentNum > currNum) {
+                    return {status: "win", winner: this.currentPlayer};
+                } else {
+                    return {status: "draw"};
+                }
             } else {
-                return {status: "draw"};
+                if (currNum > opponentNum) {
+                    return {status: "win", winner: this.currentPlayer};
+                } else if (opponentNum > currNum) {
+                    return {status: "win", winner: this.getOpponent()};
+                } else {
+                    return {status: "draw"};
+                }
             }
         }
 

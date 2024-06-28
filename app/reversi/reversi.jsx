@@ -383,10 +383,22 @@ const Reversi = () => {
 
     const handleModeChange = (mode) => {
         setMode(mode);
+        let newGame;
         // Reset game state or apply specific logic based on the selected mode
         if (mode == 'standard') {
-            let newGame = new game(size);
+            newGame = new game(boardSize);
+        } else if (mode == 'reverse') {
+            newGame = new game(boardSize, 'reverse');
         }
+        setMatch(newGame);
+        setBoard(newGame.board);
+        setCurrentPlayer(newGame.currentPlayer);
+        setMessage("");
+        setIsGameActive(true);
+        setHasGameStarted(false);
+        setTimer(timer);
+        setBlackTime(timer);
+        setWhiteTime(timer);
     };
 
     return (
