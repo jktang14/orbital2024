@@ -1,15 +1,22 @@
 "use client";
-import React, { createElement, useState, useEffect, useRef} from 'react';
+import React, { createElement, useState, useEffect, useRef, forwardRef, useImperativeHandle} from 'react';
 import styles from './style.module.css';
 import game from './game-logic';
-import { realtimeDatabase } from '../firebase';
+import { realtimeDatabase, db } from '../firebase';
 import { ref, update, set, onValue, push } from 'firebase/database';
 import createNewGame from './online/create-game';
 import joinGame from './online/join-game';
+import { toast, Bounce } from 'react-toastify';
+import { AddGameRequest } from '../components/add-game-request';
+import { GameInvitation } from '../components/game-invitation';
+import { DeclineGameRequest } from '../components/decline-game-request';
+import { query, collection, where, getDocs, doc, onSnapshot} from "firebase/firestore";
+
 
 const Reversi = () => {
     const [boardSize, setBoardSize] = useState(8);
     const [match, setMatch] = useState(new game(boardSize));
+    const [status, setStatus] = useState('local');
     const [board, setBoard] = useState(match.board);
     const [currentPlayer, setCurrentPlayer] = useState(match.currentPlayer);
     const [userColor, setUserColor] = useState(match.currentPlayer);
@@ -21,12 +28,8 @@ const Reversi = () => {
     const [whiteTime, setWhiteTime] = useState(timer);
     const [username, setUsername] = useState('');
     const [gameId, setGameId] = useState(null);
-    const [inputGameId, setInputGameId] = useState("");
-
-    const setMessageWrapper = (msg) => {
-        console.log('Setting message:', msg);
-        setMessage(msg);
-    };
+    const [friendToPlay, setFriendToPlay] = useState('');
+    const [rematchFriend, setRematchFriend] = useState('');
     
     useEffect(() => {
         if (gameId) {
@@ -34,31 +37,95 @@ const Reversi = () => {
             onValue(gameRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    console.log('Data from database:', data);
                     setBoardSize(data.boardSize);
+                    setStatus(data.status);
                     setBoard(convertSparseObjectTo2DArray(data.board, boardSize));
                     setCurrentPlayer(data.currentPlayer);
-                    //setMessage(data.message);
-                    setMessageWrapper(data.message); // Use wrapper
-                    console.log('Message after setMessage:', data.message);
+                    setMessage(data.message);
                     setIsGameActive(data.isGameActive);
                     setHasGameStarted(data.hasGameStarted);
+                    setTimer(data.timer);
                     setBlackTime(data.blackTime);
                     setWhiteTime(data.whiteTime);
                     setMatch(game.fromData(data.boardSize, data.board, data.currentPlayer, data.players));
+
+                    if (!data.isGameActive) {
+                        setRematchFriend(friendToPlay);
+                        localStorage.removeItem('friendToPlay');
+                        setFriendToPlay('');
+                    }
                 }
             });
         }
     }, [gameId]);
+
+    // Check for updates in gameRequests array
+    useEffect(() => {
+        const handleGameRequests = async () => {
+            if (username) {
+                const q = query(collection(db, 'users'), where('username', '==', username));
+                const querySnapshot = await getDocs(q);
+                const userId = querySnapshot.docs[0].id;
+                const userDoc = doc(db, 'users', userId);
+
+                let gameIds = new Set();
+        
+                const unsubscribe = onSnapshot(userDoc, async (doc) => {
+                    const userData = doc.data();
+                    const gameRequests = userData.gameRequests;
+
+                    // Update gameIds with gameRequests
+                    const requestIds = gameRequests.map(obj => obj.gameId);
+                    gameIds.forEach(id => {
+                        if (!requestIds.includes(id)) {
+                            gameIds.delete(id);
+                        }
+                    })
+                    if (Array.isArray(gameRequests)) {
+                        gameRequests.forEach(request => {
+                            // Only create toast if gameId has not been done before
+                            if (!gameIds.has(request.gameId)) {
+                                const toastId = toast(<GameInvitation 
+                                    request={request.username} 
+                                    onAccept={() => joinCurrentGame(request.gameId, request, toastId)}
+                                    onDecline={() => declineGame(request, toastId)}
+                            />, {
+                                position: "top-left",
+                                autoClose: false,
+                                hideProgressBar: false,
+                                closeOnClick: false,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "light",
+                                closeButton: false,
+                                transition: Bounce,
+                                });
+                                gameIds.add(request.gameId);
+                            }
+                        })
+                    }
+                })
+        
+                return () => unsubscribe();
+            }
+        }
+        handleGameRequests();
+    }, [username])
     
     useEffect(() => {
-        console.log('Board useEffect');
         checkStatus();
     }, [board]);
 
     useEffect(() => {
-        console.log('Updated message state:', message);
-    }, [message]);
+        // Check if window and localStorage are available
+        if (typeof window !== 'undefined') {
+            const friendToPlay = localStorage.getItem('friendToPlay');
+            if (friendToPlay) {
+                setFriendToPlay(friendToPlay);
+            }
+        }
+    }, []);
 
     useEffect(() => {
         // Check if window and localStorage are available
@@ -87,12 +154,15 @@ const Reversi = () => {
         if (currentPlayer == 'Black') {
             blackIntervalId = setInterval(() => {
                 setBlackTime(prev => {
-                    let currTime = Math.max(prev - 1, 0);
-                    if (currTime == 0) {
+                    let currTime = Math.max(prev - 1, -1);
+                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == -1)) {
                         const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
                         setMessage(text);
                         setIsGameActive(false);
                         updateGameState({message: text, isGameActive: false});
+                        setRematchFriend(friendToPlay);
+                        localStorage.removeItem('friendToPlay');
+                        setFriendToPlay('');
                         clearInterval(blackIntervalId);
                     }
                     return currTime;
@@ -101,12 +171,15 @@ const Reversi = () => {
         } else {
             whiteIntervalId = setInterval(() => {
                 setWhiteTime(prev => {
-                    let currTime = Math.max(prev - 1, 0);
-                    if (currTime == 0) {
+                    let currTime = Math.max(prev - 1, -1);
+                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == -1)) {
                         const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
                         setMessage(text);
                         setIsGameActive(false);
                         updateGameState({message: text, isGameActive: false});
+                        setRematchFriend(friendToPlay);
+                        localStorage.removeItem('friendToPlay');
+                        setFriendToPlay('');
                         clearInterval(whiteIntervalId);
                     }
                     return currTime;
@@ -122,8 +195,10 @@ const Reversi = () => {
     useEffect(() => {
         if (gameId) {
             const id = setInterval(() => {
-                updateGameState({blackTime: blackTime}),
-                updateGameState({whiteTime: whiteTime})
+                updateGameState({
+                    blackTime: blackTime,
+                    whiteTime: whiteTime
+                })
             })
             return (() => {
                 clearInterval(id);
@@ -145,12 +220,43 @@ const Reversi = () => {
         return boardArray;
     }
 
+    const handleSendInvitation = async () => {
+        try {
+            const gameId = createGame();
+            if (!friendToPlay) {
+                setUserColor('Black');
+                setFriendToPlay(rematchFriend);
+                await AddGameRequest(username, rematchFriend, gameId);
+                alert(`Invitation sent to ${rematchFriend}`);
+            } else {
+                await AddGameRequest(username, friendToPlay, gameId);
+                alert(`Invitation sent to ${friendToPlay}`);
+            }
+            
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const declineGame = async (request, toastId) => {
+        try {
+            await DeclineGameRequest(request, username);
+            toast.dismiss(toastId);
+            localStorage.removeItem('friendToPlay');
+            setFriendToPlay('');
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     const createGame = () => {
-        createNewGame(boardSize, username, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime);
+        return createNewGame(boardSize, username, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime);
     };
 
-    const joinCurrentGame = () => {
-        joinGame(inputGameId, username, setGameId, setUserColor);
+    const joinCurrentGame = (gameId, request, toastId) => {
+        joinGame(gameId, username, setGameId, setUserColor);
+        setFriendToPlay(request.username);
+        declineGame(request, toastId);
     };
 
     const updateGameState = (updates) => {
@@ -191,6 +297,9 @@ const Reversi = () => {
                 message: text,
                 isGameActive: false
             });
+            setRematchFriend(friendToPlay);
+            localStorage.removeItem('friendToPlay');
+            setFriendToPlay('');
         } else if (result.status == 'draw') {
             const text = 'The game is a draw!';
             setMessage(text);
@@ -199,6 +308,9 @@ const Reversi = () => {
                 message: text,
                 isGameActive: false
             });
+            setRematchFriend(friendToPlay);
+            localStorage.removeItem('friendToPlay');
+            setFriendToPlay('');
         } else if (result.status == 'skip') {
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
@@ -237,23 +349,29 @@ const Reversi = () => {
     }
 
     function restartGame() {
-        let newGame = new game(boardSize);
-        setBoardSize(boardSize);
-        setMatch(newGame);
-        setBoard(newGame.board);
-        setCurrentPlayer(newGame.currentPlayer);
-        setMessage("");
-        setIsGameActive(true);
-        setHasGameStarted(false);
-        const newTimer = 300;
-        setTimer(newTimer);
-        setBlackTime(newTimer);
-        setWhiteTime(newTimer);
+        if (status == 'local') {
+            let newGame = new game(boardSize);
+            setBoardSize(boardSize);
+            setMatch(newGame);
+            setBoard(newGame.board);
+            setCurrentPlayer(newGame.currentPlayer);
+            setMessage("");
+            setIsGameActive(true);
+            setHasGameStarted(false);
+            const newTimer = 300;
+            setTimer(newTimer);
+            setBlackTime(newTimer);
+            setWhiteTime(newTimer);
+        }
     }
 
     function formatTime(seconds) {
         let minutes = Math.floor(seconds / 60);
         let second = seconds % 60;
+        if (seconds == -1) {
+            minutes = 0
+            second = 0
+        }
         return `${minutes}:${second < 10 ? `0${second}` : `${second}`}`;
     }
 
@@ -327,22 +445,14 @@ const Reversi = () => {
                             : <button onClick={() => handleBoardSizeChange(12)}>12x12</button>}
                         </div>
                     </div>
+                    {!hasGameStarted && friendToPlay && <button onClick={handleSendInvitation}>Start</button>}
                 </div>
             </div>
             {message && <div className={styles.message}>{message}</div>}
-            {!isGameActive && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
-            <div>
-                <button onClick={createGame}>Create Game</button>
-                <input 
-                    type="text" 
-                    placeholder="Enter Game ID" 
-                    value={inputGameId} 
-                    onChange={(e) => setInputGameId(e.target.value)} 
-                />
-                <button onClick={joinCurrentGame}>Join Game</button>
-            </div>
+            {!isGameActive && status == "local" && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
+            {!isGameActive && status == "online" && <button onClick={handleSendInvitation} className={styles.restartButton}>Rematch!</button>}
         </div>
     );
-}
+};
 
 export default Reversi;
