@@ -168,7 +168,11 @@ class game {
         for (let i = 0; i < this.size; i++) {
             let row = [];
             for (let j = 0; j < this.size; j++) {
-                row.push(this.board[i][j]);
+                if (this.board[i][j] == 'Blocked') {
+                    row.push(null);
+                } else {
+                    row.push(this.board[i][j]);
+                }
             }
             newBoard.push(row);
         }
