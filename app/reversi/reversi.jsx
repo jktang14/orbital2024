@@ -17,6 +17,7 @@ const Reversi = () => {
     const [boardSize, setBoardSize] = useState(8);
     const [match, setMatch] = useState(new game(boardSize));
     const [status, setStatus] = useState('local');
+    const [mode, setMode] = useState('standard');
     const [board, setBoard] = useState(match.board);
     const [currentPlayer, setCurrentPlayer] = useState(match.currentPlayer);
     const [userColor, setUserColor] = useState(match.currentPlayer);
@@ -275,7 +276,8 @@ const Reversi = () => {
 
     function handleBoardSizeChange(size) {
         setBoardSize(size);
-        let newGame = new game(size);
+        setMode(mode); //May not need
+        let newGame = new game(size, mode);
         setMatch(newGame);
         setBoard(newGame.board);
         setCurrentPlayer(newGame.currentPlayer);
@@ -379,6 +381,14 @@ const Reversi = () => {
         return userColor == "Black" ? "White" : "Black";
     }
 
+    const handleModeChange = (mode) => {
+        setMode(mode);
+        // Reset game state or apply specific logic based on the selected mode
+        if (mode == 'standard') {
+            let newGame = new game(size);
+        }
+    };
+
     return (
         <div className={styles.body}>
             <div className={styles.enclosingContainer}>
@@ -443,6 +453,23 @@ const Reversi = () => {
                             {hasGameStarted 
                             ? <button onClick={() => handleBoardSizeChange(12)} disabled>12x12</button>
                             : <button onClick={() => handleBoardSizeChange(12)}>12x12</button>}
+                        </div>
+                    </div>
+                    <div className={styles.modeSelection}>
+                    <div style={{color: "black", paddingBottom: "2px"}}>Select a different variant!</div>
+                        <div className={styles.modeButton}>
+                            {hasGameStarted 
+                            ? <button onClick={() => handleModeChange('standard')} disabled>Standard Reversi</button>
+                            : <button onClick={() => handleModeChange('standard')}>Standard Reversi</button>}
+                            {hasGameStarted 
+                            ? <button onClick={() => handleModeChange('reverse')} disabled>Reverse Reversi</button>
+                            : <button onClick={() => handleModeChange('reverse')}>Reverse Reversi</button>}
+                            {hasGameStarted 
+                            ? <button onClick={() => handleModeChange('random')} disabled>Random Reversi</button>
+                            : <button onClick={() => handleModeChange('random')}>Random Reversi</button>}
+                            {hasGameStarted 
+                            ? <button onClick={() => handleModeChange('block')} disabled>Obstruction Reversi</button>
+                            : <button onClick={() => handleModeChange('block')}>Obstruction Reversi</button>}
                         </div>
                     </div>
                     {!hasGameStarted && friendToPlay && <button onClick={handleSendInvitation}>Start</button>}

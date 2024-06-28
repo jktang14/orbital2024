@@ -1,6 +1,6 @@
 class game {
     static DIRECTIONS = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
-    constructor(size=8) {
+    constructor(size=8, mode='standard') {
         this.size=size
         this.currentPlayer = "Black";
         this.board = this.initialiseBoard(size);
@@ -8,6 +8,7 @@ class game {
             black: {name: 'Player 1', color: "Black"},
             white: {name: 'Player 2', color: "White"}
         };
+        this.mode = mode;
     }
 
     /*
