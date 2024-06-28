@@ -239,6 +239,22 @@ class game {
 
         return {status: "continue"};
     }
+
+    /*
+    Updates board with blocked cell
+    */
+    blockCell(row, col) {
+        this.board[row][col] = 'Blocked';
+        let newBoard = []
+        for (let i = 0; i < this.size; i++) {
+            let row = [];
+            for (let j = 0; j < this.size; j++) {
+                row.push(this.board[i][j]);
+            }
+            newBoard.push(row);
+        }
+        this.board = newBoard;
+    }
 }
 
 export default game;
