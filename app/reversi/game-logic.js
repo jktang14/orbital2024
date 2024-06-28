@@ -111,6 +111,10 @@ class game {
                 if (this.board[row][col] != null) {
                     continue;
                 }
+                // Cell has been blocked
+                if (this.board[row][col] == 'Blocked') {
+                    continue;
+                }
                 // check all 8 directions
                 for (let [x, y] of game.DIRECTIONS) {
                     if (this.hasOpponent(row, col, x, y, player)) {
