@@ -58,9 +58,8 @@ const Reversi = () => {
                     setMatch(game.fromData(data.boardSize, data.mode, data.board, data.currentPlayer, data.players));
 
                     if (!data.isGameActive) {
+                        console.log(friendToPlay);
                         setRematchFriend(friendToPlay);
-                        localStorage.removeItem('friendToPlay');
-                        setFriendToPlay('');
                     }
                 }
             });
@@ -275,7 +274,7 @@ const Reversi = () => {
     const joinCurrentGame = (gameId, request, toastId) => {
         joinGame(mode, gameId, username, setGameId, setUserColor);
         setFriendToPlay(request.username);
-        removeRequest(request, toastId, request.username);
+        removeRequest(request, toastId, username);
     };
 
     const removeRequest = async (request, toastId, username) => {
