@@ -158,7 +158,8 @@ const Reversi = () => {
             clearInterval(whiteIntervalId);
             return;
         }
-        if (currentPlayer == 'Black') {
+        if ((mode != 'block' && currentPlayer == 'Black') || (mode == 'block' && status == 'online' && blockedPlayer == 'Black') 
+        || (mode == 'block' && status == 'local' && currentPlayer == 'Black')) {
             blackIntervalId = setInterval(() => {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, -1);
@@ -197,7 +198,7 @@ const Reversi = () => {
             clearInterval(blackIntervalId);
             clearInterval(whiteIntervalId);
         };
-    }, [isGameActive, currentPlayer]);
+    }, [isGameActive, currentPlayer, blockedPlayer]);
 
     useEffect(() => {
         if (gameId) {
