@@ -43,8 +43,8 @@ class game {
     /*
     Get an instance of game from realtime database data
     */
-    static fromData(boardSize, board, currentPlayer, players) {
-        const gameInstance = new game(boardSize);
+    static fromData(boardSize, mode, board, currentPlayer, players) {
+        const gameInstance = new game(boardSize, mode);
         gameInstance.board = game.convertSparseObjectTo2DArray(board, boardSize);
         gameInstance.currentPlayer = currentPlayer;
         gameInstance.players = players;
