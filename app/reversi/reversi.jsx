@@ -58,7 +58,6 @@ const Reversi = () => {
                     setMatch(game.fromData(data.boardSize, data.mode, data.board, data.currentPlayer, data.players));
 
                     if (!data.isGameActive) {
-                        console.log(friendToPlay);
                         setRematchFriend(friendToPlay);
                     }
                 }
@@ -128,7 +127,6 @@ const Reversi = () => {
         // Check if window and localStorage are available
         if (typeof window !== 'undefined') {
             const friendToPlay = localStorage.getItem('friendToPlay');
-            console.log("entered")
             if (friendToPlay) {
                 setFriendToPlay(friendToPlay);
             }
@@ -147,7 +145,6 @@ const Reversi = () => {
 
     useEffect(() => {
         if (!isGameActive) {
-            console.log(friendToPlay);
             setRematchFriend(friendToPlay);
             localStorage.removeItem('friendToPlay');
             setFriendToPlay('');
@@ -337,7 +334,14 @@ const Reversi = () => {
                 currentPlayer: match.currentPlayer
             });
         } else {
-            setMessage(message);
+            if (message.endsWith('skipped.')) {
+                setMessage('');
+                updateGameState({
+                    message: ''
+                })
+            } else {
+                setMessage(message);
+            }
         }
     }
 
