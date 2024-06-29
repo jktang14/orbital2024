@@ -258,7 +258,7 @@ const Reversi = () => {
     }
 
     const createGame = () => {
-        return createNewGame(boardSize, username, mode, setMode, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime, blockModeActive, blockedPlayer);
+        return createNewGame(boardSize, username, mode, setMode, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime, setBlockModeActive, setBlockedPlayer, blockModeActive, blockedPlayer);
     };
 
     const joinCurrentGame = (gameId, request, toastId) => {

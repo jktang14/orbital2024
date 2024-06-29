@@ -2,7 +2,7 @@ import { realtimeDatabase } from "@/app/firebase";
 import game from "../game-logic";
 import { ref, push, set } from "firebase/database";
 
-const createNewGame = (boardSize, username, mode, setMode, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime, blockModeActive, blockedPlayer) => {
+const createNewGame = (boardSize, username, mode, setMode, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime, setBlockedModeActive, setBlockedPlayer, blockModeActive, blockedPlayer) => {
     const newGameRef = ref(realtimeDatabase, 'games');
     const newGameKey = push(newGameRef).key;
 
@@ -33,8 +33,8 @@ const createNewGame = (boardSize, username, mode, setMode, setStatus, setGameId,
         timer: timer,
         blackTime: timer,
         whiteTime: timer,
-        blockModeActive,
-        blockedPlayer: blockedPlayer
+        blockModeActive: false,
+        blockedPlayer: ''
     });
 
     setMatch(newMatch);
@@ -48,6 +48,8 @@ const createNewGame = (boardSize, username, mode, setMode, setStatus, setGameId,
     setHasGameStarted(false);
     setBlackTime(timer);
     setWhiteTime(timer);
+    setBlockedModeActive(false);
+    setBlockedPlayer('');
 
     return newGameKey;
 };
