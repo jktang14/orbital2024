@@ -578,7 +578,10 @@ const Reversi = () => {
                             : <button onClick={() => handleModeChange('block')}>Obstruction Reversi</button>}
                         </div>
                     </div>
-                    {!hasGameStarted && friendToPlay && <button onClick={handleSendInvitation}>Start</button>}
+                    {!hasGameStarted && friendToPlay && userColor == 'Black' && <div className={styles.startGame}>
+                        <div style={{color: "black", paddingBottom: "2px"}}>Start an online game!</div>
+                        {<button onClick={handleSendInvitation}>Start</button>}
+                    </div>}
                 </div>
             </div>
             {message && <div className={styles.message}>{message}</div>}
