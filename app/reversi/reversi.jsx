@@ -3,7 +3,7 @@ import React, { createElement, useState, useEffect, useRef, forwardRef, useImper
 import styles from './style.module.css';
 import game from './game-logic';
 import { realtimeDatabase, db } from '../firebase';
-import { ref, update, set, onValue, push } from 'firebase/database';
+import { ref, update, set, onValue, push, remove } from 'firebase/database';
 import createNewGame from './online/create-game';
 import joinGame from './online/join-game';
 import { toast, Bounce } from 'react-toastify';
@@ -11,6 +11,7 @@ import { AddGameRequest } from '../components/add-game-request';
 import { GameInvitation } from '../components/game-invitation';
 import { DeclineGameRequest } from '../components/decline-game-request';
 import { query, collection, where, getDocs, doc, onSnapshot} from "firebase/firestore";
+import { RemoveGameRequest } from '../components/remove-game-request';
 
 const Reversi = () => {
     const [boardSize, setBoardSize] = useState(8);
@@ -128,6 +129,7 @@ const Reversi = () => {
         // Check if window and localStorage are available
         if (typeof window !== 'undefined') {
             const friendToPlay = localStorage.getItem('friendToPlay');
+            console.log("entered")
             if (friendToPlay) {
                 setFriendToPlay(friendToPlay);
             }
@@ -143,6 +145,15 @@ const Reversi = () => {
             }
         }
     }, []);
+
+    useEffect(() => {
+        if (!isGameActive) {
+            console.log(friendToPlay);
+            setRematchFriend(friendToPlay);
+            localStorage.removeItem('friendToPlay');
+            setFriendToPlay('');
+        }
+    }, [isGameActive])
 
     useEffect(() => {
         let blackIntervalId;
@@ -264,8 +275,13 @@ const Reversi = () => {
     const joinCurrentGame = (gameId, request, toastId) => {
         joinGame(mode, gameId, username, setGameId, setUserColor);
         setFriendToPlay(request.username);
-        declineGame(request, toastId);
+        removeRequest(request, toastId, request.username);
     };
+
+    const removeRequest = async (request, toastId, username) => {
+        await RemoveGameRequest(request, username);
+        toast.dismiss(toastId);
+    }
 
     const updateGameState = (updates) => {
         if (gameId) {
@@ -306,9 +322,6 @@ const Reversi = () => {
                 message: text,
                 isGameActive: false
             });
-            setRematchFriend(friendToPlay);
-            localStorage.removeItem('friendToPlay');
-            setFriendToPlay('');
         } else if (result.status == 'draw') {
             const text = 'The game is a draw!';
             setMessage(text);
@@ -317,9 +330,6 @@ const Reversi = () => {
                 message: text,
                 isGameActive: false
             });
-            setRematchFriend(friendToPlay);
-            localStorage.removeItem('friendToPlay');
-            setFriendToPlay('');
         } else if (result.status == 'skip') {
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
