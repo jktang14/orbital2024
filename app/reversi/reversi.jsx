@@ -3,7 +3,7 @@ import React, { createElement, useState, useEffect, useRef, forwardRef, useImper
 import styles from './style.module.css';
 import game from './game-logic';
 import { realtimeDatabase, db } from '../firebase';
-import { ref, update, set, onValue, push } from 'firebase/database';
+import { ref, update, set, onValue, push, remove } from 'firebase/database';
 import createNewGame from './online/create-game';
 import joinGame from './online/join-game';
 import { toast, Bounce } from 'react-toastify';
@@ -11,12 +11,13 @@ import { AddGameRequest } from '../components/add-game-request';
 import { GameInvitation } from '../components/game-invitation';
 import { DeclineGameRequest } from '../components/decline-game-request';
 import { query, collection, where, getDocs, doc, onSnapshot} from "firebase/firestore";
-
+import { RemoveGameRequest } from '../components/remove-game-request';
 
 const Reversi = () => {
     const [boardSize, setBoardSize] = useState(8);
     const [match, setMatch] = useState(new game(boardSize));
     const [status, setStatus] = useState('local');
+    const [mode, setMode] = useState('standard');
     const [board, setBoard] = useState(match.board);
     const [currentPlayer, setCurrentPlayer] = useState(match.currentPlayer);
     const [userColor, setUserColor] = useState(match.currentPlayer);
@@ -30,6 +31,10 @@ const Reversi = () => {
     const [gameId, setGameId] = useState(null);
     const [friendToPlay, setFriendToPlay] = useState('');
     const [rematchFriend, setRematchFriend] = useState('');
+    // true when player has made a move and can now choose which square to block
+    const [blockModeActive, setBlockModeActive] = useState(false);
+    const [availableCellsToBlock, setAvailableCellsToBlock] = useState(null);
+    const [blockedPlayer, setBlockedPlayer] = useState('');
     
     useEffect(() => {
         if (gameId) {
@@ -39,6 +44,7 @@ const Reversi = () => {
                 if (data) {
                     setBoardSize(data.boardSize);
                     setStatus(data.status);
+                    setMode(data.mode);
                     setBoard(convertSparseObjectTo2DArray(data.board, boardSize));
                     setCurrentPlayer(data.currentPlayer);
                     setMessage(data.message);
@@ -47,12 +53,12 @@ const Reversi = () => {
                     setTimer(data.timer);
                     setBlackTime(data.blackTime);
                     setWhiteTime(data.whiteTime);
-                    setMatch(game.fromData(data.boardSize, data.board, data.currentPlayer, data.players));
+                    setBlockModeActive(data.blockModeActive);
+                    setBlockedPlayer(data.blockedPlayer);
+                    setMatch(game.fromData(data.boardSize, data.mode, data.board, data.currentPlayer, data.players));
 
                     if (!data.isGameActive) {
                         setRematchFriend(friendToPlay);
-                        localStorage.removeItem('friendToPlay');
-                        setFriendToPlay('');
                     }
                 }
             });
@@ -138,6 +144,14 @@ const Reversi = () => {
     }, []);
 
     useEffect(() => {
+        if (!isGameActive) {
+            setRematchFriend(friendToPlay);
+            localStorage.removeItem('friendToPlay');
+            setFriendToPlay('');
+        }
+    }, [isGameActive])
+
+    useEffect(() => {
         let blackIntervalId;
         let whiteIntervalId;
         if (!isGameActive) {
@@ -151,7 +165,8 @@ const Reversi = () => {
             clearInterval(whiteIntervalId);
             return;
         }
-        if (currentPlayer == 'Black') {
+        if ((mode != 'block' && currentPlayer == 'Black') || (mode == 'block' && status == 'online' && blockedPlayer == 'Black') 
+        || (mode == 'block' && status == 'local' && currentPlayer == 'Black')) {
             blackIntervalId = setInterval(() => {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, -1);
@@ -190,7 +205,7 @@ const Reversi = () => {
             clearInterval(blackIntervalId);
             clearInterval(whiteIntervalId);
         };
-    }, [isGameActive, currentPlayer]);
+    }, [isGameActive, currentPlayer, blockedPlayer]);
 
     useEffect(() => {
         if (gameId) {
@@ -250,14 +265,19 @@ const Reversi = () => {
     }
 
     const createGame = () => {
-        return createNewGame(boardSize, username, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime);
+        return createNewGame(boardSize, username, mode, setMode, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime, setBlockModeActive, setBlockedPlayer, blockModeActive, blockedPlayer);
     };
 
     const joinCurrentGame = (gameId, request, toastId) => {
-        joinGame(gameId, username, setGameId, setUserColor);
+        joinGame(mode, gameId, username, setGameId, setUserColor);
         setFriendToPlay(request.username);
-        declineGame(request, toastId);
+        removeRequest(request, toastId, username);
     };
+
+    const removeRequest = async (request, toastId, username) => {
+        await RemoveGameRequest(request, username);
+        toast.dismiss(toastId);
+    }
 
     const updateGameState = (updates) => {
         if (gameId) {
@@ -275,7 +295,8 @@ const Reversi = () => {
 
     function handleBoardSizeChange(size) {
         setBoardSize(size);
-        let newGame = new game(size);
+        setMode(mode); //May not need
+        let newGame = new game(size, mode);
         setMatch(newGame);
         setBoard(newGame.board);
         setCurrentPlayer(newGame.currentPlayer);
@@ -297,9 +318,6 @@ const Reversi = () => {
                 message: text,
                 isGameActive: false
             });
-            setRematchFriend(friendToPlay);
-            localStorage.removeItem('friendToPlay');
-            setFriendToPlay('');
         } else if (result.status == 'draw') {
             const text = 'The game is a draw!';
             setMessage(text);
@@ -308,9 +326,6 @@ const Reversi = () => {
                 message: text,
                 isGameActive: false
             });
-            setRematchFriend(friendToPlay);
-            localStorage.removeItem('friendToPlay');
-            setFriendToPlay('');
         } else if (result.status == 'skip') {
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
@@ -319,7 +334,14 @@ const Reversi = () => {
                 currentPlayer: match.currentPlayer
             });
         } else {
-            setMessage(message);
+            if (message.endsWith('skipped.')) {
+                setMessage('');
+                updateGameState({
+                    message: ''
+                })
+            } else {
+                setMessage(message);
+            }
         }
     }
 
@@ -329,21 +351,98 @@ const Reversi = () => {
             updateGameState({ hasGameStarted: true });
         }
 
-        if (gameId) {
-            if (isGameActive && match.isValidMove(rowIndex, colIndex) && currentPlayer == userColor) {
-                match.makeMove(rowIndex, colIndex);
-                setBoard(match.board);
-                setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
-                updateGameState({
-                    board: match.board,
-                    currentPlayer: match.currentPlayer,
-                });
+        // If we are currently in state to choose which square to block
+        if (blockModeActive) {
+            // check if move is valid
+            if (match.isValidMove(rowIndex, colIndex)) {
+                if (gameId) {
+                    match.blockCell(rowIndex, colIndex);
+                    setBlockModeActive(false); // Exit block mode after setting cell
+                    setAvailableCellsToBlock(null);
+                    const text = `${blockedPlayer} blocked a cell. Now it's ${match.currentPlayer}'s turn.`
+                    setMessage(text);
+                    setBlockedPlayer(match.currentPlayer); // Current player now swapped to opponent
+                    if (gameId) {
+                        updateGameState({
+                            board: match.board,
+                            message: text,
+                            blockedPlayer: match.currentPlayer,
+                            blockModeActive: false
+                        })
+                    }
+                } else {
+                    match.blockCell(rowIndex, colIndex);
+                    setBlockModeActive(false); // Exit block mode after setting cell
+                    setAvailableCellsToBlock(null);
+                    const text = `${currentPlayer} blocked a cell. Now it's ${match.currentPlayer}'s turn.`
+                    setMessage(text);
+                    setCurrentPlayer(match.currentPlayer); //Current player now swapped to opponent
+                }
             }
+                
         } else {
-            if (isGameActive && match.isValidMove(rowIndex, colIndex)) {
-                match.makeMove(rowIndex, colIndex);
-                setBoard(match.board);
-                setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+            if (gameId) {
+                if (isGameActive && match.isValidMove(rowIndex, colIndex) && currentPlayer == userColor) {
+                    if (mode == 'block') {
+                        match.makeMove(rowIndex, colIndex); //Current player internally swapped
+                        setBoard(match.board);
+                        setBlockedPlayer(currentPlayer);
+                        setCurrentPlayer(match.currentPlayer);
+                        updateGameState({
+                            board: match.board,
+                            currentPlayer: match.currentPlayer,
+                            blockedPlayer: currentPlayer,
+                        })
+                        
+                        // Handle condition when skip turn
+                        if (blockedPlayer != match.currentPlayer) {
+                            // No need to set CurrentPlayer state yet as it is still user's turn, to block a cell
+                            const validMoves = match.getValidMoves(match.currentPlayer);
+                            // if opponent has only 1 validmove, do not enter block mode
+                            if (validMoves.length > 1) {
+                                setBlockModeActive(true); // User enters state to block move
+                                setAvailableCellsToBlock(validMoves); // All moves that user can block
+                                setMessage(`Select a cell to block for ${match.currentPlayer}`);
+                                updateGameState({
+                                    message: `Select a cell to block for ${match.currentPlayer}`,
+                                    blockModeActive: true
+                                })
+                            }
+                        }
+                    } else {
+                        match.makeMove(rowIndex, colIndex);
+                        setBoard(match.board);
+                        setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+                        setMatch(match);
+                        updateGameState({
+                            board: match.board,
+                            currentPlayer: match.currentPlayer,
+                            match: match
+                        });
+                    }
+                }
+            } else {
+                if (isGameActive && match.isValidMove(rowIndex, colIndex)) {
+                    if (mode == 'block') {
+                        match.makeMove(rowIndex, colIndex); //Current player internally swapped
+                        setBoard(match.board);
+                        // Handle condition when skip turn
+                        if (currentPlayer != match.currentPlayer) {
+                            // No need to set CurrentPlayer state yet as it is still user's turn, to block a cell
+                            const validMoves = match.getValidMoves(match.currentPlayer);
+                            // if opponent has only 1 validmove, do not enter block mode
+                            if (validMoves.length > 1) {
+                                setBlockModeActive(true); // User enters state to block move
+                                setAvailableCellsToBlock(validMoves); // All moves that user can block
+                                setMessage(`Select a cell to block for ${match.currentPlayer}`);
+                            }
+                        }
+                    } else {
+                        match.makeMove(rowIndex, colIndex);
+                        setBoard(match.board);
+                        setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+                    }
+                }
             }
         }
     }
@@ -362,6 +461,8 @@ const Reversi = () => {
             setTimer(newTimer);
             setBlackTime(newTimer);
             setWhiteTime(newTimer);
+            setBlockModeActive(false);
+            setAvailableCellsToBlock(null);
         }
     }
 
@@ -379,13 +480,40 @@ const Reversi = () => {
         return userColor == "Black" ? "White" : "Black";
     }
 
+    const handleModeChange = (mode) => {
+        setMode(mode);
+        let newGame;
+        // Reset game state or apply specific logic based on the selected mode
+        if (mode == 'standard') {
+            newGame = new game(boardSize);
+        } else if (mode == 'reverse') {
+            newGame = new game(boardSize, 'reverse');
+        } else if (mode == 'random') {
+            newGame = new game(boardSize, 'random');
+        } else if (mode == 'block') {
+            newGame = new game(boardSize, 'block');
+            setBlockModeActive(false);
+            setAvailableCellsToBlock(null);
+        }
+        setMatch(newGame);
+        setBoard(newGame.board);
+        setCurrentPlayer(newGame.currentPlayer);
+        setMessage("");
+        setIsGameActive(true);
+        setHasGameStarted(false);
+        setTimer(timer);
+        setBlackTime(timer);
+        setWhiteTime(timer);
+    };
+
     return (
         <div className={styles.body}>
             <div className={styles.enclosingContainer}>
                 <div className={styles.gameNameTimer}>
                     <div className={styles.playerTurn}>
-                        {isGameActive && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: match.currentPlayer == "Black" ? "black": "white"}}>{match.currentPlayer} turn
+                        {isGameActive && ((mode == 'block' && status == 'local') || mode != 'block') && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: currentPlayer == "Black" ? "black": "white"}}>{currentPlayer} turn
                         </p>}
+                        {hasGameStarted && isGameActive && (mode == 'block' && status == 'online') && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: blockedPlayer == "Black" ? "black": "white"}}>{blockedPlayer} turn</p>}
                     </div>
                     <div className={styles.nameTimer}>
                         <div> 
@@ -402,8 +530,9 @@ const Reversi = () => {
                                 <div className={styles.cell} key={colIndex} onClick={() => handleCellClick(rowIndex, colIndex)}>
                                     {cell == 'Black' && <img className={styles.image} src="black.png" alt="Black piece" />}
                                     {cell == 'White' && <img className={styles.image} src="white.png" alt="White piece" />}
+                                    {cell == 'Blocked' && <img className={styles.image} src="cross.png" alt="Red cross" />}
                                     {gameId
-                                    ? (currentPlayer == userColor && match.isValidMove(rowIndex, colIndex)) && <div className={styles.validMoveIndicator}></div>
+                                    ? ((blockModeActive && (blockedPlayer == userColor)) || (!blockModeActive && (currentPlayer == userColor))) && match.isValidMove(rowIndex, colIndex) && <div className={styles.validMoveIndicator}></div>
                                     : match.isValidMove(rowIndex, colIndex) && <div className={styles.validMoveIndicator}></div>}
                                 </div>
                             ))}
@@ -445,7 +574,27 @@ const Reversi = () => {
                             : <button onClick={() => handleBoardSizeChange(12)}>12x12</button>}
                         </div>
                     </div>
-                    {!hasGameStarted && friendToPlay && <button onClick={handleSendInvitation}>Start</button>}
+                    <div className={styles.modeSelection}>
+                    <div style={{color: "black", paddingBottom: "2px"}}>Select a different variant!</div>
+                        <div className={styles.modeButton}>
+                            {hasGameStarted 
+                            ? <button onClick={() => handleModeChange('standard')} disabled>Standard Reversi</button>
+                            : <button onClick={() => handleModeChange('standard')}>Standard Reversi</button>}
+                            {hasGameStarted 
+                            ? <button onClick={() => handleModeChange('reverse')} disabled>Reverse Reversi</button>
+                            : <button onClick={() => handleModeChange('reverse')}>Reverse Reversi</button>}
+                            {hasGameStarted 
+                            ? <button onClick={() => handleModeChange('random')} disabled>Random Reversi</button>
+                            : <button onClick={() => handleModeChange('random')}>Random Reversi</button>}
+                            {hasGameStarted 
+                            ? <button onClick={() => handleModeChange('block')} disabled>Obstruction Reversi</button>
+                            : <button onClick={() => handleModeChange('block')}>Obstruction Reversi</button>}
+                        </div>
+                    </div>
+                    {!hasGameStarted && friendToPlay && userColor == 'Black' && <div className={styles.startGame}>
+                        <div style={{color: "black", paddingBottom: "2px"}}>Start an online game!</div>
+                        {<button onClick={handleSendInvitation}>Start</button>}
+                    </div>}
                 </div>
             </div>
             {message && <div className={styles.message}>{message}</div>}

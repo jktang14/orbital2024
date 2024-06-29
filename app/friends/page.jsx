@@ -132,7 +132,7 @@ const FriendsList = () => {
                     {Array.isArray(friends) && friends.map(friend => (
                         <li key = {friend} className={styles.listItem}>
                             {friend.username} 
-                            <div>
+                            <div className={styles.actions}>
                                 Status: {friend.status}
                                 <button onClick={() => handleRemoveFriend(username, friend.username)}>Remove friend</button>
                                 <button onClick={() => handlePlay(friend.username)}>Play</button>

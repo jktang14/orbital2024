@@ -1,13 +1,15 @@
 class game {
     static DIRECTIONS = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
-    constructor(size=8) {
+    constructor(size=8, mode='standard') {
         this.size=size
         this.currentPlayer = "Black";
+        this.mode = mode;
         this.board = this.initialiseBoard(size);
         this.players = {
             black: {name: 'Player 1', color: "Black"},
             white: {name: 'Player 2', color: "White"}
         };
+        
     }
 
     /*
@@ -15,19 +17,34 @@ class game {
     */
     initialiseBoard(size) {
         let board = Array(size).fill(null).map(() => Array(size).fill(null));
-        let mid = Math.floor(size / 2);
-        board[mid - 1][mid - 1] = "Black";
-        board[mid - 1][mid] = "White";
-        board[mid][mid - 1] = "White";
-        board[mid][mid] = "Black";
+        if (this.mode == 'random') {
+            let randRow = this.getRandomInt(this.size - 1);
+            let randCol = this.getRandomInt(this.size - 1);
+            board[randRow][randCol] = "Black";
+            board[randRow][randCol + 1] = "White";
+            board[randRow + 1][randCol] = "White";
+            board[randRow + 1][randCol + 1] = "Black";
+        } else {
+            let mid = Math.floor(size / 2);
+            board[mid - 1][mid - 1] = "Black";
+            board[mid - 1][mid] = "White";
+            board[mid][mid - 1] = "White";
+            board[mid][mid] = "Black";
+        }
         return board;
     }
 
     /*
+    Get random integer for the random variant
+    */
+    getRandomInt(max) {
+        return Math.floor(Math.random() * max);
+    }
+    /*
     Get an instance of game from realtime database data
     */
-    static fromData(boardSize, board, currentPlayer, players) {
-        const gameInstance = new game(boardSize);
+    static fromData(boardSize, mode, board, currentPlayer, players) {
+        const gameInstance = new game(boardSize, mode);
         gameInstance.board = game.convertSparseObjectTo2DArray(board, boardSize);
         gameInstance.currentPlayer = currentPlayer;
         gameInstance.players = players;
@@ -94,6 +111,10 @@ class game {
                 if (this.board[row][col] != null) {
                     continue;
                 }
+                // Cell has been blocked
+                if (this.board[row][col] == 'Blocked') {
+                    continue;
+                }
                 // check all 8 directions
                 for (let [x, y] of game.DIRECTIONS) {
                     if (this.hasOpponent(row, col, x, y, player)) {
@@ -147,7 +168,11 @@ class game {
         for (let i = 0; i < this.size; i++) {
             let row = [];
             for (let j = 0; j < this.size; j++) {
-                row.push(this.board[i][j]);
+                if (this.board[i][j] == 'Blocked') {
+                    row.push(null);
+                } else {
+                    row.push(this.board[i][j]);
+                }
             }
             newBoard.push(row);
         }
@@ -193,12 +218,23 @@ class game {
 
         // If grid is full or both players have no valid moves
         if (this.isGridFull() || (!this.hasValidMove(this.currentPlayer) && !this.hasValidMove(this.getOpponent()))) {
-            if (currNum > opponentNum) {
-                return {status: "win", winner: this.currentPlayer};
-            } else if (opponentNum > currNum) {
-                return {status: "win", winner: this.getOpponent()};
+            // If game mode is reverse reversi, flip winning logic
+            if (this.mode == 'reverse') {
+                if (currNum > opponentNum) {
+                    return {status: "win", winner: this.getOpponent()};
+                } else if (opponentNum > currNum) {
+                    return {status: "win", winner: this.currentPlayer};
+                } else {
+                    return {status: "draw"};
+                }
             } else {
-                return {status: "draw"};
+                if (currNum > opponentNum) {
+                    return {status: "win", winner: this.currentPlayer};
+                } else if (opponentNum > currNum) {
+                    return {status: "win", winner: this.getOpponent()};
+                } else {
+                    return {status: "draw"};
+                }
             }
         }
 
@@ -210,6 +246,22 @@ class game {
         }
 
         return {status: "continue"};
+    }
+
+    /*
+    Updates board with blocked cell
+    */
+    blockCell(row, col) {
+        this.board[row][col] = 'Blocked';
+        let newBoard = []
+        for (let i = 0; i < this.size; i++) {
+            let row = [];
+            for (let j = 0; j < this.size; j++) {
+                row.push(this.board[i][j]);
+            }
+            newBoard.push(row);
+        }
+        this.board = newBoard;
     }
 }
 

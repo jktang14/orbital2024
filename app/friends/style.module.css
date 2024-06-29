@@ -32,3 +32,8 @@
     border: 1px solid #151111;
     background-color: #989797;
 }
+
+.actions {
+    display: flex;
+    gap: 1rem;
+}
