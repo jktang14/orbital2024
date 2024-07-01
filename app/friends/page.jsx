@@ -10,6 +10,7 @@ import { InviteFriend } from "../components/invite-friend";
 import { AddFriend } from "../components/add-friend";
 import { RemoveFriend } from "../components/remove-friend";
 import { useRouter } from "next/navigation";
+import ResponsiveAppBar from "./navbar";
 
 const FriendsList = () => {
     const [friends, setFriends] = useState([]);
@@ -117,45 +118,46 @@ const FriendsList = () => {
 
     return (
         <div className={styles.body}>
-            <div className={styles.friendsList}>
-                <h1 style = {{margin: 0}}>Friends List</h1>
-                <form className={styles.form} onSubmit={handleInvite}> 
-                    <input 
-                        type="text" 
-                        onChange={(e) => setSearchUsername(e.target.value)}
-                        value = {searchUsername}
-                        placeholder="Search for username"
-                    />
-                    <button type="submit">Add user</button>
-                </form>
-                <ul className={styles.list}>
-                    {Array.isArray(friends) && friends.map(friend => (
-                        <li key = {friend} className={styles.listItem}>
-                            {friend.username} 
-                            <div className={styles.actions}>
-                                Status: {friend.status}
-                                <button onClick={() => handleRemoveFriend(username, friend.username)}>Remove friend</button>
-                                <button onClick={() => handlePlay(friend.username)}>Play</button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-
-            <div className={styles.friendRequests}>
-            <h1 style = {{margin: 0}}> Friend requests </h1>
-                <ul className={styles.requests}>
-                    {Array.isArray(friendRequests) && friendRequests.map(request => (
-                        <li key={request} className={styles.request}>
-                            {request}
-                            <div className={styles.selectionButtons}>
-                                <button onClick={() => handleAddFriend(username, request)}>Accept</button>
-                                <button onClick={() => handleDeclineInvite(request)}>Decline</button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-                
+            <ResponsiveAppBar/>
+            <div className={styles.container}>
+                <div className={styles.friendsList}>
+                    <h1 style = {{margin: 0}}>Friends List</h1>
+                    <form className={styles.form} onSubmit={handleInvite}> 
+                        <input 
+                            type="text" 
+                            onChange={(e) => setSearchUsername(e.target.value)}
+                            value = {searchUsername}
+                            placeholder="Search for username"
+                        />
+                        <button type="submit">Add user</button>
+                    </form>
+                    <ul className={styles.list}>
+                        {Array.isArray(friends) && friends.map(friend => (
+                            <li key = {friend} className={styles.listItem}>
+                                {friend.username} 
+                                <div className={styles.actions}>
+                                    Status: {friend.status}
+                                    <button onClick={() => handleRemoveFriend(username, friend.username)}>Remove friend</button>
+                                    <button onClick={() => handlePlay(friend.username)}>Play</button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div className={styles.friendRequests}>
+                <h1 style = {{margin: 0}}> Friend requests </h1>
+                    <ul className={styles.requests}>
+                        {Array.isArray(friendRequests) && friendRequests.map(request => (
+                            <li key={request} className={styles.request}>
+                                {request}
+                                <div className={styles.selectionButtons}>
+                                    <button onClick={() => handleAddFriend(username, request)}>Accept</button>
+                                    <button onClick={() => handleDeclineInvite(request)}>Decline</button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             </div>
         </div>
     )
