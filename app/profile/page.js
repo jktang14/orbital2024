@@ -25,6 +25,7 @@ const Profile = () => {
           const reader = new FileReader();
           reader.onloadend = () => {
             updateImageUrl(reader.result);
+            localStorage.setItem('imageUrl', reader.result);
           };
           reader.readAsDataURL(file);
         }

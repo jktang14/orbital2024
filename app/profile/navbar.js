@@ -20,7 +20,7 @@ const settings = ['Profile', 'Logout'];
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const [username, setUsername] =   React.useState('');
+  const [username, setUsername] = React.useState('');
   const imageUrl = useImage();
   const router = useRouter();
 

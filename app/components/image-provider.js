@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const imageContext = React.createContext();
 const UpdateImageContext = React.createContext();
@@ -13,6 +13,15 @@ export const useUpdateImage = () => {
 
 export const ImageProvider = ({value, children}) => {
     const [image, setImage] = useState(value);
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const storedImage = localStorage.getItem('imageUrl');
+            if (storedImage) {
+                setImage(storedImage);
+            }
+        }
+    })
+
     return (
         <imageContext.Provider value = {image}>
             <UpdateImageContext.Provider value = {setImage}>
