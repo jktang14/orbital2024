@@ -13,6 +13,9 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { useRouter } from 'next/navigation';
 import { useImage } from "./components/image-provider";
+import { auth } from './firebase';
+import { signOut } from 'firebase/auth';
+import { updateStatus } from './components/path-change';
 
 const pages = ['Cosmetics', 'Friends'];
 const settings = ['Profile', 'Logout'];
@@ -50,7 +53,12 @@ function ResponsiveAppBar() {
 
   const handleUserItemClick = (page) => {
     handleCloseUserMenu();
-    handleNavigation(`/${page.toLowerCase()}`);
+    if (page == "Logout") {
+      updateStatus(auth.currentUser.uid, 'offline').then(() => signOut(auth))
+      .then(() => handleNavigation(`/login`));
+    } else {
+      handleNavigation(`/${page.toLowerCase()}`);
+    }
   };
 
   React.useEffect(() => {
