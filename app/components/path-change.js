@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 const updateStatus = (userId, status) => {
     let userRef = ref(realtimeDatabase, 'users/' + userId);
-    update(userRef, {
+    return update(userRef, {
         status: status
     });
 };
@@ -16,7 +16,7 @@ const HandlePathChange = () => {
 
     useEffect(() => {
         if (auth.currentUser) {
-            if (pathname == '/game' || pathname == '/friends') {
+            if (pathname == '/game' || pathname == '/friends' || pathname == '/profile') {
                 updateStatus(auth.currentUser.uid, 'online');
             } else {
                 updateStatus(auth.currentUser.uid, 'offline');
