@@ -1,0 +1,64 @@
+.body {
+    background-color: #DDD0C8;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    padding: 32px;
+}
+
+.user, .image {
+    display: flex;
+    gap: 5rem;
+    align-items: center;
+}
+
+.image {
+    margin-top: 3rem;
+}
+
+.imageContainer {
+    width: 18rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 8px;
+    border-color: #2d3748;
+    padding: 24px;
+    border-style: solid;
+    gap: 1.3rem;
+}
+
+.imageSelector {
+    width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.customButton {
+    font-size: 1em;
+    font-weight: 700;
+    color: white;
+    background-color: rgba(14, 15, 26, 0.521);
+    display: inline-block;
+    cursor: pointer;
+    padding: 2px;
+    border-style: solid;
+    border-color: rgba(14, 15, 26, 0.521);
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.customButton:hover {
+    background-color: rgba(78, 89, 214, 0.521);
+}
+.description {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
