@@ -41,6 +41,7 @@ const Profile = () => {
                 <div className={styles.user}>
                     <label>Username</label>
                     <input 
+                        style={{padding: "5px"}}
                         type="text" 
                         value = {username}
                         disabled
