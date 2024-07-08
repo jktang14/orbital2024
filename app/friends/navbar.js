@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { useRouter } from 'next/navigation';
+import { useImage } from '../components/image-provider';
 
 const pages = ['Cosmetics', 'Game'];
 const settings = ['Profile', 'Logout'];
@@ -19,7 +20,9 @@ const settings = ['Profile', 'Logout'];
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const [username, setUsername] =   React.useState('');
+  const [username, setUsername] = React.useState('');
+  const imageUrl = useImage();
+  
   const router = useRouter();
 
   const handleOpenNavMenu = (event) => {
@@ -151,7 +154,7 @@ function ResponsiveAppBar() {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar/>
+                <Avatar src={imageUrl}/>
               </IconButton>
             </Tooltip>
             <Menu
