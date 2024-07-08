@@ -6,6 +6,7 @@ import { HandlePathChange } from "./components/path-change";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { usePathname } from 'next/navigation';
+import ImageProvider from './components/image-provider';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,9 +23,11 @@ export default function RootLayout({ children }) {
   
   HandlePathChange();
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-      {mounted && pathWithToast == pathName && <ToastContainer />}
-    </html>
+    <ImageProvider value = ''>
+      <html lang="en">
+        <body className={inter.className}>{children}</body>
+        {mounted && pathWithToast == pathName && <ToastContainer />}
+      </html>
+    </ImageProvider>
   );
 }
