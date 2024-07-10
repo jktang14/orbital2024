@@ -1,0 +1,15 @@
+.cosmetics {
+    display: flex;
+    flex-direction: column;
+    padding-top: 24px;
+    padding-left: 40px;
+}
+
+.boardColor {
+    display: flex;
+    flex-direction: column;
+}
+
+.colorPicker {
+    width: 200px;
+}
