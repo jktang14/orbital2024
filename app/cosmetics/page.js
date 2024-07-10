@@ -11,6 +11,10 @@ const CosmeticPage = () => {
         localStorage.setItem('boardColor', color);
     }
 
+    const handleDefaultBoard = () => {
+        localStorage.setItem('boardColor', 'rgb(97, 136, 97)');
+    }
+
     const handleImageClick = (path) => {
         // const url = new URL(path);
         // const link = url.pathname.split('/').pop();
@@ -25,6 +29,7 @@ const CosmeticPage = () => {
                 <div className={styles.boardColor}>
                     <h1 className={styles.heading} style = {{color: "white", marginTop: "0", marginBottom:"10px"}}>Change your board color</h1>
                     <input type="color" className={styles.colorPicker} onChange={handleBoardChange}/>
+                    <button className={styles.defaultButton} onClick={handleDefaultBoard}>Restore default colour</button>
                 </div>
                 <div className={styles.pieceSelection}>
                     <h1 className={styles.heading} style={{color: "white", marginTop: "30px", marginBottom:"20px"}}

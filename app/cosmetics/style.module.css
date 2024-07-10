@@ -28,6 +28,12 @@
     margin-right: auto;
 }
 
+.defaultButton {
+    width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .heading {
     text-align: center;
     padding-bottom: 15px;
@@ -74,7 +80,7 @@
     line-height: 1.8;
 }
 
-.selectButton {
+.selectButton, .defaultButton {
     margin-top: 10px;
     display: inline-block;
     background:#333;
@@ -85,6 +91,6 @@
     cursor: pointer;
 }
 
-.selectButton:hover {
+.selectButton:hover, .defaultButton:hover{
     background-color: rgba(78, 89, 214, 0.521);
 }
