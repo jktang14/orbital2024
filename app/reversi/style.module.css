@@ -22,9 +22,10 @@
   }
 
 .image {
-    max-width: 100%;
+    object-fit: cover;
+    max-height: 85%;
     background: transparent;
-    height: auto;
+    max-width: 85%;
 }
 
 .validMoveIndicator {
