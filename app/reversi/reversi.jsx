@@ -35,6 +35,7 @@ const Reversi = () => {
     const [blockModeActive, setBlockModeActive] = useState(false);
     const [availableCellsToBlock, setAvailableCellsToBlock] = useState(null);
     const [blockedPlayer, setBlockedPlayer] = useState('');
+    const [boardColor, setBoardColor] = useState('rgb(97, 136, 97)');
     
     useEffect(() => {
         if (gameId) {
@@ -130,15 +131,13 @@ const Reversi = () => {
             if (friendToPlay) {
                 setFriendToPlay(friendToPlay);
             }
-        }
-    }, []);
-
-    useEffect(() => {
-        // Check if window and localStorage are available
-        if (typeof window !== 'undefined') {
             const storedUsername = localStorage.getItem('username');
             if (storedUsername) {
                 setUsername(storedUsername);
+            }
+            const storedBoardColor = localStorage.getItem('boardColor');
+            if (storedBoardColor) {
+                setBoardColor(storedBoardColor);
             }
         }
     }, []);
@@ -523,7 +522,7 @@ const Reversi = () => {
                             <p>{formatTime(userColor == "Black" ? whiteTime: blackTime)}</p>    
                         </div>
                     </div>
-                    <div className={styles.container} style = {{gridTemplateRows: `repeat(${boardSize}, 1fr)`}}>
+                    <div className={styles.container} style = {{gridTemplateRows: `repeat(${boardSize}, 1fr)`, backgroundColor: `${boardColor}`}}>
                         {match.board.map((row, rowIndex) => (
                             <div className={styles.row} key={rowIndex}>
                             {row.map((cell, colIndex) => (
