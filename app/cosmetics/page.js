@@ -4,7 +4,13 @@ import styles from './style.module.css'
 
 const CosmeticPage = () => {
     
-    const pieceMap = {'black.png': {'Black': 'black.png', 'White': 'white.png'}, 'blackcurve.png': {'Black': 'blackcurve.png', 'White': 'whitecurve.png'}}
+    const pieceMap = {
+        'black.png': {'Black': 'black.png', 'White': 'white.png'}, 
+        'blackcurve.png': {'Black': 'blackcurve.png', 'White': 'whitecurve.png'},
+        'coin1.png': {'Black': 'coin1.png', 'White': 'coin2.png'},
+        'diamond1.png': {'Black': 'diamond1.png', 'White': 'diamond2.png'},
+        'crown1.png': {'Black': 'crown1.png', 'White': 'crown2.png'}
+    }
     
     const handleBoardChange = (event) => {
         const color = event.target.value;
@@ -44,8 +50,26 @@ const CosmeticPage = () => {
                         <div className={styles.item}>
                             <img className={styles.image} src='blackcurve.png'/>
                             <h3 className={styles.title}>Crescent</h3>
-                            <p className={styles.description}>Crescent shape</p>
+                            <p className={styles.description}>A piece that shines like the moon, guiding your path to victory!</p>
                             <button className={styles.selectButton} onClick={() => handleImageClick('blackcurve.png')}>Select</button>
+                        </div>
+                        <div className={styles.item}>
+                            <img className={styles.image} src='coin1.png'/>
+                            <h3 className={styles.title}>Coin</h3>
+                            <p className={styles.description}>A piece of fortune, flip your way to triumph!</p>
+                            <button className={styles.selectButton} onClick={() => handleImageClick('coin1.png')}>Select</button>
+                        </div>
+                        <div className={styles.item}>
+                            <img className={styles.image} src='diamond1.png'/>
+                            <h3 className={styles.title}>Diamond</h3>
+                            <p className={styles.description}>A sharp piece, cut through your competition like a diamond!</p>
+                            <button className={styles.selectButton} onClick={() => handleImageClick('diamond1.png')}>Select</button>
+                        </div>
+                        <div className={styles.item}>
+                            <img className={styles.image} src='crown1.png'/>
+                            <h3 className={styles.title}>Crown</h3>
+                            <p className={styles.description}>A piece fit for a king!</p>
+                            <button className={styles.selectButton} onClick={() => handleImageClick('crown1.png')}>Select</button>
                         </div>
                     </div>
                 </div>
