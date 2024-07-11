@@ -35,6 +35,9 @@ const Reversi = () => {
     const [blockModeActive, setBlockModeActive] = useState(false);
     const [availableCellsToBlock, setAvailableCellsToBlock] = useState(null);
     const [blockedPlayer, setBlockedPlayer] = useState('');
+    const [boardColor, setBoardColor] = useState('rgb(97, 136, 97)');
+    const [blackPiece, setBlackPiece] = useState('black.png');
+    const [whitePiece, setWhitePiece] = useState('white.png');
     
     useEffect(() => {
         if (gameId) {
@@ -130,15 +133,21 @@ const Reversi = () => {
             if (friendToPlay) {
                 setFriendToPlay(friendToPlay);
             }
-        }
-    }, []);
-
-    useEffect(() => {
-        // Check if window and localStorage are available
-        if (typeof window !== 'undefined') {
             const storedUsername = localStorage.getItem('username');
             if (storedUsername) {
                 setUsername(storedUsername);
+            }
+            const storedBoardColor = localStorage.getItem('boardColor');
+            if (storedBoardColor) {
+                setBoardColor(storedBoardColor);
+            }
+            const storedBlackPiece = localStorage.getItem('blackPiece');
+            if (storedBlackPiece) {
+                setBlackPiece(storedBlackPiece);
+            }
+            const storedWhitePiece = localStorage.getItem('whitePiece');
+            if (storedWhitePiece) {
+                setWhitePiece(storedWhitePiece);
             }
         }
     }, []);
@@ -523,13 +532,13 @@ const Reversi = () => {
                             <p>{formatTime(userColor == "Black" ? whiteTime: blackTime)}</p>    
                         </div>
                     </div>
-                    <div className={styles.container} style = {{gridTemplateRows: `repeat(${boardSize}, 1fr)`}}>
+                    <div className={styles.container} style = {{gridTemplateRows: `repeat(${boardSize}, 1fr)`, backgroundColor: `${boardColor}`}}>
                         {match.board.map((row, rowIndex) => (
                             <div className={styles.row} key={rowIndex}>
                             {row.map((cell, colIndex) => (
                                 <div className={styles.cell} key={colIndex} onClick={() => handleCellClick(rowIndex, colIndex)}>
-                                    {cell == 'Black' && <img className={styles.image} src="black.png" alt="Black piece" />}
-                                    {cell == 'White' && <img className={styles.image} src="white.png" alt="White piece" />}
+                                    {cell == 'Black' && <img className={styles.image} src={blackPiece} alt="Black piece" />}
+                                    {cell == 'White' && <img className={styles.image} src={whitePiece} alt="White piece" />}
                                     {cell == 'Blocked' && <img className={styles.image} src="cross.png" alt="Red cross" />}
                                     {gameId
                                     ? ((blockModeActive && (blockedPlayer == userColor)) || (!blockModeActive && (currentPlayer == userColor))) && match.isValidMove(rowIndex, colIndex) && <div className={styles.validMoveIndicator}></div>
