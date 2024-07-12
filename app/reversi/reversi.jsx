@@ -486,7 +486,8 @@ const Reversi = () => {
     }
 
     function opponentColor(userColor) {
-        return userColor == "Black" ? "White" : "Black";
+        // return userColor == "Black" ? "White" : "Black";
+        return userColor == "Black" ? "white" : "black";
     }
 
     const handleModeChange = (mode) => {
@@ -526,7 +527,8 @@ const Reversi = () => {
                     </div>
                     <div className={styles.nameTimer}>
                         <div> 
-                            {<p className ={styles.name}>{"white" in match.players ? match.players[userColor == "Black" ? "white" : "black"].name: "Player 2"} ({opponentColor(userColor)})</p>}
+                            {/* {<p className ={styles.name}>{"white" in match.players ? match.players[userColor == "Black" ? "white" : "black"].name: "Player 2"} ({opponentColor(userColor)})</p>} */}
+                            {<p className= {styles.name}>{"white" in match.players && status == "online" ? `${match.players[opponentColor(userColor)].name} (${match.players[opponentColor(userColor)].rating})`: "Player 2"}</p>}
                         </div>
                         <div className={styles.timer}>
                             <p>{formatTime(userColor == "Black" ? whiteTime: blackTime)}</p>    
@@ -550,7 +552,7 @@ const Reversi = () => {
                     </div>
                     <div className={styles.nameTimer}>
                         <div> 
-                            <p className={styles.name}>{username} ({userColor})</p>
+                            <p className={styles.name}>{status == 'online' ? `${username} (${match.players[userColor == 'Black' ? 'black': 'white'].rating})` : username}</p>
                         </div>
                         <div className={styles.timer}>
                             <p>{formatTime(userColor == "Black" ? blackTime: whiteTime)}</p>    
