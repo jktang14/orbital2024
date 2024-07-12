@@ -15,13 +15,14 @@ export const GetFriends = async (username) => {
     const friendStatusPromise = friends.map(async (friendName) => {
         const friendQuery = query(collection(db, 'users'), where('username', '==', friendName));
         const friendSnapshot = await getDocs(friendQuery);
+        const rating = friendSnapshot.docs[0].data().rating;
 
         if (!friendSnapshot.empty) {
             // get user id
             const userId = friendSnapshot.docs[0].id;
             const gameRef = ref(realtimeDatabase, `users/${userId}`);
             const snapshot = await get(gameRef);
-            return {username: friendName, status: snapshot.val().status}
+            return {username: friendName, status: snapshot.val().status, rating: rating}
         }
     });
 
