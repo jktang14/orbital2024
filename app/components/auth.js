@@ -27,7 +27,8 @@ export const SignUpUser = async (email, password, username) => {
         username: username,
         friends: [],
         friendRequests: [],
-        gameRequests: []
+        gameRequests: [],
+        rating: 500
     });
 
     await signOut(auth);
