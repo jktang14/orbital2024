@@ -223,21 +223,20 @@ class game {
             // If game mode is reverse reversi, flip winning logic
             if (this.mode == 'reverse') {
                 if (currNum > opponentNum) {
-                    UpdateRating(this.players[this.getOpponent().toLowerCase()].name, this.players[this.currentPlayer.toLowerCase()].name).then(() => {
-                        return {status: "win", winner: this.getOpponent()};
-                    })
+                    // UpdateRating(this.players[this.getOpponent().toLowerCase()].name, this.players[this.currentPlayer.toLowerCase()].name);
+                    return {status: "win", winner: this.getOpponent()};
                 } else if (opponentNum > currNum) {
-                    UpdateRating(this.players[this.currentPlayer.toLowerCase()].name, this.players[this.getOpponent().toLowerCase()].name);
+                    // UpdateRating(this.players[this.currentPlayer.toLowerCase()].name, this.players[this.getOpponent().toLowerCase()].name);
                     return {status: "win", winner: this.currentPlayer};
                 } else {
                     return {status: "draw"};
                 }
             } else {
                 if (currNum > opponentNum) {
-                    UpdateRating(this.players[this.currentPlayer.toLowerCase()].name, this.players[this.getOpponent().toLowerCase()].name);
+                    // UpdateRating(this.players[this.currentPlayer.toLowerCase()].name, this.players[this.getOpponent().toLowerCase()].name);
                     return {status: "win", winner: this.currentPlayer};
                 } else if (opponentNum > currNum) {
-                    UpdateRating(this.players[this.getOpponent().toLowerCase()].name, this.players[this.currentPlayer.toLowerCase()].name);
+                    // UpdateRating(this.players[this.getOpponent().toLowerCase()].name, this.players[this.currentPlayer.toLowerCase()].name);
                     return {status: "win", winner: this.getOpponent()};
                 } else {
                     return {status: "draw"};

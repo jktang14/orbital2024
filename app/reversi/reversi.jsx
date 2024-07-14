@@ -1,5 +1,5 @@
 "use client";
-import React, { createElement, useState, useEffect, useRef, forwardRef, useImperativeHandle} from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import styles from './style.module.css';
 import game from './game-logic';
 import { realtimeDatabase, db } from '../firebase';
@@ -13,6 +13,8 @@ import { DeclineGameRequest } from '../components/decline-game-request';
 import { query, collection, where, getDocs, doc, onSnapshot} from "firebase/firestore";
 import { RemoveGameRequest } from '../components/remove-game-request';
 import UpdateRating from '../components/updateRating';
+import IsEqual from '../components/equal-board';
+import DeepCopy from '../components/deep-copy';
 
 const Reversi = () => {
     const [boardSize, setBoardSize] = useState(8);
@@ -39,7 +41,13 @@ const Reversi = () => {
     const [boardColor, setBoardColor] = useState('rgb(97, 136, 97)');
     const [blackPiece, setBlackPiece] = useState('black.png');
     const [whitePiece, setWhitePiece] = useState('white.png');
+
+    const prevBoardRef = useRef();
     
+    useEffect(() => {
+        prevBoardRef.current = DeepCopy(board);
+    }, [])
+
     useEffect(() => {
         if (gameId) {
             const gameRef = ref(realtimeDatabase, `games/${gameId}`);
@@ -124,8 +132,12 @@ const Reversi = () => {
     }, [username])
     
     useEffect(() => {
-        console.log(board);
-        checkStatus();
+        if (!IsEqual(prevBoardRef.current, board)) {
+            console.log(board);
+            checkStatus();
+            prevBoardRef.current = DeepCopy(board);
+            console.log(prevBoardRef.current);
+        }
     }, [board]);
 
     useEffect(() => {
@@ -183,7 +195,9 @@ const Reversi = () => {
                     let currTime = Math.max(prev - 1, 0);
                     if ((status == "local" && currTime == 0) || (status == 'online' && currTime == 0)) {
                         const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
-                        UpdateRating(match.players["white"].name, match.players["black"].name);
+                        if (status == 'online') {
+                            UpdateRating(match.players["white"].name, match.players["black"].name);
+                        }
                         setMessage(text);
                         setIsGameActive(false);
                         updateGameState({message: text, isGameActive: false});
@@ -201,7 +215,9 @@ const Reversi = () => {
                     let currTime = Math.max(prev - 1, 0);
                     if ((status == "local" && currTime == 0) || (status == 'online' && currTime == 0)) {
                         const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
-                        UpdateRating(match.players["black"].name, match.players["white"].name);
+                        if (status == 'online') {
+                            UpdateRating(match.players["black"].name, match.players["white"].name);
+                        }
                         setMessage(text);
                         setIsGameActive(false);
                         updateGameState({message: text, isGameActive: false});
@@ -326,6 +342,10 @@ const Reversi = () => {
         console.log('win')
         if (result.status == 'win') {
             const text = `${result.winner} wins!`;
+            if (status == 'online') {
+                UpdateRating(match.players[result.winner.toLowerCase()].name, match.players[result.winner == 'Black' ? 
+                    'white' : 'black'].name)
+            }
             setMessage(text);
             setIsGameActive(false);
             updateGameState({
@@ -371,6 +391,7 @@ const Reversi = () => {
             if (match.isValidMove(rowIndex, colIndex)) {
                 if (gameId) {
                     match.blockCell(rowIndex, colIndex);
+                    setBoard(match.board);
                     setBlockModeActive(false); // Exit block mode after setting cell
                     setAvailableCellsToBlock(null);
                     const text = `${blockedPlayer} blocked a cell. Now it's ${match.currentPlayer}'s turn.`
@@ -386,6 +407,7 @@ const Reversi = () => {
                     }
                 } else {
                     match.blockCell(rowIndex, colIndex);
+                    setBoard(match.board);
                     setBlockModeActive(false); // Exit block mode after setting cell
                     setAvailableCellsToBlock(null);
                     const text = `${currentPlayer} blocked a cell. Now it's ${match.currentPlayer}'s turn.`
@@ -421,6 +443,11 @@ const Reversi = () => {
                                     message: `Select a cell to block for ${match.currentPlayer}`,
                                     blockModeActive: true
                                 })
+                            } else {
+                                setMessage(`${match.currentPlayer} has only 1 valid move, ${match.currentPlayer}'s turn`);
+                                updateGameState({
+                                    message: `${match.currentPlayer} has only 1 valid move, ${match.currentPlayer}'s turn`
+                                })
                             }
                         }
                     } else {
@@ -449,6 +476,8 @@ const Reversi = () => {
                                 setBlockModeActive(true); // User enters state to block move
                                 setAvailableCellsToBlock(validMoves); // All moves that user can block
                                 setMessage(`Select a cell to block for ${match.currentPlayer}`);
+                            } else {
+                                setMessage(`${match.currentPlayer} has only 1 valid move, ${match.currentPlayer}'s turn`);
                             }
                         }
                     } else {
