@@ -12,6 +12,7 @@ import { GameInvitation } from '../components/game-invitation';
 import { DeclineGameRequest } from '../components/decline-game-request';
 import { query, collection, where, getDocs, doc, onSnapshot} from "firebase/firestore";
 import { RemoveGameRequest } from '../components/remove-game-request';
+import UpdateRating from '../components/updateRating';
 
 const Reversi = () => {
     const [boardSize, setBoardSize] = useState(8);
@@ -123,6 +124,7 @@ const Reversi = () => {
     }, [username])
     
     useEffect(() => {
+        console.log(board);
         checkStatus();
     }, [board]);
 
@@ -178,9 +180,10 @@ const Reversi = () => {
         || (mode == 'block' && status == 'local' && currentPlayer == 'Black')) {
             blackIntervalId = setInterval(() => {
                 setBlackTime(prev => {
-                    let currTime = Math.max(prev - 1, -1);
-                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == -1)) {
+                    let currTime = Math.max(prev - 1, 0);
+                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == 0)) {
                         const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
+                        UpdateRating(match.players["white"].name, match.players["black"].name);
                         setMessage(text);
                         setIsGameActive(false);
                         updateGameState({message: text, isGameActive: false});
@@ -195,9 +198,10 @@ const Reversi = () => {
         } else {
             whiteIntervalId = setInterval(() => {
                 setWhiteTime(prev => {
-                    let currTime = Math.max(prev - 1, -1);
-                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == -1)) {
+                    let currTime = Math.max(prev - 1, 0);
+                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == 0)) {
                         const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
+                        UpdateRating(match.players["black"].name, match.players["white"].name);
                         setMessage(text);
                         setIsGameActive(false);
                         updateGameState({message: text, isGameActive: false});
@@ -319,6 +323,7 @@ const Reversi = () => {
 
     function checkStatus() {
         const result = match.checkGameStatus();
+        console.log('win')
         if (result.status == 'win') {
             const text = `${result.winner} wins!`;
             setMessage(text);
