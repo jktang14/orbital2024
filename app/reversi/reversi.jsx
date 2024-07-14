@@ -445,8 +445,12 @@ const Reversi = () => {
                                 })
                             } else {
                                 setMessage(`${match.currentPlayer} has only 1 valid move, ${match.currentPlayer}'s turn`);
+                                setCurrentPlayer(match.currentPlayer);
+                                setBlockedPlayer(match.currentPlayer);
                                 updateGameState({
-                                    message: `${match.currentPlayer} has only 1 valid move, ${match.currentPlayer}'s turn`
+                                    message: `${match.currentPlayer} has only 1 valid move, ${match.currentPlayer}'s turn`,
+                                    currentPlayer: match.currentPlayer,
+                                    blockedPlayer: match.currentPlayer
                                 })
                             }
                         }
@@ -477,6 +481,7 @@ const Reversi = () => {
                                 setAvailableCellsToBlock(validMoves); // All moves that user can block
                                 setMessage(`Select a cell to block for ${match.currentPlayer}`);
                             } else {
+                                setCurrentPlayer(match.currentPlayer);
                                 setMessage(`${match.currentPlayer} has only 1 valid move, ${match.currentPlayer}'s turn`);
                             }
                         }
