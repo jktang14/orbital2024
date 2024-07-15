@@ -341,7 +341,7 @@ const Reversi = () => {
             const text = `${result.winner} wins!`;
             if (status == 'online') {
                 UpdateRating(match.players[result.winner.toLowerCase()].name, match.players[result.winner == 'Black' ? 
-                    'white' : 'black'].name)
+                    'white' : 'black'].name);
             }
             setMessage(text);
             setIsGameActive(false);
@@ -351,6 +351,10 @@ const Reversi = () => {
             });
         } else if (result.status == 'draw') {
             const text = 'The game is a draw!';
+            if (status == 'online') {
+                UpdateRating(match.players[result.winner.toLowerCase()].name, match.players[result.winner == 'Black' ? 
+                    'white' : 'black'].name, 'draw');
+            }
             setMessage(text);
             setIsGameActive(false);
             updateGameState({
