@@ -133,10 +133,8 @@ const Reversi = () => {
     
     useEffect(() => {
         if (!IsEqual(prevBoardRef.current, board)) {
-            console.log(board);
             checkStatus();
             prevBoardRef.current = DeepCopy(board);
-            console.log(prevBoardRef.current);
         }
     }, [board]);
 
@@ -339,7 +337,6 @@ const Reversi = () => {
 
     function checkStatus() {
         const result = match.checkGameStatus();
-        console.log('win')
         if (result.status == 'win') {
             const text = `${result.winner} wins!`;
             if (status == 'online') {
@@ -363,9 +360,13 @@ const Reversi = () => {
         } else if (result.status == 'skip') {
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
+            if (mode == 'block') {
+                setBlockedPlayer(match.currentPlayer);
+            }
             updateGameState({
                 message: result.message,
-                currentPlayer: match.currentPlayer
+                currentPlayer: match.currentPlayer,
+                blockedPlayer: match.currentPlayer
             });
         } else {
             if (message.endsWith('skipped.')) {
