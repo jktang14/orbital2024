@@ -148,6 +148,7 @@ const Reversi = () => {
             const storedUsername = localStorage.getItem('username');
             if (storedUsername) {
                 setUsername(storedUsername);
+                match.players['black'].name = storedUsername;
             }
             const storedBoardColor = localStorage.getItem('boardColor');
             if (storedBoardColor) {

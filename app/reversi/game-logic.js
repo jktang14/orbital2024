@@ -5,15 +5,10 @@ class game {
         this.currentPlayer = "Black";
         this.mode = mode;
         this.board = this.initialiseBoard(size);
-        if (typeof window !== 'undefined') {
-            const username = localStorage.getItem('username');
-            if (username) {
-                this.players = {
-                    black: {name: username, color: "Black"},
-                    white: {name: 'Player 2', color: "White"}
-                };
-            }
-        }
+        this.players = {
+            black: {name: 'Player 1', color: "Black"},
+            white: {name: 'Player 2', color: "White"}
+        };
     }
 
     /*
