@@ -133,7 +133,7 @@ const FriendsList = () => {
                         <button type="submit">Add user</button>
                     </form>
                     <ul className={styles.list}>
-                        {Array.isArray(friends) && friends.map(friend => (
+                        {Array.isArray(friends) && friends.sort((a, b) => b.rating - a.rating).map(friend => (
                             <li key = {friend} className={styles.listItem}>
                                 {`${friend.username} (${friend.rating})`}
                                 <div className={styles.actions}>
