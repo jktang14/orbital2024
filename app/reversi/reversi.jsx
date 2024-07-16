@@ -192,7 +192,7 @@ const Reversi = () => {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, 0);
                     if ((status == "local" && currTime == 0) || (status == 'online' && currTime == 0)) {
-                        const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
+                        const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent().toLowerCase()].name} wins!`;
                         if (status == 'online') {
                             UpdateRating(match.players["white"].name, match.players["black"].name);
                         }
@@ -212,7 +212,7 @@ const Reversi = () => {
                 setWhiteTime(prev => {
                     let currTime = Math.max(prev - 1, 0);
                     if ((status == "local" && currTime == 0) || (status == 'online' && currTime == 0)) {
-                        const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
+                        const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent().toLowerCase()].name} wins!`;
                         if (status == 'online') {
                             UpdateRating(match.players["black"].name, match.players["white"].name);
                         }
@@ -338,7 +338,7 @@ const Reversi = () => {
     function checkStatus() {
         const result = match.checkGameStatus();
         if (result.status == 'win') {
-            const text = `${result.winner} wins!`;
+            const text = `${match.players[result.winner.toLowerCase()].name} wins!`;
             if (status == 'online') {
                 UpdateRating(match.players[result.winner.toLowerCase()].name, match.players[result.winner == 'Black' ? 
                     'white' : 'black'].name);
@@ -399,7 +399,7 @@ const Reversi = () => {
                     setBoard(match.board);
                     setBlockModeActive(false); // Exit block mode after setting cell
                     setAvailableCellsToBlock(null);
-                    const text = `${blockedPlayer} blocked a cell. Now it's ${match.currentPlayer}'s turn.`
+                    const text = `${match.players[blockedPlayer.toLowerCase()].name} blocked a cell. Now it's ${match.players[match.currentPlayer.toLowerCase()].name}'s turn.`
                     setMessage(text);
                     setBlockedPlayer(match.currentPlayer); // Current player now swapped to opponent
                     if (gameId) {
@@ -415,7 +415,7 @@ const Reversi = () => {
                     setBoard(match.board);
                     setBlockModeActive(false); // Exit block mode after setting cell
                     setAvailableCellsToBlock(null);
-                    const text = `${currentPlayer} blocked a cell. Now it's ${match.currentPlayer}'s turn.`
+                    const text = `${match.players[currentPlayer.toLowerCase()].name} blocked a cell. Now it's ${match.players[match.currentPlayer.toLowerCase()].name }'s turn.`
                     setMessage(text);
                     setCurrentPlayer(match.currentPlayer); //Current player now swapped to opponent
                 }
@@ -443,17 +443,17 @@ const Reversi = () => {
                             if (validMoves.length > 1) {
                                 setBlockModeActive(true); // User enters state to block move
                                 setAvailableCellsToBlock(validMoves); // All moves that user can block
-                                setMessage(`Select a cell to block for ${match.currentPlayer}`);
+                                setMessage(`${match.players[blockedPlayer.toLowerCase()].name} is blocking a cell`);
                                 updateGameState({
-                                    message: `Select a cell to block for ${match.currentPlayer}`,
+                                    message: `${match.players[blockedPlayer.toLowerCase()].name} is blocking a cell`,
                                     blockModeActive: true
                                 })
                             } else {
-                                setMessage(`${match.currentPlayer} has only 1 valid move, ${match.currentPlayer}'s turn`);
+                                setMessage(`${match.players[match.currentPlayer.toLowerCase()].name} has only 1 valid move, ${match.players[match.currentPlayer.toLowerCase()].name}'s turn`);
                                 setCurrentPlayer(match.currentPlayer);
                                 setBlockedPlayer(match.currentPlayer);
                                 updateGameState({
-                                    message: `${match.currentPlayer} has only 1 valid move, ${match.currentPlayer}'s turn`,
+                                    message: `${match.players[match.currentPlayer.toLowerCase()].name} has only 1 valid move, ${match.players[match.currentPlayer.toLowerCase()].name}'s turn`,
                                     currentPlayer: match.currentPlayer,
                                     blockedPlayer: match.currentPlayer
                                 })
@@ -484,10 +484,10 @@ const Reversi = () => {
                             if (validMoves.length > 1) {
                                 setBlockModeActive(true); // User enters state to block move
                                 setAvailableCellsToBlock(validMoves); // All moves that user can block
-                                setMessage(`Select a cell to block for ${match.currentPlayer}`);
+                                setMessage(`${match.players[currentPlayer.toLowerCase()].name} is blocking a cell`);
                             } else {
                                 setCurrentPlayer(match.currentPlayer);
-                                setMessage(`${match.currentPlayer} has only 1 valid move, ${match.currentPlayer}'s turn`);
+                                setMessage(`${match.players[match.currentPlayer.toLowerCase()].name} has only 1 valid move, ${match.players[match.currentPlayer.toLowerCase()].name}'s turn`);
                             }
                         }
                     } else {
@@ -565,13 +565,12 @@ const Reversi = () => {
             <div className={styles.enclosingContainer}>
                 <div className={styles.gameNameTimer}>
                     <div className={styles.playerTurn}>
-                        {isGameActive && ((mode == 'block' && status == 'local') || mode != 'block') && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: currentPlayer == "Black" ? "black": "white"}}>{currentPlayer} turn
+                        {isGameActive && ((mode == 'block' && status == 'local') || mode != 'block') && <p style={{fontFamily: "fantasy", fontSize: "1.3rem"}}>{match.players[currentPlayer.toLowerCase()].name} turn
                         </p>}
-                        {hasGameStarted && isGameActive && (mode == 'block' && status == 'online') && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: blockedPlayer == "Black" ? "black": "white"}}>{blockedPlayer} turn</p>}
+                        {hasGameStarted && isGameActive && (mode == 'block' && status == 'online') && <p style={{fontFamily: "fantasy", fontSize: "1.3rem"}}>{match.players[blockedPlayer.toLowerCase()].name} turn</p>}
                     </div>
                     <div className={styles.nameTimer}>
                         <div> 
-                            {/* {<p className ={styles.name}>{"white" in match.players ? match.players[userColor == "Black" ? "white" : "black"].name: "Player 2"} ({opponentColor(userColor)})</p>} */}
                             {<p className= {styles.name}>{"white" in match.players && status == "online" ? `${match.players[opponentColor(userColor)].name} (${match.players[opponentColor(userColor)].rating})`: "Player 2"}</p>}
                         </div>
                         <div className={styles.timer}>

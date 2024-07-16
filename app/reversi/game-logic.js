@@ -1,5 +1,3 @@
-import UpdateRating from "../components/updateRating";
-
 class game {
     static DIRECTIONS = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
     constructor(size=8, mode='standard') {
@@ -7,8 +5,9 @@ class game {
         this.currentPlayer = "Black";
         this.mode = mode;
         this.board = this.initialiseBoard(size);
+        const username = localStorage.getItem('username');
         this.players = {
-            black: {name: 'Player 1', color: "Black"},
+            black: {name: username, color: "Black"},
             white: {name: 'Player 2', color: "White"}
         };
         
@@ -223,20 +222,16 @@ class game {
             // If game mode is reverse reversi, flip winning logic
             if (this.mode == 'reverse') {
                 if (currNum > opponentNum) {
-                    // UpdateRating(this.players[this.getOpponent().toLowerCase()].name, this.players[this.currentPlayer.toLowerCase()].name);
                     return {status: "win", winner: this.getOpponent()};
                 } else if (opponentNum > currNum) {
-                    // UpdateRating(this.players[this.currentPlayer.toLowerCase()].name, this.players[this.getOpponent().toLowerCase()].name);
                     return {status: "win", winner: this.currentPlayer};
                 } else {
                     return {status: "draw"};
                 }
             } else {
                 if (currNum > opponentNum) {
-                    // UpdateRating(this.players[this.currentPlayer.toLowerCase()].name, this.players[this.getOpponent().toLowerCase()].name);
                     return {status: "win", winner: this.currentPlayer};
                 } else if (opponentNum > currNum) {
-                    // UpdateRating(this.players[this.getOpponent().toLowerCase()].name, this.players[this.currentPlayer.toLowerCase()].name);
                     return {status: "win", winner: this.getOpponent()};
                 } else {
                     return {status: "draw"};
@@ -248,7 +243,7 @@ class game {
         if (!this.hasValidMove(this.currentPlayer)) {
             // swap back to original player
             this.currentPlayer = this.getOpponent();
-            return {status: "skip", message: `${this.getOpponent()} has no valid moves. Turn skipped.`};
+            return {status: "skip", message: `${this.players[this.getOpponent().toLowerCase()].name} has no valid moves. Turn skipped.`};
         }
 
         return {status: "continue"};
