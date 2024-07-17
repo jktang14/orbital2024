@@ -41,6 +41,7 @@ const Reversi = () => {
     const [boardColor, setBoardColor] = useState('rgb(97, 136, 97)');
     const [blackPiece, setBlackPiece] = useState('black.png');
     const [whitePiece, setWhitePiece] = useState('white.png');
+    const [ratingChange, setRatingChange] = useState({});
 
     const prevBoardRef = useRef();
     
@@ -61,6 +62,7 @@ const Reversi = () => {
                     setCurrentPlayer(data.currentPlayer);
                     setMessage(data.message);
                     setIsGameActive(data.isGameActive);
+                    setRatingChange(data.ratingChange)
                     setHasGameStarted(data.hasGameStarted);
                     setTimer(data.timer);
                     setBlackTime(data.blackTime);
@@ -191,11 +193,14 @@ const Reversi = () => {
         || (mode == 'block' && status == 'local' && currentPlayer == 'Black')) {
             blackIntervalId = setInterval(() => {
                 setBlackTime(prev => {
-                    let currTime = Math.max(prev - 1, 0);
-                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == 0)) {
+                    let currTime = Math.max(prev - 1, -1);
+                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == -1)) {
                         const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent().toLowerCase()].name} wins!`;
                         if (status == 'online') {
-                            UpdateRating(match.players["white"].name, match.players["black"].name);
+                            UpdateRating(match.players["white"].name, match.players["black"].name, 'white', 'black').then((obj) => {
+                                setRatingChange(obj);
+                                updateGameState({ratingChange: obj});
+                            });
                         }
                         setMessage(text);
                         setIsGameActive(false);
@@ -211,11 +216,14 @@ const Reversi = () => {
         } else {
             whiteIntervalId = setInterval(() => {
                 setWhiteTime(prev => {
-                    let currTime = Math.max(prev - 1, 0);
-                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == 0)) {
+                    let currTime = Math.max(prev - 1, -1);
+                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == -1)) {
                         const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent().toLowerCase()].name} wins!`;
                         if (status == 'online') {
-                            UpdateRating(match.players["black"].name, match.players["white"].name);
+                            UpdateRating(match.players["black"].name, match.players["white"].name, "black", "white").then((obj) => {
+                                setRatingChange(obj);
+                                updateGameState({ratingChange: obj});
+                            })
                         }
                         setMessage(text);
                         setIsGameActive(false);
@@ -293,7 +301,7 @@ const Reversi = () => {
     }
 
     const createGame = () => {
-        return createNewGame(boardSize, username, mode, setMode, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime, setBlockModeActive, setBlockedPlayer, blockModeActive, blockedPlayer);
+        return createNewGame(boardSize, username, mode, setMode, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime, setBlockModeActive, setBlockedPlayer, setRatingChange);
     };
 
     const joinCurrentGame = (gameId, request, toastId) => {
@@ -342,7 +350,11 @@ const Reversi = () => {
             const text = `${match.players[result.winner.toLowerCase()].name} wins!`;
             if (status == 'online') {
                 UpdateRating(match.players[result.winner.toLowerCase()].name, match.players[result.winner == 'Black' ? 
-                    'white' : 'black'].name);
+                    'white' : 'black'].name, result.winner.toLowerCase(), result.winner == 'Black' ? 
+                    'white' : 'black').then((obj) => {
+                        setRatingChange(obj);
+                        updateGameState({ratingChange: obj});
+                    });
             }
             setMessage(text);
             setIsGameActive(false);
@@ -354,7 +366,11 @@ const Reversi = () => {
             const text = 'The game is a draw!';
             if (status == 'online') {
                 UpdateRating(match.players[result.winner.toLowerCase()].name, match.players[result.winner == 'Black' ? 
-                    'white' : 'black'].name, 'draw');
+                    'white' : 'black'].name, result.winner.toLowerCase(), result.winner == 'Black' ? 
+                    'white' : 'black', 'draw').then((obj) => {
+                        setRatingChange(obj);
+                        updateGameState({ratingChange: obj});
+                    });
             }
             setMessage(text);
             setIsGameActive(false);
@@ -571,8 +587,10 @@ const Reversi = () => {
                         {hasGameStarted && isGameActive && (mode == 'block' && status == 'online') && <p style={{fontFamily: "fantasy", fontSize: "1.3rem"}}>{match.players[blockedPlayer.toLowerCase()].name} turn</p>}
                     </div>
                     <div className={styles.nameTimer}>
-                        <div> 
+                        <div className={styles.nameRating}> 
                             {<p className= {styles.name}>{"white" in match.players && status == "online" ? `${match.players[opponentColor(userColor)].name} (${match.players[opponentColor(userColor)].rating})`: "Player 2"}</p>}
+                            {("white" in match.players && status == "online" && !isGameActive) && 
+                            <p style={{color: 'green', fontSize: "0.8rem"}}>{ratingChange[opponentColor(userColor)] >= 0 ? `+${ratingChange[opponentColor(userColor)]}` : ratingChange[opponentColor(userColor)]}</p>}
                         </div>
                         <div className={styles.timer}>
                             <p>{formatTime(userColor == "Black" ? whiteTime: blackTime)}</p>    
@@ -595,8 +613,10 @@ const Reversi = () => {
                         ))}
                     </div>
                     <div className={styles.nameTimer}>
-                        <div> 
+                        <div className={styles.nameRating}>
                             <p className={styles.name}>{status == 'online' ? `${username} (${match.players[userColor == 'Black' ? 'black': 'white'].rating})` : username}</p>
+                            {(status == "online" && !isGameActive) && 
+                            <p style={{color: 'green', fontSize: "0.8rem"}}>{ratingChange[userColor.toLowerCase()] >= 0 ? `+${ratingChange[userColor.toLowerCase()]}` : ratingChange[userColor.toLowerCase()]}</p>}
                         </div>
                         <div className={styles.timer}>
                             <p>{formatTime(userColor == "Black" ? blackTime: whiteTime)}</p>    
