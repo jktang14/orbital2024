@@ -7,11 +7,12 @@ const joinGame = (mode, inputGameId, username, setGameId, setUserColor) => {
     if (inputGameId) {
         const gameRef = ref(realtimeDatabase, `games/${inputGameId}`);
         
-        onValue(gameRef, (snapshot) => {
+        const unsub = onValue(gameRef, (snapshot) => {
             const gameData = snapshot.val();
             if (gameData) {
                 // Add the second player to the game
                 GetPlayerRating(username).then(rating => {
+                    console.log("get rating")
                     const updatedPlayers = {
                         ...gameData.players,
                         white: { name: username, color: "White", rating: rating}
@@ -21,6 +22,8 @@ const joinGame = (mode, inputGameId, username, setGameId, setUserColor) => {
                     update(gameRef, {
                         players: updatedPlayers,
                         match: game.fromData(gameData.boardSize, mode, gameData.board, gameData.currentPlayer, updatedPlayers)
+                    }).then(() => {
+                        unsub();
                     });
     
                     // Set user color for second player
