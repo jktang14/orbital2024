@@ -3,7 +3,7 @@ import game from "../game-logic";
 import { ref, push, set } from "firebase/database";
 import GetPlayerRating from "@/app/components/get-player-rating";
 
-const createNewGame = (boardSize, username, mode, setMode, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime, setBlockedModeActive, setBlockedPlayer, blockModeActive, blockedPlayer) => {
+const createNewGame = (boardSize, username, mode, setMode, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime, setBlockedModeActive, setBlockedPlayer, setRatingChange) => {
     const newGameRef = ref(realtimeDatabase, 'games');
     const newGameKey = push(newGameRef).key;
     GetPlayerRating(username).then(rating => {
@@ -35,7 +35,8 @@ const createNewGame = (boardSize, username, mode, setMode, setStatus, setGameId,
             blackTime: timer,
             whiteTime: timer,
             blockModeActive: false,
-            blockedPlayer: ''
+            blockedPlayer: '',
+            ratingChange: {'dummy': 'dummy'}
         });
     
         setMatch(newMatch);
@@ -51,6 +52,7 @@ const createNewGame = (boardSize, username, mode, setMode, setStatus, setGameId,
         setWhiteTime(timer);
         setBlockedModeActive(false);
         setBlockedPlayer('');
+        setRatingChange({});
     })
     
     return newGameKey;
