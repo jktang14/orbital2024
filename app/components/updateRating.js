@@ -1,7 +1,7 @@
 import { db } from "../firebase";
 import { query, collection, where, getDocs, updateDoc, doc} from "firebase/firestore";
 
-const UpdateRating = async (winnerName, loserName, status="win") => {
+const UpdateRating = async (winnerName, loserName, player1Color, player2Color, status="win") => {
     const winnerQuery = query(collection(db, 'users'), where('username', '==', winnerName));
     const loserQuery = query(collection(db, 'users'), where('username', '==', loserName));
     const winnerSnapshot = await getDocs(winnerQuery);
@@ -13,15 +13,21 @@ const UpdateRating = async (winnerName, loserName, status="win") => {
     const loserExpectedProb = 1 / (1 + Math.pow(10, (originalWinnerRating - originalLoserRating) / 400));
     let newWinnerRating;
     let newLoserRating;
+    let winnerRatingChange;
+    let loserRatingChange;
 
     if (status == "win") {
-        newWinnerRating = originalWinnerRating + Math.floor(14 * (1 - winnerExpectedProb));
-        newLoserRating = originalLoserRating + Math.ceil(14 * (0 - loserExpectedProb));
+        winnerRatingChange = Math.floor(14 * (1 - winnerExpectedProb));
+        loserRatingChange = Math.ceil(14 * (0 - loserExpectedProb));
+        newWinnerRating = originalWinnerRating + winnerRatingChange;
+        newLoserRating = originalLoserRating + loserRatingChange;
     } else if (status == "draw") {
         const winCalc = 14 * (0.5 - winnerExpectedProb);
-        const loseCalc = 14 * (0.5 - loserExpectedProb)
-        newWinnerRating = originalWinnerRating + (winCalc < 0 ? Math.ceil(winCalc): Math.floor(winCalc));
-        newLoserRating = originalLoserRating + (loseCalc < 0 ? Math.ceil(loseCalc): Math.floor(loseCalc));
+        const loseCalc = 14 * (0.5 - loserExpectedProb);
+        winnerRatingChange = winCalc < 0 ? Math.ceil(winCalc): Math.floor(winCalc);
+        loserRatingChange = loseCalc < 0 ? Math.ceil(loseCalc): Math.floor(loseCalc);
+        newWinnerRating = originalWinnerRating + winnerRatingChange;
+        newLoserRating = originalLoserRating + loserRatingChange;
     }
 
     const winnerId = winnerSnapshot.docs[0].id;
@@ -36,6 +42,8 @@ const UpdateRating = async (winnerName, loserName, status="win") => {
     await updateDoc(loserRef, {
         rating: newLoserRating
     })
+
+    return {[player1Color]: winnerRatingChange, [player2Color]: loserRatingChange};
 }
 
 export default UpdateRating;
