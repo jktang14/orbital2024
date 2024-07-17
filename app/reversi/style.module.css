@@ -39,14 +39,15 @@
 .nameTimer {
     display: flex;
     flex-direction: row;
-    width: 20rem;
     justify-content: space-between;
-    margin: 5px;
+    align-items: center;
+    margin: 5px 0 5px 0;
 }
 
-.name {
-    padding-top: 0.2em;
-
+.nameRating {
+    display: flex;
+    align-items: center;
+    gap: 3px;
 }
 
 .timer {

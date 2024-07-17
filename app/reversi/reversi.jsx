@@ -1,5 +1,5 @@
 "use client";
-import React, { createElement, useState, useEffect, useRef, forwardRef, useImperativeHandle} from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import styles from './style.module.css';
 import game from './game-logic';
 import { realtimeDatabase, db } from '../firebase';
@@ -12,6 +12,9 @@ import { GameInvitation } from '../components/game-invitation';
 import { DeclineGameRequest } from '../components/decline-game-request';
 import { query, collection, where, getDocs, doc, onSnapshot} from "firebase/firestore";
 import { RemoveGameRequest } from '../components/remove-game-request';
+import UpdateRating from '../components/updateRating';
+import IsEqual from '../components/equal-board';
+import DeepCopy from '../components/deep-copy';
 
 const Reversi = () => {
     const [boardSize, setBoardSize] = useState(8);
@@ -38,7 +41,14 @@ const Reversi = () => {
     const [boardColor, setBoardColor] = useState('rgb(97, 136, 97)');
     const [blackPiece, setBlackPiece] = useState('black.png');
     const [whitePiece, setWhitePiece] = useState('white.png');
+    const [ratingChange, setRatingChange] = useState({});
+
+    const prevBoardRef = useRef();
     
+    useEffect(() => {
+        prevBoardRef.current = DeepCopy(board);
+    }, [])
+
     useEffect(() => {
         if (gameId) {
             const gameRef = ref(realtimeDatabase, `games/${gameId}`);
@@ -52,6 +62,7 @@ const Reversi = () => {
                     setCurrentPlayer(data.currentPlayer);
                     setMessage(data.message);
                     setIsGameActive(data.isGameActive);
+                    setRatingChange(data.ratingChange)
                     setHasGameStarted(data.hasGameStarted);
                     setTimer(data.timer);
                     setBlackTime(data.blackTime);
@@ -123,7 +134,10 @@ const Reversi = () => {
     }, [username])
     
     useEffect(() => {
-        checkStatus();
+        if (!IsEqual(prevBoardRef.current, board)) {
+            checkStatus();
+            prevBoardRef.current = DeepCopy(board);
+        }
     }, [board]);
 
     useEffect(() => {
@@ -136,6 +150,7 @@ const Reversi = () => {
             const storedUsername = localStorage.getItem('username');
             if (storedUsername) {
                 setUsername(storedUsername);
+                match.players['black'].name = storedUsername;
             }
             const storedBoardColor = localStorage.getItem('boardColor');
             if (storedBoardColor) {
@@ -180,7 +195,13 @@ const Reversi = () => {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, -1);
                     if ((status == "local" && currTime == 0) || (status == 'online' && currTime == -1)) {
-                        const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
+                        const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent().toLowerCase()].name} wins!`;
+                        if (status == 'online') {
+                            UpdateRating(match.players["white"].name, match.players["black"].name, 'white', 'black').then((obj) => {
+                                setRatingChange(obj);
+                                updateGameState({ratingChange: obj});
+                            });
+                        }
                         setMessage(text);
                         setIsGameActive(false);
                         updateGameState({message: text, isGameActive: false});
@@ -197,7 +218,13 @@ const Reversi = () => {
                 setWhiteTime(prev => {
                     let currTime = Math.max(prev - 1, -1);
                     if ((status == "local" && currTime == 0) || (status == 'online' && currTime == -1)) {
-                        const text = `${currentPlayer} has run out of time, ${match.getOpponent()} wins!`;
+                        const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent().toLowerCase()].name} wins!`;
+                        if (status == 'online') {
+                            UpdateRating(match.players["black"].name, match.players["white"].name, "black", "white").then((obj) => {
+                                setRatingChange(obj);
+                                updateGameState({ratingChange: obj});
+                            })
+                        }
                         setMessage(text);
                         setIsGameActive(false);
                         updateGameState({message: text, isGameActive: false});
@@ -274,7 +301,7 @@ const Reversi = () => {
     }
 
     const createGame = () => {
-        return createNewGame(boardSize, username, mode, setMode, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime, setBlockModeActive, setBlockedPlayer, blockModeActive, blockedPlayer);
+        return createNewGame(boardSize, username, mode, setMode, setStatus, setGameId, setMatch, setBoard, setBoardSize, setCurrentPlayer, setMessage, setIsGameActive, setHasGameStarted, timer, setBlackTime, setWhiteTime, setBlockModeActive, setBlockedPlayer, setRatingChange);
     };
 
     const joinCurrentGame = (gameId, request, toastId) => {
@@ -320,7 +347,15 @@ const Reversi = () => {
     function checkStatus() {
         const result = match.checkGameStatus();
         if (result.status == 'win') {
-            const text = `${result.winner} wins!`;
+            const text = `${match.players[result.winner.toLowerCase()].name} wins!`;
+            if (status == 'online') {
+                UpdateRating(match.players[result.winner.toLowerCase()].name, match.players[result.winner == 'Black' ? 
+                    'white' : 'black'].name, result.winner.toLowerCase(), result.winner == 'Black' ? 
+                    'white' : 'black').then((obj) => {
+                        setRatingChange(obj);
+                        updateGameState({ratingChange: obj});
+                    });
+            }
             setMessage(text);
             setIsGameActive(false);
             updateGameState({
@@ -329,6 +364,14 @@ const Reversi = () => {
             });
         } else if (result.status == 'draw') {
             const text = 'The game is a draw!';
+            if (status == 'online') {
+                UpdateRating(match.players[result.winner.toLowerCase()].name, match.players[result.winner == 'Black' ? 
+                    'white' : 'black'].name, result.winner.toLowerCase(), result.winner == 'Black' ? 
+                    'white' : 'black', 'draw').then((obj) => {
+                        setRatingChange(obj);
+                        updateGameState({ratingChange: obj});
+                    });
+            }
             setMessage(text);
             setIsGameActive(false);
             updateGameState({
@@ -338,9 +381,13 @@ const Reversi = () => {
         } else if (result.status == 'skip') {
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
+            if (mode == 'block') {
+                setBlockedPlayer(match.currentPlayer);
+            }
             updateGameState({
                 message: result.message,
-                currentPlayer: match.currentPlayer
+                currentPlayer: match.currentPlayer,
+                blockedPlayer: match.currentPlayer
             });
         } else {
             if (message.endsWith('skipped.')) {
@@ -366,9 +413,10 @@ const Reversi = () => {
             if (match.isValidMove(rowIndex, colIndex)) {
                 if (gameId) {
                     match.blockCell(rowIndex, colIndex);
+                    setBoard(match.board);
                     setBlockModeActive(false); // Exit block mode after setting cell
                     setAvailableCellsToBlock(null);
-                    const text = `${blockedPlayer} blocked a cell. Now it's ${match.currentPlayer}'s turn.`
+                    const text = `${match.players[blockedPlayer.toLowerCase()].name} blocked a cell. Now it's ${match.players[match.currentPlayer.toLowerCase()].name}'s turn.`
                     setMessage(text);
                     setBlockedPlayer(match.currentPlayer); // Current player now swapped to opponent
                     if (gameId) {
@@ -381,9 +429,10 @@ const Reversi = () => {
                     }
                 } else {
                     match.blockCell(rowIndex, colIndex);
+                    setBoard(match.board);
                     setBlockModeActive(false); // Exit block mode after setting cell
                     setAvailableCellsToBlock(null);
-                    const text = `${currentPlayer} blocked a cell. Now it's ${match.currentPlayer}'s turn.`
+                    const text = `${match.players[currentPlayer.toLowerCase()].name} blocked a cell. Now it's ${match.players[match.currentPlayer.toLowerCase()].name }'s turn.`
                     setMessage(text);
                     setCurrentPlayer(match.currentPlayer); //Current player now swapped to opponent
                 }
@@ -411,10 +460,19 @@ const Reversi = () => {
                             if (validMoves.length > 1) {
                                 setBlockModeActive(true); // User enters state to block move
                                 setAvailableCellsToBlock(validMoves); // All moves that user can block
-                                setMessage(`Select a cell to block for ${match.currentPlayer}`);
+                                setMessage(`${match.players[blockedPlayer.toLowerCase()].name} is blocking a cell`);
                                 updateGameState({
-                                    message: `Select a cell to block for ${match.currentPlayer}`,
+                                    message: `${match.players[blockedPlayer.toLowerCase()].name} is blocking a cell`,
                                     blockModeActive: true
+                                })
+                            } else {
+                                setMessage(`${match.players[match.currentPlayer.toLowerCase()].name} has only 1 valid move, ${match.players[match.currentPlayer.toLowerCase()].name}'s turn`);
+                                setCurrentPlayer(match.currentPlayer);
+                                setBlockedPlayer(match.currentPlayer);
+                                updateGameState({
+                                    message: `${match.players[match.currentPlayer.toLowerCase()].name} has only 1 valid move, ${match.players[match.currentPlayer.toLowerCase()].name}'s turn`,
+                                    currentPlayer: match.currentPlayer,
+                                    blockedPlayer: match.currentPlayer
                                 })
                             }
                         }
@@ -443,7 +501,10 @@ const Reversi = () => {
                             if (validMoves.length > 1) {
                                 setBlockModeActive(true); // User enters state to block move
                                 setAvailableCellsToBlock(validMoves); // All moves that user can block
-                                setMessage(`Select a cell to block for ${match.currentPlayer}`);
+                                setMessage(`${match.players[currentPlayer.toLowerCase()].name} is blocking a cell`);
+                            } else {
+                                setCurrentPlayer(match.currentPlayer);
+                                setMessage(`${match.players[match.currentPlayer.toLowerCase()].name} has only 1 valid move, ${match.players[match.currentPlayer.toLowerCase()].name}'s turn`);
                             }
                         }
                     } else {
@@ -486,7 +547,8 @@ const Reversi = () => {
     }
 
     function opponentColor(userColor) {
-        return userColor == "Black" ? "White" : "Black";
+        // return userColor == "Black" ? "White" : "Black";
+        return userColor == "Black" ? "white" : "black";
     }
 
     const handleModeChange = (mode) => {
@@ -520,13 +582,15 @@ const Reversi = () => {
             <div className={styles.enclosingContainer}>
                 <div className={styles.gameNameTimer}>
                     <div className={styles.playerTurn}>
-                        {isGameActive && ((mode == 'block' && status == 'local') || mode != 'block') && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: currentPlayer == "Black" ? "black": "white"}}>{currentPlayer} turn
+                        {isGameActive && ((mode == 'block' && status == 'local') || mode != 'block') && <p style={{fontFamily: "fantasy", fontSize: "1.3rem"}}>{match.players[currentPlayer.toLowerCase()].name} turn
                         </p>}
-                        {hasGameStarted && isGameActive && (mode == 'block' && status == 'online') && <p style={{fontFamily: "fantasy", fontSize: "1.5rem", color: blockedPlayer == "Black" ? "black": "white"}}>{blockedPlayer} turn</p>}
+                        {hasGameStarted && isGameActive && (mode == 'block' && status == 'online') && <p style={{fontFamily: "fantasy", fontSize: "1.3rem"}}>{match.players[blockedPlayer.toLowerCase()].name} turn</p>}
                     </div>
                     <div className={styles.nameTimer}>
-                        <div> 
-                            {<p className ={styles.name}>{"white" in match.players ? match.players[userColor == "Black" ? "white" : "black"].name: "Player 2"} ({opponentColor(userColor)})</p>}
+                        <div className={styles.nameRating}> 
+                            {<p className= {styles.name}>{"white" in match.players && status == "online" ? `${match.players[opponentColor(userColor)].name} (${match.players[opponentColor(userColor)].rating})`: "Player 2"}</p>}
+                            {("white" in match.players && status == "online" && !isGameActive) && 
+                            <p style={{color: 'green', fontSize: "0.8rem"}}>{ratingChange[opponentColor(userColor)] >= 0 ? `+${ratingChange[opponentColor(userColor)]}` : ratingChange[opponentColor(userColor)]}</p>}
                         </div>
                         <div className={styles.timer}>
                             <p>{formatTime(userColor == "Black" ? whiteTime: blackTime)}</p>    
@@ -549,8 +613,10 @@ const Reversi = () => {
                         ))}
                     </div>
                     <div className={styles.nameTimer}>
-                        <div> 
-                            <p className={styles.name}>{username} ({userColor})</p>
+                        <div className={styles.nameRating}>
+                            <p className={styles.name}>{status == 'online' ? `${username} (${match.players[userColor == 'Black' ? 'black': 'white'].rating})` : username}</p>
+                            {(status == "online" && !isGameActive) && 
+                            <p style={{color: 'green', fontSize: "0.8rem"}}>{ratingChange[userColor.toLowerCase()] >= 0 ? `+${ratingChange[userColor.toLowerCase()]}` : ratingChange[userColor.toLowerCase()]}</p>}
                         </div>
                         <div className={styles.timer}>
                             <p>{formatTime(userColor == "Black" ? blackTime: whiteTime)}</p>    

@@ -9,7 +9,6 @@ class game {
             black: {name: 'Player 1', color: "Black"},
             white: {name: 'Player 2', color: "White"}
         };
-        
     }
 
     /*
@@ -242,7 +241,7 @@ class game {
         if (!this.hasValidMove(this.currentPlayer)) {
             // swap back to original player
             this.currentPlayer = this.getOpponent();
-            return {status: "skip", message: `${this.getOpponent()} has no valid moves. Turn skipped.`};
+            return {status: "skip", message: `${this.players[this.getOpponent().toLowerCase()].name} has no valid moves. Turn skipped.`};
         }
 
         return {status: "continue"};

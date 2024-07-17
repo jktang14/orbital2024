@@ -42,6 +42,7 @@ const FriendsList = () => {
                     const userData = doc.data();
                     const userFriends = await GetFriends(username);
                     if (Array.isArray(userFriends)) {
+                        console.log(userFriends)
                         setFriends(userFriends);
                         setFriendRequests(userData.friendRequests);
                     }
@@ -66,7 +67,7 @@ const FriendsList = () => {
                 return onValue(onlineStatusRef, (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
-                        setFriends(prevFriends => prevFriends.map(f => f.username == friend.username ? {username: f.username, status: data.status} : f))
+                        setFriends(prevFriends => prevFriends.map(f => f.username == friend.username ? {username: f.username, status: data.status, rating: f.rating} : f))
                     }
                 })
             })
@@ -132,9 +133,9 @@ const FriendsList = () => {
                         <button type="submit">Add user</button>
                     </form>
                     <ul className={styles.list}>
-                        {Array.isArray(friends) && friends.map(friend => (
+                        {Array.isArray(friends) && friends.sort((a, b) => b.rating - a.rating).map(friend => (
                             <li key = {friend} className={styles.listItem}>
-                                {friend.username} 
+                                {`${friend.username} (${friend.rating})`}
                                 <div className={styles.actions}>
                                     Status: {friend.status}
                                     <button onClick={() => handleRemoveFriend(username, friend.username)}>Remove friend</button>
