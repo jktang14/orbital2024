@@ -558,9 +558,7 @@ const Reversi = () => {
 
     const handleStatusChange = (status) => {
         setStatus(status);
-        if (status == 'local') {
-            restartGame();
-        }
+        restartGame();
     }
 
     const handleModeChange = (mode) => {
@@ -699,8 +697,8 @@ const Reversi = () => {
                 <div className={styles.dropDown} ref={dropDownRef}>
                     <button className={styles.computerButton} onClick={toggleDropDown}>Play against the computer</button>
                     {isDropDownVisible && <div className={styles.dropDownMenu}>
-                        <button className={styles.easyButton}>Easy</button>
-                        <button className={styles.hardButton}>Hard</button>
+                        <button className={styles.easyButton} onClick={() => handleStatusChange('easyAI')}>Easy</button>
+                        <button className={styles.hardButton} onClick={() => handleStatusChange('hardAI')}>Hard</button>
                     </div>}
                 </div>
             </div>
