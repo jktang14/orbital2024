@@ -406,6 +406,78 @@ const Reversi = () => {
         }
     }
 
+    const handleOnlineAndBlockMode = (rowIndex, colIndex) => {
+        match.blockCell(rowIndex, colIndex);
+        setBoard(match.board);
+        setBlockModeActive(false); // Exit block mode after setting cell
+        setAvailableCellsToBlock(null);
+        const text = `${match.players[blockedPlayer.toLowerCase()].name} blocked a cell. Now it's ${match.players[match.currentPlayer.toLowerCase()].name}'s turn.`
+        setMessage(text);
+        setBlockedPlayer(match.currentPlayer); // Current player now swapped to opponent
+        if (gameId) {
+            updateGameState({
+                board: match.board,
+                message: text,
+                blockedPlayer: match.currentPlayer,
+                blockModeActive: false
+            })
+        }
+    }
+
+    const handleOnlineAndNotBlockMode = (rowIndex, colIndex) => {
+        if (isGameActive && match.isValidMove(rowIndex, colIndex) && currentPlayer == userColor) {
+            // online game and is blocked reversi
+            if (mode == 'block') {
+                match.makeMove(rowIndex, colIndex); //Current player internally swapped
+                setBoard(match.board);
+                const text = `${match.players[currentPlayer.toLowerCase()].name} is blocking a cell`;
+                setBlockedPlayer(currentPlayer);
+                setCurrentPlayer(match.currentPlayer);
+                updateGameState({
+                    board: match.board,
+                    currentPlayer: match.currentPlayer,
+                    blockedPlayer: currentPlayer,
+                })
+                
+                // Handle condition when skip turn
+                if (blockedPlayer != match.currentPlayer) {
+                    // No need to set CurrentPlayer state yet as it is still user's turn, to block a cell
+                    const validMoves = match.getValidMoves(match.currentPlayer);
+                    // if opponent has only 1 validmove, do not enter block mode
+                    if (validMoves.length > 1) {
+                        setBlockModeActive(true); // User enters state to block move
+                        setAvailableCellsToBlock(validMoves); // All moves that user can block
+                        setMessage(text);
+                        updateGameState({
+                            message: text,
+                            blockModeActive: true
+                        })
+                    } else {
+                        setMessage(`${match.players[match.currentPlayer.toLowerCase()].name} has only 1 valid move, ${match.players[match.currentPlayer.toLowerCase()].name}'s turn`);
+                        setCurrentPlayer(match.currentPlayer);
+                        setBlockedPlayer(match.currentPlayer);
+                        updateGameState({
+                            message: `${match.players[match.currentPlayer.toLowerCase()].name} has only 1 valid move, ${match.players[match.currentPlayer.toLowerCase()].name}'s turn`,
+                            currentPlayer: match.currentPlayer,
+                            blockedPlayer: match.currentPlayer
+                        })
+                    }
+                }
+            } else {
+                // online game but not block reversi
+                match.makeMove(rowIndex, colIndex);
+                setBoard(match.board);
+                setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+                setMatch(match);
+                updateGameState({
+                    board: match.board,
+                    currentPlayer: match.currentPlayer,
+                    match: match
+                });
+            }
+        }
+    }
+
     function handleCellClick(rowIndex, colIndex) {
         if (!hasGameStarted) {
             setHasGameStarted(true);
@@ -416,23 +488,11 @@ const Reversi = () => {
         if (blockModeActive) {
             // check if move is valid
             if (match.isValidMove(rowIndex, colIndex)) {
+                // In blocked mode and online game
                 if (gameId) {
-                    match.blockCell(rowIndex, colIndex);
-                    setBoard(match.board);
-                    setBlockModeActive(false); // Exit block mode after setting cell
-                    setAvailableCellsToBlock(null);
-                    const text = `${match.players[blockedPlayer.toLowerCase()].name} blocked a cell. Now it's ${match.players[match.currentPlayer.toLowerCase()].name}'s turn.`
-                    setMessage(text);
-                    setBlockedPlayer(match.currentPlayer); // Current player now swapped to opponent
-                    if (gameId) {
-                        updateGameState({
-                            board: match.board,
-                            message: text,
-                            blockedPlayer: match.currentPlayer,
-                            blockModeActive: false
-                        })
-                    }
+                    handleOnlineAndBlockMode(rowIndex, colIndex);
                 } else {
+                    // In blocked mode but local game
                     match.blockCell(rowIndex, colIndex);
                     setBoard(match.board);
                     setBlockModeActive(false); // Exit block mode after setting cell
@@ -442,60 +502,15 @@ const Reversi = () => {
                     setCurrentPlayer(match.currentPlayer); //Current player now swapped to opponent
                 }
             }
-                
         } else {
+            // Not in blocked mode
             if (gameId) {
-                if (isGameActive && match.isValidMove(rowIndex, colIndex) && currentPlayer == userColor) {
-                    if (mode == 'block') {
-                        match.makeMove(rowIndex, colIndex); //Current player internally swapped
-                        setBoard(match.board);
-                        const text = `${match.players[currentPlayer.toLowerCase()].name} is blocking a cell`;
-                        setBlockedPlayer(currentPlayer);
-                        setCurrentPlayer(match.currentPlayer);
-                        updateGameState({
-                            board: match.board,
-                            currentPlayer: match.currentPlayer,
-                            blockedPlayer: currentPlayer,
-                        })
-                        
-                        // Handle condition when skip turn
-                        if (blockedPlayer != match.currentPlayer) {
-                            // No need to set CurrentPlayer state yet as it is still user's turn, to block a cell
-                            const validMoves = match.getValidMoves(match.currentPlayer);
-                            // if opponent has only 1 validmove, do not enter block mode
-                            if (validMoves.length > 1) {
-                                setBlockModeActive(true); // User enters state to block move
-                                setAvailableCellsToBlock(validMoves); // All moves that user can block
-                                setMessage(text);
-                                updateGameState({
-                                    message: text,
-                                    blockModeActive: true
-                                })
-                            } else {
-                                setMessage(`${match.players[match.currentPlayer.toLowerCase()].name} has only 1 valid move, ${match.players[match.currentPlayer.toLowerCase()].name}'s turn`);
-                                setCurrentPlayer(match.currentPlayer);
-                                setBlockedPlayer(match.currentPlayer);
-                                updateGameState({
-                                    message: `${match.players[match.currentPlayer.toLowerCase()].name} has only 1 valid move, ${match.players[match.currentPlayer.toLowerCase()].name}'s turn`,
-                                    currentPlayer: match.currentPlayer,
-                                    blockedPlayer: match.currentPlayer
-                                })
-                            }
-                        }
-                    } else {
-                        match.makeMove(rowIndex, colIndex);
-                        setBoard(match.board);
-                        setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
-                        setMatch(match);
-                        updateGameState({
-                            board: match.board,
-                            currentPlayer: match.currentPlayer,
-                            match: match
-                        });
-                    }
-                }
+                // Not in blocked mode and online game
+                handleOnlineAndNotBlockMode(rowIndex, colIndex);
             } else {
+                // Not in blocked mode and is local
                 if (isGameActive && match.isValidMove(rowIndex, colIndex)) {
+                    // local and block mode
                     if (mode == 'block') {
                         match.makeMove(rowIndex, colIndex); //Current player internally swapped
                         setBoard(match.board);
@@ -514,6 +529,7 @@ const Reversi = () => {
                             }
                         }
                     } else {
+                        // local but not block mode
                         match.makeMove(rowIndex, colIndex);
                         setBoard(match.board);
                         setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
