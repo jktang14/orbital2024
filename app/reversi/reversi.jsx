@@ -42,7 +42,9 @@ const Reversi = () => {
     const [blackPiece, setBlackPiece] = useState('black.png');
     const [whitePiece, setWhitePiece] = useState('white.png');
     const [ratingChange, setRatingChange] = useState({});
-
+    const [isDropDownVisible, setIsDropDownVisible] = useState(false);
+    
+    const dropDownRef = useRef(null);
     const prevBoardRef = useRef();
     
     useEffect(() => {
@@ -586,6 +588,10 @@ const Reversi = () => {
         setWhiteTime(timer);
     };
 
+    const toggleDropDown = () => {
+        setIsDropDownVisible(!isDropDownVisible);
+    };
+
     return (
         <div className={styles.body}>
             <div className={styles.enclosingContainer}>
@@ -687,8 +693,14 @@ const Reversi = () => {
                 {!isGameActive && status == "online" && <button onClick={handleSendInvitation} className={styles.restartButton}>Rematch!</button>}
             </div>
             <div className={styles.gameStatus}>
-                <button onClick={() => handleStatusChange('local')}>Local multiplayer</button>
-                <button>Play against the computer</button>
+                <button className={styles.localButton} onClick={() => handleStatusChange('local')}>Local multiplayer</button>
+                <div className={styles.dropDown} ref={dropDownRef}>
+                    <button className={styles.computerButton} onClick={toggleDropDown}>Play against the computer</button>
+                    {isDropDownVisible && <div className={styles.dropDownMenu}>
+                        <button className={styles.easyButton}>Easy</button>
+                        <button className={styles.hardButton}>Hard</button>
+                    </div>}
+                </div>
             </div>
         </div>
     );

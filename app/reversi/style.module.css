@@ -94,3 +94,49 @@
     display: flex;
     gap: 10px;
 }
+
+.dropDown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropDownMenu {
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+}
+
+.localButton, .computerButton {
+    background: #333;
+}
+
+.localButton, .computerButton, .easyButton, .hardButton {
+    display: inline-block;
+    color:#fff;
+    font-size: 17px;
+    border-radius: 5px;
+    padding: 8px 25px;
+    cursor: pointer;
+}
+
+.localButton:hover, .computerButton:hover {
+    background-color: rgba(78, 89, 214, 0.521);
+}
+
+.easyButton {
+    width: 100%;
+    background: #8cf480;
+}
+
+.easyButton:hover {
+    background-color: #b0f9a8;
+}
+
+.hardButton {
+    width: 100%;
+    background:#f48080;
+}
+
+.hardButton:hover {
+    background-color: #f5acac;
+}
