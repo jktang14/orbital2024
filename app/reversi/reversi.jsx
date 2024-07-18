@@ -50,9 +50,9 @@ const Reversi = () => {
     }, [])
 
     useEffect(() => {
-        if (gameId) {
+        if (gameId) {    
             const gameRef = ref(realtimeDatabase, `games/${gameId}`);
-            onValue(gameRef, (snapshot) => {
+            const unSub = onValue(gameRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     setBoardSize(data.boardSize);
@@ -70,12 +70,15 @@ const Reversi = () => {
                     setBlockModeActive(data.blockModeActive);
                     setBlockedPlayer(data.blockedPlayer);
                     setMatch(game.fromData(data.boardSize, data.mode, data.board, data.currentPlayer, data.players));
-
                     if (!data.isGameActive) {
+                        setGameId('');
                         setRematchFriend(friendToPlay);
                     }
                 }
             });
+            return () => {
+                unSub();
+            }
         }
     }, [gameId]);
 
@@ -518,7 +521,6 @@ const Reversi = () => {
     }
 
     function restartGame() {
-        if (status == 'local') {
             let newGame = new game(boardSize);
             setBoardSize(boardSize);
             setMatch(newGame);
@@ -527,13 +529,13 @@ const Reversi = () => {
             setMessage("");
             setIsGameActive(true);
             setHasGameStarted(false);
+            newGame.players['black'].name = username;
             const newTimer = 300;
             setTimer(newTimer);
             setBlackTime(newTimer);
             setWhiteTime(newTimer);
             setBlockModeActive(false);
             setAvailableCellsToBlock(null);
-        }
     }
 
     function formatTime(seconds) {
@@ -549,6 +551,13 @@ const Reversi = () => {
     function opponentColor(userColor) {
         // return userColor == "Black" ? "White" : "Black";
         return userColor == "Black" ? "white" : "black";
+    }
+
+    const handleStatusChange = (status) => {
+        setStatus(status);
+        if (status == 'local') {
+            restartGame();
+        }
     }
 
     const handleModeChange = (mode) => {
@@ -672,9 +681,15 @@ const Reversi = () => {
                     </div>}
                 </div>
             </div>
-            {message && <div className={styles.message}>{message}</div>}
-            {!isGameActive && status == "local" && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
-            {!isGameActive && status == "online" && <button onClick={handleSendInvitation} className={styles.restartButton}>Rematch!</button>}
+            <div>
+                {message && <div className={styles.message}>{message}</div>}
+                {!isGameActive && status == "local" && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
+                {!isGameActive && status == "online" && <button onClick={handleSendInvitation} className={styles.restartButton}>Rematch!</button>}
+            </div>
+            <div className={styles.gameStatus}>
+                <button onClick={() => handleStatusChange('local')}>Local multiplayer</button>
+                <button>Play against the computer</button>
+            </div>
         </div>
     );
 };
