@@ -591,7 +591,7 @@ const Reversi = () => {
             <div className={styles.enclosingContainer}>
                 <div className={styles.gameNameTimer}>
                     <div className={styles.playerTurn}>
-                        {isGameActive && ((mode == 'block' && status == 'local') || mode != 'block') && <p style={{fontFamily: "fantasy", fontSize: "1.3rem"}}>{match.players[currentPlayer.toLowerCase()].name} turn
+                        {hasGameStarted && isGameActive && ((mode == 'block' && status == 'local') || mode != 'block') && <p style={{fontFamily: "fantasy", fontSize: "1.3rem"}}>{match.players[currentPlayer.toLowerCase()].name} turn
                         </p>}
                         {hasGameStarted && isGameActive && (mode == 'block' && status == 'online') && <p style={{fontFamily: "fantasy", fontSize: "1.3rem"}}>{match.players[blockedPlayer.toLowerCase()].name} turn</p>}
                     </div>
