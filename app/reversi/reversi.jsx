@@ -341,6 +341,7 @@ const Reversi = () => {
         setMatch(newGame);
         setBoard(newGame.board);
         setCurrentPlayer(newGame.currentPlayer);
+        newGame.players = match.players;
         setMessage("");
         setIsGameActive(true);
         setHasGameStarted(false);
@@ -384,6 +385,7 @@ const Reversi = () => {
                 isGameActive: false
             });
         } else if (result.status == 'skip') {
+            console.log("skipped")
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
             if (mode == 'block') {
@@ -499,7 +501,7 @@ const Reversi = () => {
                     setAvailableCellsToBlock(null);
                     const text = `${match.players[currentPlayer.toLowerCase()].name} blocked a cell. Now it's ${match.players[match.currentPlayer.toLowerCase()].name }'s turn.`
                     setMessage(text);
-                    setCurrentPlayer(match.currentPlayer); //Current player now swapped to opponent
+                    setCurrentPlayer(match.currentPlayer); // Current player now swapped to opponent
                 }
             }
         } else {
@@ -530,9 +532,27 @@ const Reversi = () => {
                         }
                     } else {
                         // local but not block mode
-                        match.makeMove(rowIndex, colIndex);
-                        setBoard(match.board);
-                        setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+                        // Against easyAI
+                        if (status == "easyAI") {
+                            // Only can move if user's turn
+                            if (currentPlayer == userColor) {
+                                match.makeMove(rowIndex, colIndex);
+                                setBoard(match.board);
+                                setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+                                // match.currentPlayer should be White here in normal circumstances, if Black, ai has no moves
+                                setTimeout(() => {
+                                    console.log(match.currentPlayer);
+                                    if (match.currentPlayer != userColor) {
+                                        match.aiMove(mode, status, setBoard, setCurrentPlayer);
+                                    }
+                                }, 3000);
+                            }
+                        } else {
+                            // Not against easy AI
+                            match.makeMove(rowIndex, colIndex);
+                            setBoard(match.board);
+                            setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
+                        }
                     }
                 }
             }
@@ -637,7 +657,7 @@ const Reversi = () => {
                                     {cell == 'Blocked' && <img className={styles.image} src="cross.png" alt="Red cross" />}
                                     {gameId
                                     ? ((blockModeActive && (blockedPlayer == userColor)) || (!blockModeActive && (currentPlayer == userColor))) && match.isValidMove(rowIndex, colIndex) && <div className={styles.validMoveIndicator}></div>
-                                    : match.isValidMove(rowIndex, colIndex) && <div className={styles.validMoveIndicator}></div>}
+                                    : match.isValidMove(rowIndex, colIndex) && (status == 'local' || currentPlayer == userColor) && <div className={styles.validMoveIndicator}></div>}
                                 </div>
                             ))}
                             </div>

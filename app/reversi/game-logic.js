@@ -180,6 +180,35 @@ class game {
     }
 
     /*
+    AI makes a move
+    */
+    aiMove(mode, status, setBoard, setCurrentPlayer) {
+        // Get all valid moves
+        const moves = this.getValidMoves(this.currentPlayer);
+        // AI has moves
+        if (moves.length > 0) {
+            console.log("ai makes a move")
+            const moveSelected = this.getRandValidMove(moves);
+            this.makeMove(moveSelected[0], moveSelected[1]);
+            setBoard(this.board);
+            setCurrentPlayer(this.currentPlayer);
+            // Condition where user has no moves
+            if (this.currentPlayer == "White") {
+                console.log("user has no moves");
+                this.aiMove(mode, status, setBoard, setCurrentPlayer);
+            }
+        }
+    }
+
+    /*
+    Get some random array from the array of valid moves
+    */
+    getRandValidMove(moves) {
+        const randNum = this.getRandomInt(moves.length - 1);
+        return moves[randNum];
+    }
+
+    /*
     Checks if move selected at current index is a valid move
     */
     isValidMove(row, col) {
