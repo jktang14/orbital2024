@@ -564,6 +564,7 @@ const Reversi = () => {
         setBoardSize(boardSize);
         setMatch(newGame);
         setBoard(newGame.board);
+        newGame.board = match.board;
         setCurrentPlayer(newGame.currentPlayer);
         setMessage("");
         setIsGameActive(true);
