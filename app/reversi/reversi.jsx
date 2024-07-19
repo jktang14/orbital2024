@@ -195,11 +195,11 @@ const Reversi = () => {
             return;
         }
         if ((mode != 'block' && currentPlayer == 'Black') || (mode == 'block' && status == 'online' && blockedPlayer == 'Black') 
-        || (mode == 'block' && status == 'local' && currentPlayer == 'Black')) {
+        || (mode == 'block' && (status != 'online') && currentPlayer == 'Black')) {
             blackIntervalId = setInterval(() => {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, -1);
-                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == -1)) {
+                    if ((status != "online" && currTime == 0) || (status == 'online' && currTime == -1)) {
                         const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent().toLowerCase()].name} wins!`;
                         if (status == 'online') {
                             UpdateRating(match.players["white"].name, match.players["black"].name, 'white', 'black').then((obj) => {
@@ -222,7 +222,7 @@ const Reversi = () => {
             whiteIntervalId = setInterval(() => {
                 setWhiteTime(prev => {
                     let currTime = Math.max(prev - 1, -1);
-                    if ((status == "local" && currTime == 0) || (status == 'online' && currTime == -1)) {
+                    if ((status != "online" && currTime == 0) || (status == 'online' && currTime == -1)) {
                         const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent().toLowerCase()].name} wins!`;
                         if (status == 'online') {
                             UpdateRating(match.players["black"].name, match.players["white"].name, "black", "white").then((obj) => {
