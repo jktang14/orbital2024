@@ -565,7 +565,7 @@ const Reversi = () => {
         }
     }
 
-    function restartGame() {
+    function restartGame(status) {
         let newGame = new game(boardSize, mode);
         setBoardSize(boardSize);
         setMatch(newGame);
@@ -574,6 +574,9 @@ const Reversi = () => {
         setMessage("");
         setIsGameActive(true);
         setHasGameStarted(false);
+        if (status == "easyAI" || status == "hardAI") {
+            newGame.players['white'].name = "Computer";
+        }
         newGame.players['black'].name = username;
         const newTimer = 300;
         setTimer(newTimer);
@@ -600,7 +603,7 @@ const Reversi = () => {
 
     const handleStatusChange = (status) => {
         setStatus(status);
-        restartGame();
+        restartGame(status);
     }
 
     const handleModeChange = (mode) => {
@@ -731,7 +734,7 @@ const Reversi = () => {
             </div>
             <div>
                 {message && <div className={styles.message}>{message}</div>}
-                {!isGameActive && status == "local" && <button onClick={restartGame} className={styles.restartButton}>Restart game!</button>}
+                {!isGameActive && status == "local" && <button onClick={() => restartGame('local')} className={styles.restartButton}>Restart game!</button>}
                 {!isGameActive && status == "online" && <button onClick={handleSendInvitation} className={styles.restartButton}>Rematch!</button>}
             </div>
             <div className={styles.gameStatus}>
