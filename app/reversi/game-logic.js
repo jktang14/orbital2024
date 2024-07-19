@@ -192,11 +192,6 @@ class game {
             this.makeMove(moveSelected[0], moveSelected[1]);
             setBoard(this.board);
             setCurrentPlayer(this.currentPlayer);
-            // Condition where user has no moves
-            if (this.currentPlayer == "White") {
-                console.log("user has no moves");
-                this.aiMove(mode, status, setBoard, setCurrentPlayer);
-            }
         }
     }
 

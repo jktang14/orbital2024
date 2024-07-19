@@ -388,6 +388,12 @@ const Reversi = () => {
             console.log("skipped")
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
+            // Case where user has no moves and is AI's turn
+            if (status == 'easyAI' && match.currentPlayer == "White") {
+                setTimeout(() => {
+                    match.aiMove(mode, status, setBoard, setCurrentPlayer);
+                }, 3000);
+            }
             if (mode == 'block') {
                 setBlockedPlayer(match.currentPlayer);
             }
@@ -539,8 +545,8 @@ const Reversi = () => {
                                 match.makeMove(rowIndex, colIndex);
                                 setBoard(match.board);
                                 setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
-                                // match.currentPlayer should be White here in normal circumstances, if Black, ai has no moves
                                 setTimeout(() => {
+                                    // match.currentPlayer should be White here in normal circumstances, if Black, ai has no moves
                                     console.log(match.currentPlayer);
                                     if (match.currentPlayer != userColor) {
                                         match.aiMove(mode, status, setBoard, setCurrentPlayer);
@@ -560,11 +566,10 @@ const Reversi = () => {
     }
 
     function restartGame() {
-        let newGame = new game(boardSize);
+        let newGame = new game(boardSize, mode);
         setBoardSize(boardSize);
         setMatch(newGame);
         setBoard(newGame.board);
-        newGame.board = match.board;
         setCurrentPlayer(newGame.currentPlayer);
         setMessage("");
         setIsGameActive(true);
