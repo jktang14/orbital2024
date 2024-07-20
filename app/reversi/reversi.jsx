@@ -543,6 +543,9 @@ const Reversi = () => {
                                     setAvailableCellsToBlock(validMoves); // All moves that user can block
                                     setMessage(`${match.players[currentPlayer.toLowerCase()].name} is blocking a cell`);
                                 } else {
+                                    if (validMoves.length == 1) {
+                                        setCurrentPlayer(match.currentPlayer);
+                                    }
                                     setMessage(`${match.players[match.currentPlayer.toLowerCase()].name} has only 1 valid move, ${match.players[match.currentPlayer.toLowerCase()].name}'s turn`);
                                     setTimeout(() => {
                                         // match.currentPlayer should be White here in normal circumstances, if Black, ai has no moves
