@@ -182,16 +182,49 @@ class game {
     /*
     AI makes a move
     */
-    aiMove(mode, status, setBoard, setCurrentPlayer) {
+    aiMove(mode, status, setBoard, setCurrentPlayer, blockModeActive, setBlockModeActive, setAvailableCellsToBlock, setMessage) {
         // Get all valid moves
         const moves = this.getValidMoves(this.currentPlayer);
-        // AI has moves
-        if (moves.length > 0) {
-            console.log("ai makes a move")
-            const moveSelected = this.getRandValidMove(moves);
-            this.makeMove(moveSelected[0], moveSelected[1]);
+        // check block mode true here
+        if (blockModeActive) {
+            const blockedMove = this.getRandValidMove(moves);
+            this.blockCell(blockedMove[0], blockedMove[1]);
             setBoard(this.board);
-            setCurrentPlayer(this.currentPlayer);
+            setBlockModeActive(false); // Exit block mode after setting cell
+            setAvailableCellsToBlock(null);
+            const text = `Computer blocked a cell. Now it's ${this.players[this.currentPlayer.toLowerCase()].name }'s turn.`
+            setMessage(text);
+            setCurrentPlayer(this.currentPlayer); // Current player now swapped to user
+        } else {
+            // AI has moves
+            if (moves.length > 0) {
+                console.log("ai makes a move")
+                const moveSelected = this.getRandValidMove(moves);
+                this.makeMove(moveSelected[0], moveSelected[1]);
+                setBoard(this.board);
+                if (mode != 'block') {
+                    setCurrentPlayer(this.currentPlayer);
+                }        
+
+                if (mode == 'block') {
+                    // Get all valid moves of user
+                    const validMoves = this.getValidMoves(this.currentPlayer);
+                    // if user has only 1 validmove, do not enter block mode, switch to user's turn
+                    if (validMoves.length > 1) {
+                        setBlockModeActive(true); // Computer enters state to block move
+                        setAvailableCellsToBlock(validMoves); // All moves that computer can block
+                        setMessage(`Computer is blocking a cell`);
+                        // call aiMove again for ai to enter block mode
+                        setTimeout(() => {
+                            this.aiMove(mode, status, setBoard, setCurrentPlayer, true, setBlockModeActive, setAvailableCellsToBlock, setMessage);
+                        }, 3000);
+                    } else {
+                        setMessage(`${this.players[this.currentPlayer.toLowerCase()].name} has only 1 valid move, ${this.players[this.currentPlayer.toLowerCase()].name}'s turn`);
+                        // Switch to user's turn
+                        setCurrentPlayer(this.currentPlayer);
+                    }      
+                }     
+            }
         }
     }
 
