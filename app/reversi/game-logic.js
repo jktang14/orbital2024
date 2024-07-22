@@ -1,3 +1,4 @@
+import DeepCopy from "../components/deep-copy";
 class game {
     static DIRECTIONS = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
     constructor(size=8, mode='standard') {
@@ -77,16 +78,16 @@ class game {
     /*
     Returns true if there is an opposing piece in current direction
     */
-    hasOpponent(row, col, x, y, player) {
+    hasOpponent(row, col, x, y, player, board) {
         let newRow = row + x;
         let newCol = col + y;
         let opponent = player == "Black" ? "White" : "Black";
         let hasOpponentPiece = false;
         while (newRow >= 0 && newRow < this.size && newCol >= 0 && newCol < this.size) {
             // Check if there is an opponent piece
-            if (this.board[newRow][newCol] == opponent) {
+            if (board[newRow][newCol] == opponent) {
                 hasOpponentPiece = true;
-            } else if (this.board[newRow][newCol] == player) {
+            } else if (board[newRow][newCol] == player) {
                 // Check if opponent piece enclosed by current player piece
                 return hasOpponentPiece;
             } else {
@@ -101,22 +102,22 @@ class game {
     /*
     get all valid moves for current player
     */
-    getValidMoves(player) {
+    getValidMoves(player, board) {
         let validMoves = [];
 
         for (let row = 0; row < this.size; row++) {
             for (let col = 0; col < this.size; col++) {
                 // skip cells that are non empty
-                if (this.board[row][col] != null) {
+                if (board[row][col] != null) {
                     continue;
                 }
                 // Cell has been blocked
-                if (this.board[row][col] == 'Blocked') {
+                if (board[row][col] == 'Blocked') {
                     continue;
                 }
                 // check all 8 directions
                 for (let [x, y] of game.DIRECTIONS) {
-                    if (this.hasOpponent(row, col, x, y, player)) {
+                    if (this.hasOpponent(row, col, x, y, player, board)) {
                         validMoves.push([row, col])
                         break;
                     }
@@ -129,19 +130,19 @@ class game {
     /*
     Flip the pieces
     */
-    flipPieces(row, col, x, y, player) {
+    flipPieces(row, col, x, y, player, board) {
         let newRow = row + x;
         let newCol = col + y;
         let opponent = player == "Black" ? "White" : "Black";
         let toFlip = [[row, col]];
         while (newRow >= 0 && newRow < this.size && newCol >= 0 && newCol < this.size) {
             // if opponent piece, continue in direction
-            if (this.board[newRow][newCol] == opponent) {
+            if (board[newRow][newCol] == opponent) {
                 toFlip.push([newRow, newCol]);
-            } else if (this.board[newRow][newCol] == player) {
+            } else if (board[newRow][newCol] == player) {
                 // Flip all opponent pieces that should be flipped
                 for (let [dx, dy] of toFlip) {
-                    this.board[dx][dy] = player;
+                    board[dx][dy] = player;
                 }
                 return;
             } else {
@@ -155,11 +156,12 @@ class game {
     /*
     Select the cell that has been selected and flip the corresponding pieces
     */
-    makeMove(row, col) {
+    makeMove(row, col, player, board) {
         // Only consider if move selected part of validMoves
-        if (this.isValidMove(row, col)) {
+        let flippedBoard = DeepCopy(board);
+        if (this.isValidMove(row, col, player, board)) {
             for (let [x, y] of game.DIRECTIONS) {
-                this.flipPieces(row, col, x, y, this.currentPlayer);
+                this.flipPieces(row, col, x, y, player, flippedBoard);
             }
         }
         // Create entirely new board
@@ -167,10 +169,10 @@ class game {
         for (let i = 0; i < this.size; i++) {
             let row = [];
             for (let j = 0; j < this.size; j++) {
-                if (this.board[i][j] == 'Blocked') {
+                if (flippedBoard[i][j] == 'Blocked') {
                     row.push(null);
                 } else {
-                    row.push(this.board[i][j]);
+                    row.push(flippedBoard[i][j]);
                 }
             }
             newBoard.push(row);
@@ -184,7 +186,7 @@ class game {
     */
     aiMove(mode, status, setBoard, setCurrentPlayer, blockModeActive, setBlockModeActive, setAvailableCellsToBlock, setMessage) {
         // Get all valid moves
-        const moves = this.getValidMoves(this.currentPlayer);
+        const moves = this.getValidMoves(this.currentPlayer, this.board);
         // check block mode true here
         if (blockModeActive) {
             const blockedMove = this.getRandValidMove(moves);
@@ -200,7 +202,7 @@ class game {
             if (moves.length > 0) {
                 console.log("ai makes a move")
                 const moveSelected = this.getRandValidMove(moves);
-                this.makeMove(moveSelected[0], moveSelected[1]);
+                this.makeMove(moveSelected[0], moveSelected[1], this.currentPlayer, this.board);
                 setBoard(this.board);
                 if (mode != 'block') {
                     setCurrentPlayer(this.currentPlayer);
@@ -208,7 +210,7 @@ class game {
 
                 if (mode == 'block') {
                     // Get all valid moves of user
-                    const validMoves = this.getValidMoves(this.currentPlayer);
+                    const validMoves = this.getValidMoves(this.currentPlayer, this.board);
                     // if user has only 1 validmove, do not enter block mode, switch to user's turn
                     if (validMoves.length > 1) {
                         setBlockModeActive(true); // Computer enters state to block move
@@ -239,23 +241,23 @@ class game {
     /*
     Checks if move selected at current index is a valid move
     */
-    isValidMove(row, col) {
-        let validMoves = this.getValidMoves(this.currentPlayer);
+    isValidMove(row, col, player, board) {
+        let validMoves = this.getValidMoves(player, board);
         return validMoves.some(item => item[0] == row && item[1] == col);
     }
 
     /*
     Checks if current player has any valid moves
     */
-    hasValidMove(player) {
-        return this.getValidMoves(player).length > 0;
+    hasValidMove(player, board) {
+        return this.getValidMoves(player, board).length > 0;
     }
 
     /*
     Checks if grid is all filled with pieces
     */
-    isGridFull() {
-        return this.board.every(row => row.every(cell => cell != null));
+    isGridFull(board) {
+        return board.every(row => row.every(cell => cell != null));
     }
 
     /*
@@ -273,7 +275,7 @@ class game {
         let opponentNum = this.getPieceNumber(this.getOpponent());
 
         // If grid is full or both players have no valid moves
-        if (this.isGridFull() || (!this.hasValidMove(this.currentPlayer) && !this.hasValidMove(this.getOpponent()))) {
+        if (this.isGridFull(this.board) || (!this.hasValidMove(this.currentPlayer, this.board) && !this.hasValidMove(this.getOpponent(), this.board))) {
             // If game mode is reverse reversi, flip winning logic
             if (this.mode == 'reverse') {
                 if (currNum > opponentNum) {
@@ -295,7 +297,7 @@ class game {
         }
 
         // currentPlayer is the opponent, if opponent has no moves, swap back to player
-        if (!this.hasValidMove(this.currentPlayer)) {
+        if (!this.hasValidMove(this.currentPlayer, this.board)) {
             // swap back to original player
             this.currentPlayer = this.getOpponent();
             return {status: "skip", message: `${this.players[this.getOpponent().toLowerCase()].name} has no valid moves. Turn skipped.`};
@@ -307,7 +309,7 @@ class game {
     /*
     Updates board with blocked cell
     */
-    blockCell(row, col) {
+    blockCell(row, col, board) {
         this.board[row][col] = 'Blocked';
         let newBoard = []
         for (let i = 0; i < this.size; i++) {
