@@ -275,7 +275,7 @@ class game {
             if (moves.length > 0) {
                 console.log("ai makes a move")
                 if (status == 'hardAI') {
-                    this.makeBestAiMove(this.board, this.currentPlayer, 3);
+                    this.makeBestAiMove(status, this.board, this.currentPlayer, 3);
                 } else {
                     const moveSelected = this.getRandValidMove(moves);
                     this.makeMove(status, moveSelected[0], moveSelected[1], this.currentPlayer, this.board);
@@ -509,10 +509,18 @@ class game {
         }
     }
 
-    makeBestAiMove(board, maximisingPlayer, depth) {
-        let bestObj = this.minimax(board, depth, -Infinity, Infinity, maximisingPlayer);
-        this.board = bestObj.board;
-        this.currentPlayer = this.getOpponent(maximisingPlayer);
+    makeBestAiMove(status, board, maximisingPlayer, depth) {
+        let validMoves = this.getValidMoves(maximisingPlayer, board);
+        let cornerIndexes = [[0,0], [0, this.size - 1], [this.size - 1, 0], [this.size - 1], [this.size - 1]];
+        let cornerMove = cornerIndexes.find(corner => 
+            validMoves.some(move => move[0] === corner[0] && move[1] === corner[1]));
+        if (cornerMove == undefined) {
+            let bestObj = this.minimax(board, depth, -Infinity, Infinity, maximisingPlayer);
+            this.board = bestObj.board;
+            this.currentPlayer = this.getOpponent(maximisingPlayer);
+        } else {
+            this.makeMove(status, cornerMove[0], cornerMove[1], maximisingPlayer, board);
+        }
     }
 
 }
