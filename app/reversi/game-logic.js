@@ -1,6 +1,25 @@
 import DeepCopy from "../components/deep-copy";
 class game {
-    static DIRECTIONS = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+    static DIRECTIONS = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+    static positionalWeights6 = [
+        [100, -20, 10, 10, -20, 100],
+        [-20, -50, -2, -2, -50, -20],
+        [10, -2, -1, -1, -2, 10],
+        [10, -2, -1, -1, -2, 10],
+        [-20, -50, -2, -2, -50, -20],
+        [100, -20, 10, 10, -20, 100]
+    ];
+    static positionalWeights8 = [
+        [100, -20, 10,  5,  5, 10, -20, 100],
+        [-20, -50, -2, -2, -2, -2, -50, -20],
+        [10, -2, -1, -1, -1, -1, -2, 10],
+        [5,  -2, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -2, 5],
+        [10, -2, -1, -1, -1, -1, -2, 10],
+        [-20, -50, -2, -2, -2, -2, -50, -20],
+        [100, -20, 10,  5,  5, 10, -20, 100]
+    ]; 
+
     constructor(size=8, mode='standard') {
         this.size=size
         this.currentPlayer = "Black";
@@ -364,13 +383,14 @@ class game {
     Scoring for use in minimax algorithm
     */
     getBoardScore(player, board) {
+        let opponent = this.getOpponent(player);
         return this.getPieceNumber(player, board) - this.getPieceNumber(this.getOpponent(player), board);
     }
   
     /*
     Ai is the maximising player, user is the minimising player
     */
-    minimax(board, depth, maximisingPlayer) {
+    minimax(board, depth, alpha, beta, maximisingPlayer) {
         // Terminal when board state is an endgame
         if (depth == 0 || this.isTerminal(maximisingPlayer, board)) {
             return {score: this.getBoardScore(maximisingPlayer, board), board: board};
@@ -379,34 +399,42 @@ class game {
         let moves = this.getValidMoves(maximisingPlayer, board);
         if (moves.length == 0) {
             // Switch to other player
-            return this.minimax(board, depth - 1, this.getOpponent(maximisingPlayer));
+            return this.minimax(board, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer));
         }
 
         if (maximisingPlayer == 'White') {
             let maxValue = {score: -Infinity, board: null};
             for (let move of moves) {
                 let newBoard = this.getChildBoard('hardAI', move[0], move[1], maximisingPlayer, board);
-                let bestObj = this.minimax(newBoard, depth - 1, this.getOpponent(maximisingPlayer));
+                let bestObj = this.minimax(newBoard, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer));
                 if (bestObj.score > maxValue.score) {
                     maxValue = {score: bestObj.score, board: newBoard}
                 }
+                if (maxValue.score > beta) {
+                    break;
+                }
+                alpha = Math.max(maxValue.score, alpha)
             }
             return maxValue;
         } else {
             let minValue = {score: Infinity, board: null};
             for (let move of moves) {
                 let newBoard = this.getChildBoard('hardAI', move[0], move[1], maximisingPlayer, board);
-                let bestObj = this.minimax(newBoard, depth - 1, this.getOpponent(maximisingPlayer));
+                let bestObj = this.minimax(newBoard, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer));
                 if (bestObj.score < minValue.score) {
                     minValue = {score: bestObj.score, board: newBoard}
                 }
+                if (minValue.score < alpha) {
+                    break;
+                }
+                beta = Math.min(beta, minValue.score)
             }
             return minValue;
         }
     }
 
     makeBestAiMove(board, maximisingPlayer, depth) {
-        let bestObj = this.minimax(board, depth, maximisingPlayer);
+        let bestObj = this.minimax(board, depth, -Infinity, Infinity, maximisingPlayer);
         this.board = bestObj.board;
         this.currentPlayer = this.getOpponent(maximisingPlayer);
     }
