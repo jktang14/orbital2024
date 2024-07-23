@@ -200,7 +200,7 @@ const Reversi = () => {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, -1);
                     if ((status != "online" && currTime == 0) || (status == 'online' && currTime == -1)) {
-                        const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent().toLowerCase()].name} wins!`;
+                        const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(match.currentPlayer).toLowerCase()].name} wins!`;
                         if (status == 'online') {
                             UpdateRating(match.players["white"].name, match.players["black"].name, 'white', 'black').then((obj) => {
                                 setRatingChange(obj);
@@ -223,7 +223,7 @@ const Reversi = () => {
                 setWhiteTime(prev => {
                     let currTime = Math.max(prev - 1, -1);
                     if ((status != "online" && currTime == 0) || (status == 'online' && currTime == -1)) {
-                        const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent().toLowerCase()].name} wins!`;
+                        const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(match.currentPlayer).toLowerCase()].name} wins!`;
                         if (status == 'online') {
                             UpdateRating(match.players["black"].name, match.players["white"].name, "black", "white").then((obj) => {
                                 setRatingChange(obj);
@@ -389,7 +389,7 @@ const Reversi = () => {
             setMessage(result.message);
             setCurrentPlayer(match.currentPlayer);
             // Case where user has no moves and is AI's turn
-            if (status == 'easyAI' && match.currentPlayer == "White") {
+            if ((status == 'easyAI' || status == 'hardAI') && match.currentPlayer == "White") {
                 setTimeout(() => {
                     match.aiMove(mode, status, setBoard, setCurrentPlayer, blockModeActive, setBlockModeActive, setAvailableCellsToBlock, setMessage);
                 }, 3000);
@@ -436,7 +436,7 @@ const Reversi = () => {
         if (isGameActive && match.isValidMove(rowIndex, colIndex, match.currentPlayer, match.board) && currentPlayer == userColor) {
             // online game and is blocked reversi
             if (mode == 'block') {
-                match.makeMove(rowIndex, colIndex, match.currentPlayer, match.board); //Current player internally swapped
+                match.makeMove(status, rowIndex, colIndex, match.currentPlayer, match.board); //Current player internally swapped
                 setBoard(match.board);
                 const text = `${match.players[currentPlayer.toLowerCase()].name} is blocking a cell`;
                 setBlockedPlayer(currentPlayer);
@@ -473,7 +473,7 @@ const Reversi = () => {
                 }
             } else {
                 // online game but not block reversi
-                match.makeMove(rowIndex, colIndex, match.currentPlayer, match.board);
+                match.makeMove(status, rowIndex, colIndex, match.currentPlayer, match.board);
                 setBoard(match.board);
                 setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
                 setMatch(match);
@@ -501,7 +501,7 @@ const Reversi = () => {
                     handleOnlineAndBlockMode(rowIndex, colIndex);
                 } else {
                     // In blocked mode but local game
-                    if (status == 'local' || (status == 'easyAI' && match.currentPlayer == "White")) {
+                    if (status == 'local' || ((status == 'easyAI' || status == 'hardAI') && match.currentPlayer == "White")) {
                         match.blockCell(rowIndex, colIndex);
                         setBoard(match.board);
                         setBlockModeActive(false); // Exit block mode after setting cell
@@ -511,7 +511,7 @@ const Reversi = () => {
                         setCurrentPlayer(match.currentPlayer); // Current player now swapped to opponent
     
                         // Against easy AI and in block mode
-                        if (status == "easyAI") {
+                        if (status == "easyAI" || status == 'hardAI') {
                             setTimeout(() => {
                                 console.log("switch to ai turn")
                                 match.aiMove(mode, status, setBoard, setCurrentPlayer, false, setBlockModeActive, setAvailableCellsToBlock, setMessage);
@@ -531,9 +531,9 @@ const Reversi = () => {
                     // local and block mode
                     if (mode == 'block') {
                         // Additional condition so that user cannot click during ai's move
-                        if (status == 'easyAI') {
+                        if (status == 'easyAI' || status == 'hardAI') {
                             if (match.currentPlayer == 'Black') {
-                                match.makeMove(rowIndex, colIndex, match.currentPlayer, match.board); //Current player internally swapped
+                                match.makeMove(status, rowIndex, colIndex, match.currentPlayer, match.board); //Current player internally swapped
                                 setBoard(match.board);
                                 // No need to set CurrentPlayer state yet as it is still user's turn, to block a cell
                                 const validMoves = match.getValidMoves(match.currentPlayer, match.board);
@@ -556,7 +556,7 @@ const Reversi = () => {
                                 }
                             }
                         } else {
-                            match.makeMove(rowIndex, colIndex, match.currentPlayer, match.board); //Current player internally swapped
+                            match.makeMove(status, rowIndex, colIndex, match.currentPlayer, match.board); //Current player internally swapped
                             setBoard(match.board);
                             // Handle condition when skip turn
                             if (currentPlayer != match.currentPlayer) {
@@ -576,10 +576,11 @@ const Reversi = () => {
                     } else {
                         // local but not block mode
                         // Against easyAI
-                        if (status == "easyAI") {
+                        if (status == "easyAI" || status == "hardAI") {
                             // Only can move if user's turn
+                            console.log("entered");
                             if (currentPlayer == userColor) {
-                                match.makeMove(rowIndex, colIndex, match.currentPlayer, match.board);
+                                match.makeMove(status, rowIndex, colIndex, match.currentPlayer, match.board);
                                 setBoard(match.board);
                                 setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
                                 setTimeout(() => {
@@ -592,7 +593,7 @@ const Reversi = () => {
                             }
                         } else {
                             // Not against easy AI
-                            match.makeMove(rowIndex, colIndex, match.currentPlayer, match.board);
+                            match.makeMove(status, rowIndex, colIndex, match.currentPlayer, match.board);
                             setBoard(match.board);
                             setCurrentPlayer(match.currentPlayer); // current player has internally swapped within makeMove
                         }
