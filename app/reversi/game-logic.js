@@ -19,6 +19,33 @@ class game {
         [-20, -50, -2, -2, -2, -2, -50, -20],
         [100, -20, 10,  5,  5, 10, -20, 100]
     ]; 
+    static positionalWeights10 = [
+        [100, -20, 10,  5,  5, 5,  5, 10, -20, 100],
+        [-20, -50, -2, -2, -2, -2, -2, -2, -50, -20],
+        [10, -2, -1, -1, -1, -1, -1, -1, -2, 10],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -2, 5],
+        [10, -2, -1, -1, -1, -1, -1, -1, -2, 10],
+        [-20, -50, -2, -2, -2, -2, -2, -2, -50, -20],
+        [100, -20, 10,  5,  5, 5,  5, 10, -20, 100]
+    ];
+    static positionalWeights12 = [
+        [100, -20, 10,  5,  5,  5, 5, 5,  5, 10, -20, 100],
+        [-20, -50, -2, -2, -2, -2, -2, -2, -2, -2, -50, -20],
+        [10, -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 10],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
+        [10, -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 10],
+        [-20, -50, -2, -2, -2, -2, -2, -2, -2, -2, -50, -20],
+        [100, -20, 10,  5,  5,  5, 5, 5,  5, 10, -20, 100]
+    ];
+    
+    
 
     constructor(size=8, mode='standard') {
         this.size=size
@@ -380,11 +407,60 @@ class game {
     }
   
     /*
-    Scoring for use in minimax algorithm
+    Scoring for use in minimax algorithm from AI's perspective
     */
-    getBoardScore(player, board) {
-        let opponent = this.getOpponent(player);
-        return this.getPieceNumber(player, board) - this.getPieceNumber(this.getOpponent(player), board);
+    getBoardScore(board) {
+        let player = "White";
+        let opponent = "Black";
+        let positionalWeight;
+        let score = 0;
+        let aiFrontier = 0;
+        let opponentFrontier = 0;
+
+        if (this.size == 6) {
+            positionalWeight = game.positionalWeights6;
+        } else if (this.size == 8) {
+            positionalWeight = game.positionalWeights8;
+        } else if (this.size == 10) {
+            positionalWeight = game.positionalWeights10;
+        } else {
+            positionalWeight = game.positionalWeights12;
+        }
+
+        for (let i = 0; i < this.size; i++) {
+            for (let j = 0; j < this.size; j++) {
+                if (board[i][j] == player) {
+                    score += positionalWeight[i][j];
+                    for (let [x, y] of game.DIRECTIONS) {
+                        let newRow = i + x, newCol = j + y;
+                        if (newRow >= 0 && newRow < this.size && newCol >= 0 && newCol < this.size && board[newRow][newCol] == null) {
+                            aiFrontier += 1;
+                            break;
+                        }
+                    }
+                } else if (board[i][j] == opponent) {
+                    score -= positionalWeight[i][j];
+                    for (let [x, y] of game.DIRECTIONS) {
+                        let newRow = i + x, newCol = j + y;
+                        if (newRow >= 0 && newRow < this.size && newCol >= 0 && newCol < this.size && board[newRow][newCol] == null) {
+                            opponentFrontier += 1;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        const aiMobility = this.getValidMoves(player, board).length;
+        const opponentMobility = this.getValidMoves(opponent, board).length;
+        
+        const mobilityWeight = 2;
+        // maximise interior, minimise exterior pieces
+        const frontierWeight = -1;
+
+        score += mobilityWeight * (aiMobility - opponentMobility);
+        score += frontierWeight * (aiFrontier - opponentFrontier);
+        return score;
     }
   
     /*
@@ -393,7 +469,7 @@ class game {
     minimax(board, depth, alpha, beta, maximisingPlayer) {
         // Terminal when board state is an endgame
         if (depth == 0 || this.isTerminal(maximisingPlayer, board)) {
-            return {score: this.getBoardScore(maximisingPlayer, board), board: board};
+            return {score: this.getBoardScore(board), board: board};
         }
 
         let moves = this.getValidMoves(maximisingPlayer, board);
