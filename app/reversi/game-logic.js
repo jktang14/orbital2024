@@ -284,6 +284,7 @@ class game {
                     const moveSelected = this.getRandValidMove(moves);
                     this.makeMove(status, moveSelected[0], moveSelected[1], this.currentPlayer, this.board);
                 }
+
                 setBoard(this.board);
                 if (mode != 'block') {
                     setCurrentPlayer(this.currentPlayer);
@@ -536,47 +537,74 @@ class game {
         for (let [x, y] of game.DIRECTIONS) {
             flippedPieces += this.flipPieces(row, col, x, y, player, flippedBoard);
         }
+        return flippedPieces;
     }
 
     /*
     Pick best move for reverse mode
     */
-    // makeBestReverseMove(board, player) {
-    //     // Prioritise interior moves first, followed by edges, then corners
-    //     let validMoves = this.getValidMoves(player, board);
-    //     let cornerIndexes = [[0,0], [0, this.size - 1], [this.size - 1, 0], [this.size - 1], [this.size - 1]];
-    //     let edgeIndexes;
-    //     // get edgesIndexes
-    //     for (let row = 0; row < this.size; row++) {
-    //         if (row == 0 || row == this.size - 1) {
-    //             for (let col = 1; col < this.size - 1; col++) {
-    //                 edgeIndexes.push(board[row][col]);
-    //             }
-    //         } else {
-    //             edgeIndexes.push(board[row][0]);
-    //             edgeIndexes.push(board[row][this.size - 1]);
-    //         }
-    //     }
-    //     // check if there are interior moves
-    //     let interiorMoves = validMoves.filter(validMove => !cornerIndexes.some(move => 
-    //         validMove[0] == move[0] && validMove[1] == move[1]) && !edgeIndexes.some(move => 
-    //             validMove[0] == move[0] && validMove[1] == move[1]
-    //         ))
-    //     // No interior moves
-    //     if (interiorMoves.length == 0) {
-    //         let edgeMoves = validMoves.filter(validMove => edgeIndexes.some(move => validMove[0] == move[0] && validMove[1] == move[1]));
-    //         // no edge moves
-    //         if (edgeMoves.length == 0) {
-    //             let cornerMoves = validMoves.filter(validMove => cornerIndexes.some(move => validMove[0] == move[0] && validMove[1] == move[1]));
-    //         } else {
+    makeBestReverseMove(board, player) {
+        // Prioritise interior moves first, followed by edges, then corners
+        let validMoves = this.getValidMoves(player, board);
+        let cornerIndexes = [[0,0], [0, this.size - 1], [this.size - 1, 0], [this.size - 1, this.size - 1]];
+        let edgeIndexes = [];
+        let finalMove;
+        let flippedMin = Infinity;
 
-    //         }
-    //     } else {
+        // get edgesIndexes
+        for (let row = 0; row < this.size; row++) {
+            if (row == 0 || row == this.size - 1) {
+                for (let col = 1; col < this.size - 1; col++) {
+                    edgeIndexes.push([row, col]);
+                }
+            } else {
+                edgeIndexes.push([row, 0]);
+                edgeIndexes.push([row, this.size - 1]);
+            }
+        }
 
-    //     }
-        
-    // }
+        // check if there are interior moves
+        let interiorMoves = validMoves.filter(validMove => !cornerIndexes.some(move => 
+            validMove[0] == move[0] && validMove[1] == move[1]) && !edgeIndexes.some(move => 
+                validMove[0] == move[0] && validMove[1] == move[1]
+            ));
 
+        // No interior moves
+        if (interiorMoves.length == 0) {
+            let edgeMoves = validMoves.filter(validMove => edgeIndexes.some(move => validMove[0] == move[0] && validMove[1] == move[1]));
+            // no edge moves
+            if (edgeMoves.length == 0) {
+                let cornerMoves = validMoves.filter(validMove => cornerIndexes.some(move => validMove[0] == move[0] && validMove[1] == move[1]));
+                for (let i = 0; i < cornerMoves.length; i++) {
+                    let move = cornerMoves[i];
+                    let flippedNumber = this.getFlippedPiecesNumber(move[0], move[1], board, "White");
+                    if (flippedNumber < flippedMin) {
+                        flippedMin = flippedNumber;
+                        finalMove = move;
+                    }
+                }
+            } else {
+                for (let i = 0; i < edgeMoves.length; i++) {
+                    let move = edgeMoves[i];
+                    let flippedNumber = this.getFlippedPiecesNumber(move[0], move[1], board, "White");
+                    if (flippedNumber < flippedMin) {
+                        flippedMin = flippedNumber;
+                        finalMove = move;
+                    }
+                }
+            }
+        } else {
+            for (let i = 0; i < interiorMoves.length; i++) {
+                let move = interiorMoves[i];
+                let flippedNumber = this.getFlippedPiecesNumber(move[0], move[1], board, "White");
+                if (flippedNumber < flippedMin) {
+                    flippedMin = flippedNumber;
+                    finalMove = move;
+                }
+            }
+        }
+        this.makeMove("hardAI", finalMove[0], finalMove[1], "White", board);
+    }
 }
 
 export default game;
