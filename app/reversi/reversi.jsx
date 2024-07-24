@@ -415,7 +415,7 @@ const Reversi = () => {
     }
 
     const handleOnlineAndBlockMode = (rowIndex, colIndex) => {
-        match.blockCell(rowIndex, colIndex);
+        match.blockCell(rowIndex, colIndex, match.board);
         setBoard(match.board);
         setBlockModeActive(false); // Exit block mode after setting cell
         setAvailableCellsToBlock(null);
@@ -502,7 +502,7 @@ const Reversi = () => {
                 } else {
                     // In blocked mode but local game
                     if (status == 'local' || ((status == 'easyAI' || status == 'hardAI') && match.currentPlayer == "White")) {
-                        match.blockCell(rowIndex, colIndex);
+                        match.blockCell(rowIndex, colIndex, match.board);
                         setBoard(match.board);
                         setBlockModeActive(false); // Exit block mode after setting cell
                         setAvailableCellsToBlock(null);

@@ -263,7 +263,7 @@ class game {
         // check block mode true here
         if (blockModeActive) {
             const blockedMove = this.getRandValidMove(moves);
-            this.blockCell(blockedMove[0], blockedMove[1]);
+            this.blockCell(blockedMove[0], blockedMove[1], this.board);
             setBoard(this.board);
             setBlockModeActive(false); // Exit block mode after setting cell
             setAvailableCellsToBlock(null);
@@ -392,12 +392,14 @@ class game {
     Updates board with blocked cell
     */
     blockCell(row, col, board) {
-        this.board[row][col] = 'Blocked';
+        let boardCopy = DeepCopy(board);
+        boardCopy[row][col] = 'Blocked';
+
         let newBoard = []
         for (let i = 0; i < this.size; i++) {
             let row = [];
             for (let j = 0; j < this.size; j++) {
-                row.push(this.board[i][j]);
+                row.push(boardCopy[i][j]);
             }
             newBoard.push(row);
         }
