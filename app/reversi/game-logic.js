@@ -40,13 +40,12 @@ class game {
         [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
         [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
         [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
         [10, -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 10],
         [-20, -50, -2, -2, -2, -2, -2, -2, -2, -2, -50, -20],
         [100, -20, 10,  5,  5,  5, 5, 5,  5, 10, -20, 100]
     ];
     
-    
-
     constructor(size=8, mode='standard') {
         this.size=size
         this.currentPlayer = "Black";
@@ -190,13 +189,14 @@ class game {
                 for (let [dx, dy] of toFlip) {
                     board[dx][dy] = player;
                 }
-                return;
+                return toFlip.length;
             } else {
                 break; // Empty cell
             }
             newRow += x;
             newCol += y;
         }
+        return 0;
     }
 
     /*
@@ -275,7 +275,11 @@ class game {
             if (moves.length > 0) {
                 console.log("ai makes a move")
                 if (status == 'hardAI') {
-                    this.makeBestAiMove(status, this.board, this.currentPlayer, 3);
+                    if (mode == 'reverse') {
+                        this.makeBestReverseMove(this.board, this.currentPlayer);
+                    } else {
+                        this.makeBestAiMove(status, this.board, this.currentPlayer, 3);
+                    }
                 } else {
                     const moveSelected = this.getRandValidMove(moves);
                     this.makeMove(status, moveSelected[0], moveSelected[1], this.currentPlayer, this.board);
@@ -522,6 +526,56 @@ class game {
             this.makeMove(status, cornerMove[0], cornerMove[1], maximisingPlayer, board);
         }
     }
+
+    /*
+    Get number of pieces flipped
+    */
+    getFlippedPiecesNumber(row, col, board, player) {
+        let flippedBoard = DeepCopy(board);
+        let flippedPieces = 0;
+        for (let [x, y] of game.DIRECTIONS) {
+            flippedPieces += this.flipPieces(row, col, x, y, player, flippedBoard);
+        }
+    }
+
+    /*
+    Pick best move for reverse mode
+    */
+    // makeBestReverseMove(board, player) {
+    //     // Prioritise interior moves first, followed by edges, then corners
+    //     let validMoves = this.getValidMoves(player, board);
+    //     let cornerIndexes = [[0,0], [0, this.size - 1], [this.size - 1, 0], [this.size - 1], [this.size - 1]];
+    //     let edgeIndexes;
+    //     // get edgesIndexes
+    //     for (let row = 0; row < this.size; row++) {
+    //         if (row == 0 || row == this.size - 1) {
+    //             for (let col = 1; col < this.size - 1; col++) {
+    //                 edgeIndexes.push(board[row][col]);
+    //             }
+    //         } else {
+    //             edgeIndexes.push(board[row][0]);
+    //             edgeIndexes.push(board[row][this.size - 1]);
+    //         }
+    //     }
+    //     // check if there are interior moves
+    //     let interiorMoves = validMoves.filter(validMove => !cornerIndexes.some(move => 
+    //         validMove[0] == move[0] && validMove[1] == move[1]) && !edgeIndexes.some(move => 
+    //             validMove[0] == move[0] && validMove[1] == move[1]
+    //         ))
+    //     // No interior moves
+    //     if (interiorMoves.length == 0) {
+    //         let edgeMoves = validMoves.filter(validMove => edgeIndexes.some(move => validMove[0] == move[0] && validMove[1] == move[1]));
+    //         // no edge moves
+    //         if (edgeMoves.length == 0) {
+    //             let cornerMoves = validMoves.filter(validMove => cornerIndexes.some(move => validMove[0] == move[0] && validMove[1] == move[1]));
+    //         } else {
+
+    //         }
+    //     } else {
+
+    //     }
+        
+    // }
 
 }
 
