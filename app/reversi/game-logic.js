@@ -461,9 +461,9 @@ class game {
         
         const mobilityWeight = 2;
         // maximise interior, minimise exterior pieces
-        const frontierWeight = -1;
+        const frontierWeight = -100;
 
-        score += mobilityWeight * (aiMobility - opponentMobility);
+        score += 100 * (aiMobility - opponentMobility) / (aiMobility - opponentMobility + 1);
         score += frontierWeight * (aiFrontier - opponentFrontier);
         return score;
     }
