@@ -278,7 +278,7 @@ class game {
                     if (mode == 'reverse') {
                         this.makeBestReverseMove(this.board, this.currentPlayer);
                     } else {
-                        this.makeBestAiMove(status, this.board, this.currentPlayer, 3);
+                        this.makeBestAiMove(status, this.board, this.currentPlayer, 5);
                     }
                 } else {
                     const moveSelected = this.getRandValidMove(moves);
