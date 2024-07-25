@@ -639,7 +639,7 @@ class game {
 
     makeBestAiMove(status, mode, board, maximisingPlayer, depth, blockModeActive) {
         let validMoves = this.getValidMoves(maximisingPlayer, board);
-        let cornerIndexes = [[0,0], [0, this.size - 1], [this.size - 1, 0], [this.size - 1], [this.size - 1]];
+        let cornerIndexes = [[0,0], [0, this.size - 1], [this.size - 1, 0], [this.size - 1, this.size - 1]];
         let cornerMove = cornerIndexes.find(corner => 
             validMoves.some(move => move[0] === corner[0] && move[1] === corner[1]));
 
