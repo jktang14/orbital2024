@@ -543,6 +543,11 @@ class game {
         }
 
         let moves = this.getValidMoves(maximisingPlayer, board);
+        
+        // if (blockModeActive && moves.length == 1 && mode == 'block') {
+        //     return this.minimax(mode, board, depth, alpha, beta, maximisingPlayer, false);
+        // }
+
         if (blockModeActive) {
             // Moves is all valid moves for the user
             if (maximisingPlayer == 'Black') {
@@ -581,9 +586,12 @@ class game {
             return this.minimax(mode, board, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer), blockModeActive);
         }
 
-        // don't enter block mode if user has only 1 valid move
-        if (mode == 'block' && moves.length == 1) {
-            return this.minimax(mode, board, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer), false);
+        let opponentMoves = this.getValidMoves(this.getOpponent(maximisingPlayer), board);
+        // don't enter block mode if user has only 1 valid move, block mode currently not active
+        if (mode == 'block' && opponentMoves.length == 1) {
+            let move = opponentMoves[0];
+            let newBoard = this.getChildBoard('hardAI', move[0], move[1], maximisingPlayer, board)
+            return this.minimax(mode, newBoard, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer), false);
         }
 
         if (maximisingPlayer == 'White') {
@@ -648,7 +656,9 @@ class game {
                 }
             } else {
                 if (cornerMove == undefined) {
+                    console.log(board);
                     let bestObj = this.minimax(mode, board, depth, -Infinity, Infinity, maximisingPlayer, false);
+                    console.log(bestObj.board)
                     this.board = bestObj.board;
                     this.currentPlayer = this.getOpponent(maximisingPlayer);
                 } else {
