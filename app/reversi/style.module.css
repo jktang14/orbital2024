@@ -105,7 +105,7 @@
 }
 
 .gridButton:hover {
-    background-color: #ffdbdb;
+    background-color: aqua;
 }
 
 .modeButton {
@@ -133,7 +133,7 @@
     display: flex;
     width: 90%;
     gap: 5px;
-    border: 2px solid rgb(233, 255, 135);
+    /* border: 2px solid rgb(233, 255, 135); */
     border-radius: 5px;
     padding: 5px 5px;
     align-items: center;
@@ -141,7 +141,7 @@
 
 .gameSelectors {
     position: relative;
-    top: 5px;
+    top: 14px;
 }
 
 .messageContainer {
@@ -164,10 +164,12 @@
 .gameStatus {
     display: flex;
     position: absolute;
-    top: 55px;
-    padding-left: 14rem;
+    top: 75px;
+    /* padding-left: 16rem; */
+    justify-content: center;
     gap: 20px;
     padding-bottom: 20px;
+    width: 100%
 }
 
 .dropDown {

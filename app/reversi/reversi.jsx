@@ -753,38 +753,38 @@ const Reversi = () => {
                             {hasGameStarted 
                             ?   <div className={styles.variantDescription}>
                                     <button className={styles.variantButton} onClick={() => handleModeChange('standard')} disabled>Standard Reversi</button>
-                                    <p style={{textAlign: "center", fontSize:"11px"}}>Enjoy a standard game of reversi!</p>
+                                    <p style={{textAlign: "center", fontSize:"11px", color: "white"}}>Enjoy a standard game of reversi!</p>
                                 </div>
                             :    <div className={styles.variantDescription}>
                                     <button className={styles.variantButton} onClick={() => handleModeChange('standard')} >Standard Reversi</button>
-                                    <p style={{textAlign: "center", fontSize:"11px"}}>Enjoy a standard game of reversi!</p>
+                                    <p style={{textAlign: "center", fontSize:"11px", color: "white"}}>Enjoy a standard game of reversi!</p>
                                 </div>}
                             {hasGameStarted 
                             ?   <div className={styles.variantDescription}>
                                     <button className={styles.variantButton} onClick={() => handleModeChange('reverse')} disabled>Reverse Reversi</button>
-                                    <p style={{textAlign: "center", fontSize:"11px"}}>Win by having fewer pieces on the board!</p>
+                                    <p style={{textAlign: "center", fontSize:"11px", color: "white"}}>Win by having fewer pieces on the board!</p>
                                 </div>
                             :   <div className={styles.variantDescription}>
                                     <button className={styles.variantButton} onClick={() => handleModeChange('reverse')} >Reverse Reversi</button>
-                                    <p style={{textAlign: "center", fontSize:"11px"}}>Win by having fewer pieces on the board!</p>
+                                    <p style={{textAlign: "center", fontSize:"11px", color: "white"}}>Win by having fewer pieces on the board!</p>
                                 </div>}
                             {hasGameStarted 
                             ?   <div className={styles.variantDescription}> 
                                     <button className={styles.variantButton} onClick={() => handleModeChange('random')} disabled>Random Reversi</button>
-                                    <p style={{textAlign: "center", fontSize:"11px"}}>Play different starting configurations!</p>
+                                    <p style={{textAlign: "center", fontSize:"11px", color: "white"}}>Play different starting configurations!</p>
                                 </div>
                             :   <div className={styles.variantDescription}> 
                                     <button className={styles.variantButton} onClick={() => handleModeChange('random')}>Random Reversi</button>
-                                    <p style={{textAlign: "center", fontSize:"11px"}}>Play different starting configurations!</p>
+                                    <p style={{textAlign: "center", fontSize:"11px", color: "white"}}>Play different starting configurations!</p>
                                 </div>}
                             {hasGameStarted 
                             ?  <div className={styles.variantDescription}> 
                                     <button className={styles.variantButton} onClick={() => handleModeChange('block')} disabled>Obstruction Reversi</button>
-                                    <p style={{textAlign: "center", fontSize:"11px"}}>Block your opponents move!</p>
+                                    <p style={{textAlign: "center", fontSize:"11px", color: "white"}}>Block your opponents move!</p>
                                 </div>
                             :   <div className={styles.variantDescription}> 
                                     <button className={styles.variantButton} onClick={() => handleModeChange('block')} >Obstruction Reversi</button>
-                                    <p style={{textAlign: "center", fontSize:"11px"}}>Block your opponents move!</p>
+                                    <p style={{textAlign: "center", fontSize:"11px", color: "white"}}>Block your opponents move!</p>
                                 </div>}
                         </div>
                     </div>
