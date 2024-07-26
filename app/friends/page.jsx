@@ -143,7 +143,7 @@ const FriendsList = () => {
                     </form>
                     <ul className={styles.list}>
                         {Array.isArray(friends) && friends.sort((a, b) => b.rating - a.rating).map(friend => (
-                            <li className={styles.listItem}>
+                            <li key={friend} className={styles.listItem}>
                                 {`${friend.username} (${friend.rating})`}
                                 <div className={styles.actions}>
                                     Status: {friend.status}
@@ -158,7 +158,7 @@ const FriendsList = () => {
                 <h1 style = {{margin: 0}}> Friend requests </h1>
                     <ul className={styles.requests}>
                         {Array.isArray(friendRequests) && friendRequests.map(request => (
-                            <li className={styles.request}>
+                            <li key={request} className={styles.request}>
                                 {request}
                                 <div className={styles.selectionButtons}>
                                     <button onClick={() => handleAddFriend(username, request)}>Accept</button>
