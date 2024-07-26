@@ -44,6 +44,7 @@ const Reversi = () => {
     const [ratingChange, setRatingChange] = useState({});
     const [isDropDownVisible, setIsDropDownVisible] = useState(false);
     
+    const unsubscribeRef = useRef(null);
     const dropDownRef = useRef(null);
     const prevBoardRef = useRef();
     
@@ -131,11 +132,17 @@ const Reversi = () => {
                         })
                     }
                 })
-        
-                return () => unsubscribe();
+
+                unsubscribeRef.current = unsubscribe;
             }
         }
         handleGameRequests();
+
+        return () => {
+            if (unsubscribeRef.current) {
+                unsubscribeRef.current();
+            }
+        }
     }, [username])
     
     useEffect(() => {

@@ -1,5 +1,5 @@
 'use client'
-import {React, useEffect, useState} from "react";
+import {React, useEffect, useState, useRef} from "react";
 import styles from './style.module.css';
 import { db } from "../firebase";
 import { query, collection, where, getDocs, updateDoc, doc, onSnapshot, arrayRemove} from "firebase/firestore";
@@ -18,6 +18,7 @@ const FriendsList = () => {
     const [searchUsername, setSearchUsername] = useState('');
     const [friendRequests, setFriendRequests] = useState([]);
     const router = useRouter();
+    const unsubscribeRef = useRef(null);
 
     useEffect(() => {
         // Check if window and localStorage are available
@@ -42,18 +43,22 @@ const FriendsList = () => {
                     const userData = doc.data();
                     const userFriends = await GetFriends(username);
                     if (Array.isArray(userFriends)) {
-                        console.log(userFriends)
                         setFriends(userFriends);
                         setFriendRequests(userData.friendRequests);
                     }
                 })
-        
-                return () => unsubscribe();
+
+                unsubscribeRef.current = unsubscribe; // Store unsubscribe function in ref
             } else {
                 console.log("Error");
             }
         }
         handleFriendsUpdates();
+        return () => {
+            if (unsubscribeRef.current) {
+                unsubscribeRef.current();
+            }
+        };
     }, [username])
 
     //Check for status updates
@@ -64,12 +69,13 @@ const FriendsList = () => {
                 const querySnapshot = await getDocs(q);
                 const userId = querySnapshot.docs[0].id;
                 const onlineStatusRef = ref(realtimeDatabase, `users/${userId}`);
-                return onValue(onlineStatusRef, (snapshot) => {
+                const unSub = onValue(onlineStatusRef, (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
                         setFriends(prevFriends => prevFriends.map(f => f.username == friend.username ? {username: f.username, status: data.status, rating: f.rating} : f))
                     }
                 })
+                return () => unSub();
             })
         }
     }, [friends])
@@ -114,6 +120,9 @@ const FriendsList = () => {
 
     const handlePlay = (friendUsername) => {
         localStorage.setItem('friendToPlay', friendUsername);
+        if (unsubscribeRef.current) {
+            unsubscribeRef.current(); // Manually unsubscribe the listener
+        }
         router.push('../game');
     }
 
@@ -134,7 +143,7 @@ const FriendsList = () => {
                     </form>
                     <ul className={styles.list}>
                         {Array.isArray(friends) && friends.sort((a, b) => b.rating - a.rating).map(friend => (
-                            <li key = {friend} className={styles.listItem}>
+                            <li className={styles.listItem}>
                                 {`${friend.username} (${friend.rating})`}
                                 <div className={styles.actions}>
                                     Status: {friend.status}
@@ -149,7 +158,7 @@ const FriendsList = () => {
                 <h1 style = {{margin: 0}}> Friend requests </h1>
                     <ul className={styles.requests}>
                         {Array.isArray(friendRequests) && friendRequests.map(request => (
-                            <li key={request} className={styles.request}>
+                            <li className={styles.request}>
                                 {request}
                                 <div className={styles.selectionButtons}>
                                     <button onClick={() => handleAddFriend(username, request)}>Accept</button>
