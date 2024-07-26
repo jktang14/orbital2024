@@ -1,5 +1,51 @@
+import DeepCopy from "../components/deep-copy";
 class game {
-    static DIRECTIONS = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+    static DIRECTIONS = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+    static positionalWeights6 = [
+        [100, -20, 10, 10, -20, 100],
+        [-20, -50, -2, -2, -50, -20],
+        [10, -2, -1, -1, -2, 10],
+        [10, -2, -1, -1, -2, 10],
+        [-20, -50, -2, -2, -50, -20],
+        [100, -20, 10, 10, -20, 100]
+    ];
+    static positionalWeights8 = [
+        [100, -20, 10,  5,  5, 10, -20, 100],
+        [-20, -50, -2, -2, -2, -2, -50, -20],
+        [10, -2, -1, -1, -1, -1, -2, 10],
+        [5,  -2, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -2, 5],
+        [10, -2, -1, -1, -1, -1, -2, 10],
+        [-20, -50, -2, -2, -2, -2, -50, -20],
+        [100, -20, 10,  5,  5, 10, -20, 100]
+    ]; 
+    static positionalWeights10 = [
+        [100, -20, 10,  5,  5, 5,  5, 10, -20, 100],
+        [-20, -50, -2, -2, -2, -2, -2, -2, -50, -20],
+        [10, -2, -1, -1, -1, -1, -1, -1, -2, 10],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -2, 5],
+        [10, -2, -1, -1, -1, -1, -1, -1, -2, 10],
+        [-20, -50, -2, -2, -2, -2, -2, -2, -50, -20],
+        [100, -20, 10,  5,  5, 5,  5, 10, -20, 100]
+    ];
+    static positionalWeights12 = [
+        [100, -20, 10,  5,  5,  5, 5, 5,  5, 10, -20, 100],
+        [-20, -50, -2, -2, -2, -2, -2, -2, -2, -2, -50, -20],
+        [10, -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 10],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
+        [5,  -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 5],
+        [10, -2, -1, -1, -1, -1, -1, -1, -1, -1, -2, 10],
+        [-20, -50, -2, -2, -2, -2, -2, -2, -2, -2, -50, -20],
+        [100, -20, 10,  5,  5,  5, 5, 5,  5, 10, -20, 100]
+    ];
+    
     constructor(size=8, mode='standard') {
         this.size=size
         this.currentPlayer = "Black";
@@ -70,23 +116,23 @@ class game {
     /*
     Returns opponent
     */
-    getOpponent() {
-        return this.currentPlayer == "Black" ? "White" : "Black";
+    getOpponent(player) {
+        return player == "Black" ? "White" : "Black";
     }
 
     /*
     Returns true if there is an opposing piece in current direction
     */
-    hasOpponent(row, col, x, y, player) {
+    hasOpponent(row, col, x, y, player, board) {
         let newRow = row + x;
         let newCol = col + y;
         let opponent = player == "Black" ? "White" : "Black";
         let hasOpponentPiece = false;
         while (newRow >= 0 && newRow < this.size && newCol >= 0 && newCol < this.size) {
             // Check if there is an opponent piece
-            if (this.board[newRow][newCol] == opponent) {
+            if (board[newRow][newCol] == opponent) {
                 hasOpponentPiece = true;
-            } else if (this.board[newRow][newCol] == player) {
+            } else if (board[newRow][newCol] == player) {
                 // Check if opponent piece enclosed by current player piece
                 return hasOpponentPiece;
             } else {
@@ -101,22 +147,22 @@ class game {
     /*
     get all valid moves for current player
     */
-    getValidMoves(player) {
+    getValidMoves(player, board) {
         let validMoves = [];
 
         for (let row = 0; row < this.size; row++) {
             for (let col = 0; col < this.size; col++) {
                 // skip cells that are non empty
-                if (this.board[row][col] != null) {
+                if (board[row][col] != null) {
                     continue;
                 }
                 // Cell has been blocked
-                if (this.board[row][col] == 'Blocked') {
+                if (board[row][col] == 'Blocked') {
                     continue;
                 }
                 // check all 8 directions
                 for (let [x, y] of game.DIRECTIONS) {
-                    if (this.hasOpponent(row, col, x, y, player)) {
+                    if (this.hasOpponent(row, col, x, y, player, board)) {
                         validMoves.push([row, col])
                         break;
                     }
@@ -129,37 +175,39 @@ class game {
     /*
     Flip the pieces
     */
-    flipPieces(row, col, x, y, player) {
+    flipPieces(row, col, x, y, player, board) {
         let newRow = row + x;
         let newCol = col + y;
         let opponent = player == "Black" ? "White" : "Black";
         let toFlip = [[row, col]];
         while (newRow >= 0 && newRow < this.size && newCol >= 0 && newCol < this.size) {
             // if opponent piece, continue in direction
-            if (this.board[newRow][newCol] == opponent) {
+            if (board[newRow][newCol] == opponent) {
                 toFlip.push([newRow, newCol]);
-            } else if (this.board[newRow][newCol] == player) {
+            } else if (board[newRow][newCol] == player) {
                 // Flip all opponent pieces that should be flipped
                 for (let [dx, dy] of toFlip) {
-                    this.board[dx][dy] = player;
+                    board[dx][dy] = player;
                 }
-                return;
+                return toFlip.length;
             } else {
                 break; // Empty cell
             }
             newRow += x;
             newCol += y;
         }
+        return 0;
     }
 
     /*
     Select the cell that has been selected and flip the corresponding pieces
     */
-    makeMove(row, col) {
+    makeMove(status, row, col, player, board) {
         // Only consider if move selected part of validMoves
-        if (this.isValidMove(row, col)) {
+        let flippedBoard = DeepCopy(board);
+        if (this.isValidMove(row, col, player, board)) {
             for (let [x, y] of game.DIRECTIONS) {
-                this.flipPieces(row, col, x, y, this.currentPlayer);
+                this.flipPieces(row, col, x, y, player, flippedBoard);
             }
         }
         // Create entirely new board
@@ -167,60 +215,157 @@ class game {
         for (let i = 0; i < this.size; i++) {
             let row = [];
             for (let j = 0; j < this.size; j++) {
-                if (this.board[i][j] == 'Blocked') {
+                if (flippedBoard[i][j] == 'Blocked') {
                     row.push(null);
                 } else {
-                    row.push(this.board[i][j]);
+                    row.push(flippedBoard[i][j]);
                 }
             }
             newBoard.push(row);
         }
+        // Only set if for hard AI, move made by user
         this.board = newBoard;
-        this.currentPlayer = this.getOpponent();
+        this.currentPlayer = this.getOpponent(this.currentPlayer);
+    }
+
+    /*
+    Get child board states for minimax algorithm
+    */
+    getChildBoard(status, row, col, player, board) {
+        let flippedBoard = DeepCopy(board);
+        if (this.isValidMove(row, col, player, board)) {
+            for (let [x, y] of game.DIRECTIONS) {
+                this.flipPieces(row, col, x, y, player, flippedBoard);
+            }
+        }
+        // Create entirely new board
+        let newBoard = []
+        for (let i = 0; i < this.size; i++) {
+            let row = [];
+            for (let j = 0; j < this.size; j++) {
+                if (flippedBoard[i][j] == 'Blocked') {
+                    row.push(null);
+                } else {
+                    row.push(flippedBoard[i][j]);
+                }
+            }
+            newBoard.push(row);
+        }
+        return newBoard;
+    }
+
+    /*
+    AI makes a move
+    */
+    aiMove(mode, status, setBoard, setCurrentPlayer, blockModeActive, setBlockModeActive, setAvailableCellsToBlock, setMessage) {
+        // Get all valid moves
+        const moves = this.getValidMoves(this.currentPlayer, this.board);
+        // check block mode true here
+        if (blockModeActive) {
+            const blockedMove = this.getRandValidMove(moves);
+            if (status == 'hardAI') {
+                this.makeBestAiMove(status, mode, this.board, this.currentPlayer, 5, true);
+            } else {
+                this.blockCell(blockedMove[0], blockedMove[1], this.board);
+            }
+            setBoard(this.board);
+            setBlockModeActive(false); // Exit block mode after setting cell
+            setAvailableCellsToBlock(null);
+            const text = `Computer blocked a cell. Now it's ${this.players[this.currentPlayer.toLowerCase()].name }'s turn.`
+            setMessage(text);
+            setCurrentPlayer(this.currentPlayer); // Current player now swapped to user
+        } else {
+            // AI has moves
+            if (moves.length > 0) {
+                console.log("ai makes a move")
+                if (status == 'hardAI') {
+                    if (mode == 'reverse') {
+                        this.makeBestReverseMove(this.board, this.currentPlayer);
+                    } else {
+                        this.makeBestAiMove(status, mode, this.board, this.currentPlayer, 5, false);
+                    }
+                } else {
+                    const moveSelected = this.getRandValidMove(moves);
+                    this.makeMove(status, moveSelected[0], moveSelected[1], this.currentPlayer, this.board);
+                }
+
+                setBoard(this.board);
+                if (mode != 'block') {
+                    setCurrentPlayer(this.currentPlayer);
+                }        
+
+                if (mode == 'block') {
+                    // Get all valid moves of user
+                    const validMoves = this.getValidMoves(this.currentPlayer, this.board);
+                    // if user has only 1 validmove, do not enter block mode, switch to user's turn
+                    if (validMoves.length > 1) {
+                        setBlockModeActive(true); // Computer enters state to block move
+                        setAvailableCellsToBlock(validMoves); // All moves that computer can block
+                        setMessage(`Computer is blocking a cell`);
+                        // call aiMove again for ai to enter block mode
+                        setTimeout(() => {
+                            this.aiMove(mode, status, setBoard, setCurrentPlayer, true, setBlockModeActive, setAvailableCellsToBlock, setMessage);
+                        }, 3000);
+                    } else {
+                        setMessage(`${this.players[this.currentPlayer.toLowerCase()].name} has only 1 valid move, ${this.players[this.currentPlayer.toLowerCase()].name}'s turn`);
+                        // Switch to user's turn
+                        setCurrentPlayer(this.currentPlayer);
+                    }      
+                }     
+            }
+        }
+    }
+
+    /*
+    Get some random array from the array of valid moves
+    */
+    getRandValidMove(moves) {
+        const randNum = this.getRandomInt(moves.length - 1);
+        return moves[randNum];
     }
 
     /*
     Checks if move selected at current index is a valid move
     */
-    isValidMove(row, col) {
-        let validMoves = this.getValidMoves(this.currentPlayer);
+    isValidMove(row, col, player, board) {
+        let validMoves = this.getValidMoves(player, board);
         return validMoves.some(item => item[0] == row && item[1] == col);
     }
 
     /*
     Checks if current player has any valid moves
     */
-    hasValidMove(player) {
-        return this.getValidMoves(player).length > 0;
+    hasValidMove(player, board) {
+        return this.getValidMoves(player, board).length > 0;
     }
 
     /*
     Checks if grid is all filled with pieces
     */
-    isGridFull() {
-        return this.board.every(row => row.every(cell => cell != null));
+    isGridFull(board) {
+        return board.every(row => row.every(cell => cell != null));
     }
 
     /*
     Get number of pieces for current player
     */
-    getPieceNumber(player) {
-        return this.board.flat().filter(value => value == player).length;
+    getPieceNumber(player, board) {
+        return board.flat().filter(value => value == player).length;
     }
 
     /*
     Get game status
     */
     checkGameStatus() {
-        let currNum = this.getPieceNumber(this.currentPlayer);
-        let opponentNum = this.getPieceNumber(this.getOpponent());
+        let currNum = this.getPieceNumber(this.currentPlayer, this.board);
+        let opponentNum = this.getPieceNumber(this.getOpponent(this.currentPlayer), this.board);
 
         // If grid is full or both players have no valid moves
-        if (this.isGridFull() || (!this.hasValidMove(this.currentPlayer) && !this.hasValidMove(this.getOpponent()))) {
+        if (this.isGridFull(this.board) || (!this.hasValidMove(this.currentPlayer, this.board) && !this.hasValidMove(this.getOpponent(this.currentPlayer), this.board))) {
             // If game mode is reverse reversi, flip winning logic
             if (this.mode == 'reverse') {
                 if (currNum > opponentNum) {
-                    return {status: "win", winner: this.getOpponent()};
+                    return {status: "win", winner: this.getOpponent(this.currentPlayer)};
                 } else if (opponentNum > currNum) {
                     return {status: "win", winner: this.currentPlayer};
                 } else {
@@ -230,7 +375,7 @@ class game {
                 if (currNum > opponentNum) {
                     return {status: "win", winner: this.currentPlayer};
                 } else if (opponentNum > currNum) {
-                    return {status: "win", winner: this.getOpponent()};
+                    return {status: "win", winner: this.getOpponent(this.currentPlayer)};
                 } else {
                     return {status: "draw"};
                 }
@@ -238,10 +383,10 @@ class game {
         }
 
         // currentPlayer is the opponent, if opponent has no moves, swap back to player
-        if (!this.hasValidMove(this.currentPlayer)) {
+        if (!this.hasValidMove(this.currentPlayer, this.board)) {
             // swap back to original player
-            this.currentPlayer = this.getOpponent();
-            return {status: "skip", message: `${this.players[this.getOpponent().toLowerCase()].name} has no valid moves. Turn skipped.`};
+            this.currentPlayer = this.getOpponent(this.currentPlayer);
+            return {status: "skip", message: `${this.players[this.getOpponent(this.currentPlayer).toLowerCase()].name} has no valid moves. Turn skipped.`};
         }
 
         return {status: "continue"};
@@ -250,17 +395,364 @@ class game {
     /*
     Updates board with blocked cell
     */
-    blockCell(row, col) {
-        this.board[row][col] = 'Blocked';
+    blockCell(row, col, board) {
+        let boardCopy = DeepCopy(board);
+        boardCopy[row][col] = 'Blocked';
+
         let newBoard = []
         for (let i = 0; i < this.size; i++) {
             let row = [];
             for (let j = 0; j < this.size; j++) {
-                row.push(this.board[i][j]);
+                row.push(boardCopy[i][j]);
             }
             newBoard.push(row);
         }
         this.board = newBoard;
+    }
+
+    /*
+    Blocks board without updating board
+    */
+    getBlockedBoard(row, col, board) {
+        let boardCopy = DeepCopy(board);
+        boardCopy[row][col] = 'Blocked';
+
+        let newBoard = []
+        for (let i = 0; i < this.size; i++) {
+            let row = [];
+            for (let j = 0; j < this.size; j++) {
+                row.push(boardCopy[i][j]);
+            }
+            newBoard.push(row);
+        }
+        return newBoard;
+    }
+
+    /*
+    Check if board is an endgame
+    */
+    isTerminal(player, board) {
+        return (this.isGridFull(board) || (!this.hasValidMove(player, board) && !this.hasValidMove(this.getOpponent(player), board)));
+    }
+  
+    /*
+    Scoring for use in minimax algorithm from AI's perspective
+    */
+    getBoardScore(mode, board, blocker, isBlockedBoard) {
+        // blocker is "Black", AI has blocked a cell, from ai perspective, more points for positive blocks
+        // isBlockedBoard true means a cell has been blocked
+        let player = "White";
+        let opponent = "Black";
+        let positionalWeight;
+        let score = 0;
+        let aiFrontier = 0;
+        let opponentFrontier = 0;
+        const mobilityWeight = 2;
+        // maximise interior, minimise exterior pieces
+        const frontierWeight = -1;
+
+        if (this.size == 6) {
+            positionalWeight = game.positionalWeights6;
+        } else if (this.size == 8) {
+            positionalWeight = game.positionalWeights8;
+        } else if (this.size == 10) {
+            positionalWeight = game.positionalWeights10;
+        } else {
+            positionalWeight = game.positionalWeights12;
+        }
+
+        if (mode == 'block') {
+            if (isBlockedBoard) {
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size; j++) {
+                        if (board[i][j] == player) {
+                            score += positionalWeight[i][j];
+                            for (let [x, y] of game.DIRECTIONS) {
+                                let newRow = i + x, newCol = j + y;
+                                if (newRow >= 0 && newRow < this.size && newCol >= 0 && newCol < this.size && board[newRow][newCol] == null) {
+                                    aiFrontier += 1;
+                                    break;
+                                }
+                            }
+                        } else if (board[i][j] == opponent) {
+                            score -= positionalWeight[i][j];
+                            for (let [x, y] of game.DIRECTIONS) {
+                                let newRow = i + x, newCol = j + y;
+                                if (newRow >= 0 && newRow < this.size && newCol >= 0 && newCol < this.size && board[newRow][newCol] == null) {
+                                    opponentFrontier += 1;
+                                    break;
+                                }
+                            }
+                        } else if (board[i][j] == 'Blocked') {
+                            if (blocker == opponent) {
+                                score += positionalWeight[i][j];
+                            } else {
+                                score -= positionalWeight[i][j];
+                            }
+                        }
+                    }
+                }
+                const aiMobility = this.getValidMoves(player, board).length;
+                const opponentMobility = this.getValidMoves(opponent, board).length;
+                score += mobilityWeight * (aiMobility - opponentMobility);
+                score += frontierWeight * (aiFrontier - opponentFrontier);  
+                
+                return score;
+            }
+        }
+
+        for (let i = 0; i < this.size; i++) {
+            for (let j = 0; j < this.size; j++) {
+                if (board[i][j] == player) {
+                    score += positionalWeight[i][j];
+                    for (let [x, y] of game.DIRECTIONS) {
+                        let newRow = i + x, newCol = j + y;
+                        if (newRow >= 0 && newRow < this.size && newCol >= 0 && newCol < this.size && board[newRow][newCol] == null) {
+                            aiFrontier += 1;
+                            break;
+                        }
+                    }
+                } else if (board[i][j] == opponent) {
+                    score -= positionalWeight[i][j];
+                    for (let [x, y] of game.DIRECTIONS) {
+                        let newRow = i + x, newCol = j + y;
+                        if (newRow >= 0 && newRow < this.size && newCol >= 0 && newCol < this.size && board[newRow][newCol] == null) {
+                            opponentFrontier += 1;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        const aiMobility = this.getValidMoves(player, board).length;
+        const opponentMobility = this.getValidMoves(opponent, board).length;
+
+        score += mobilityWeight * (aiMobility - opponentMobility);
+        score += frontierWeight * (aiFrontier - opponentFrontier);
+        return score;
+    }
+  
+    /*
+    Ai is the maximising player, user is the minimising player
+    */
+    minimax(mode, board, depth, alpha, beta, maximisingPlayer, blockModeActive) {
+        // Terminal when board state is an endgame
+        if (depth == 0 || this.isTerminal(maximisingPlayer, board)) {
+            return {score: this.getBoardScore(mode, board, maximisingPlayer, !blockModeActive), board: board};
+        }
+
+        let moves = this.getValidMoves(maximisingPlayer, board);
+        
+        if (blockModeActive && moves.length == 1 && mode == 'block') {
+            return this.minimax(mode, board, depth, alpha, beta, maximisingPlayer, false);
+        }
+
+        if (blockModeActive) {
+            // Moves is all valid moves for the user
+            if (maximisingPlayer == 'Black') {
+                let maxValue = {score: -Infinity, board: null};
+                for (let move of moves) {
+                    let newBoard = this.getBlockedBoard(move[0], move[1], board);
+                    let bestObj = this.minimax(mode, newBoard, depth - 1, alpha, beta, maximisingPlayer, false);
+                    if (bestObj.score > maxValue.score) {
+                        maxValue = {score: bestObj.score, board: newBoard}
+                    }
+                    if (maxValue.score > beta) {
+                        break;
+                    }
+                    alpha = Math.max(maxValue.score, alpha)
+                }
+                return maxValue;
+            } else {
+                let minValue = {score: Infinity, board: null};
+                for (let move of moves) {
+                    let newBoard = this.getBlockedBoard(move[0], move[1], board);
+                    let bestObj = this.minimax(mode, newBoard, depth - 1, alpha, beta, maximisingPlayer, false);
+                    if (bestObj.score < minValue.score) {
+                        minValue = {score: bestObj.score, board: newBoard}
+                    }
+                    if (minValue.score < alpha) {
+                        break;
+                    }
+                    beta = Math.min(beta, minValue.score)
+                }
+                return minValue;
+            }
+        }
+
+        if (moves.length == 0) {
+            // Switch to other player
+            return this.minimax(mode, board, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer), blockModeActive);
+        }
+
+        // let opponentMoves = this.getValidMoves(this.getOpponent(maximisingPlayer), board);
+        // // don't enter block mode if user has only 1 valid move, block mode currently not active
+        // if (mode == 'block' && opponentMoves.length == 1) {
+        //     let move = opponentMoves[0];
+        //     let newBoard = this.getChildBoard('hardAI', move[0], move[1], maximisingPlayer, board)
+        //     return this.minimax(mode, newBoard, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer), false);
+        // }
+
+        if (maximisingPlayer == 'White') {
+            let maxValue = {score: -Infinity, board: null};
+            for (let move of moves) {
+                let bestObj;
+                let newBoard = this.getChildBoard('hardAI', move[0], move[1], maximisingPlayer, board);
+                if (mode == 'block') {
+                    bestObj = this.minimax(mode, newBoard, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer), true)
+                } else {
+                    bestObj = this.minimax(mode, newBoard, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer), false);
+                }
+
+                if (bestObj.score > maxValue.score) {
+                    maxValue = {score: bestObj.score, board: newBoard}
+                }
+                if (maxValue.score > beta) {
+                    break;
+                }
+                alpha = Math.max(maxValue.score, alpha)
+            }
+            return maxValue;
+        } else {
+            let minValue = {score: Infinity, board: null};
+            for (let move of moves) {
+                let bestObj;
+                let newBoard = this.getChildBoard('hardAI', move[0], move[1], maximisingPlayer, board);
+                if (mode == 'block') {
+                    bestObj = this.minimax(mode, newBoard, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer), true)
+                } else {
+                    bestObj = this.minimax(mode, newBoard, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer), false);
+                }
+                
+                if (bestObj.score < minValue.score) {
+                    minValue = {score: bestObj.score, board: newBoard}
+                }
+                if (minValue.score < alpha) {
+                    break;
+                }
+                beta = Math.min(beta, minValue.score)
+            }
+            return minValue;
+        }
+    }
+
+    makeBestAiMove(status, mode, board, maximisingPlayer, depth, blockModeActive) {
+        let validMoves = this.getValidMoves(maximisingPlayer, board);
+        let cornerIndexes = [[0,0], [0, this.size - 1], [this.size - 1, 0], [this.size - 1, this.size - 1]];
+        let cornerMove = cornerIndexes.find(corner => 
+            validMoves.some(move => move[0] === corner[0] && move[1] === corner[1]));
+
+        if (mode == 'block') {
+            // if in block mode
+            if (blockModeActive) {
+                if (cornerMove == undefined) {
+                    // Here maximisingPlayer is the user
+                    let bestObj = this.minimax(mode, board, depth, -Infinity, Infinity, maximisingPlayer, true);
+                    this.board = bestObj.board;
+                } else {
+                    // block the corner if available
+                    this.blockCell(cornerMove[0], cornerMove[1], board);
+                }
+            } else {
+                if (cornerMove == undefined) {
+                    console.log(board);
+                    let bestObj = this.minimax(mode, board, depth, -Infinity, Infinity, maximisingPlayer, false);
+                    console.log(bestObj.board)
+                    this.board = bestObj.board;
+                    this.currentPlayer = this.getOpponent(maximisingPlayer);
+                } else {
+                    this.makeMove(status, cornerMove[0], cornerMove[1], maximisingPlayer, board);
+                }
+            }
+        } else {
+            // Only enter minimax if no corners are available
+            if (cornerMove == undefined) {
+                let bestObj = this.minimax(mode, board, depth, -Infinity, Infinity, maximisingPlayer, false);
+                this.board = bestObj.board;
+                this.currentPlayer = this.getOpponent(maximisingPlayer);
+            } else {
+                this.makeMove(status, cornerMove[0], cornerMove[1], maximisingPlayer, board);
+            }
+        }
+    }
+
+    /*
+    Get number of pieces flipped
+    */
+    getFlippedPiecesNumber(row, col, board, player) {
+        let flippedBoard = DeepCopy(board);
+        let flippedPieces = 0;
+        for (let [x, y] of game.DIRECTIONS) {
+            flippedPieces += this.flipPieces(row, col, x, y, player, flippedBoard);
+        }
+        return flippedPieces;
+    }
+
+    /*
+    Pick best move for reverse mode
+    */
+    makeBestReverseMove(board, player) {
+        // Prioritise interior moves first, followed by edges, then corners
+        let validMoves = this.getValidMoves(player, board);
+        let cornerIndexes = [[0,0], [0, this.size - 1], [this.size - 1, 0], [this.size - 1, this.size - 1]];
+        let edgeIndexes = [];
+        let finalMove;
+        let flippedMin = Infinity;
+
+        // get edgesIndexes
+        for (let row = 0; row < this.size; row++) {
+            if (row == 0 || row == this.size - 1) {
+                for (let col = 1; col < this.size - 1; col++) {
+                    edgeIndexes.push([row, col]);
+                }
+            } else {
+                edgeIndexes.push([row, 0]);
+                edgeIndexes.push([row, this.size - 1]);
+            }
+        }
+
+        // check if there are interior moves
+        let interiorMoves = validMoves.filter(validMove => !cornerIndexes.some(move => 
+            validMove[0] == move[0] && validMove[1] == move[1]) && !edgeIndexes.some(move => 
+                validMove[0] == move[0] && validMove[1] == move[1]
+            ));
+
+        // No interior moves
+        if (interiorMoves.length == 0) {
+            let edgeMoves = validMoves.filter(validMove => edgeIndexes.some(move => validMove[0] == move[0] && validMove[1] == move[1]));
+            // no edge moves
+            if (edgeMoves.length == 0) {
+                let cornerMoves = validMoves.filter(validMove => cornerIndexes.some(move => validMove[0] == move[0] && validMove[1] == move[1]));
+                for (let i = 0; i < cornerMoves.length; i++) {
+                    let move = cornerMoves[i];
+                    let flippedNumber = this.getFlippedPiecesNumber(move[0], move[1], board, "White");
+                    if (flippedNumber < flippedMin) {
+                        flippedMin = flippedNumber;
+                        finalMove = move;
+                    }
+                }
+            } else {
+                for (let i = 0; i < edgeMoves.length; i++) {
+                    let move = edgeMoves[i];
+                    let flippedNumber = this.getFlippedPiecesNumber(move[0], move[1], board, "White");
+                    if (flippedNumber < flippedMin) {
+                        flippedMin = flippedNumber;
+                        finalMove = move;
+                    }
+                }
+            }
+        } else {
+            for (let i = 0; i < interiorMoves.length; i++) {
+                let move = interiorMoves[i];
+                let flippedNumber = this.getFlippedPiecesNumber(move[0], move[1], board, "White");
+                if (flippedNumber < flippedMin) {
+                    flippedMin = flippedNumber;
+                    finalMove = move;
+                }
+            }
+        }
+        this.makeMove("hardAI", finalMove[0], finalMove[1], "White", board);
     }
 }
 
