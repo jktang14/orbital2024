@@ -37,6 +37,16 @@ function Registration() {
                 setError('No password inputted!');
             } else if (error.message == 'username-already-exists'){
                 setError('Username is in use!');
+            } else if (error.message == 'wrong-length') {
+                setError('Password must be between 8 and 15 characters');
+            } else if (error.message == 'missing-lowercase') {
+                setError('Password must have at least one lowercase alphabet');
+            } else if (error.message == 'missing-uppercase') {
+                setError('Password must have at least one uppercase alphabet');
+            } else if (error.message == 'missing-digit') {
+                setError('Password must have at least 1 digit');
+            } else if (error.message == 'missing-special-character') {
+                setError('Password must have at least 1 special character');
             } else {
                 setError(errorCode);
             }
