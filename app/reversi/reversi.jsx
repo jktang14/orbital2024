@@ -75,7 +75,6 @@ const Reversi = () => {
                     setMatch(game.fromData(data.boardSize, data.mode, data.board, data.currentPlayer, data.players));
                     if (!data.isGameActive) {
                         setGameId('');
-                        setRematchFriend(friendToPlay);
                     }
                 }
             });
@@ -217,9 +216,6 @@ const Reversi = () => {
                         setMessage(text);
                         setIsGameActive(false);
                         updateGameState({message: text, isGameActive: false});
-                        setRematchFriend(friendToPlay);
-                        localStorage.removeItem('friendToPlay');
-                        setFriendToPlay('');
                         clearInterval(blackIntervalId);
                     }
                     return currTime;
@@ -240,9 +236,6 @@ const Reversi = () => {
                         setMessage(text);
                         setIsGameActive(false);
                         updateGameState({message: text, isGameActive: false});
-                        setRematchFriend(friendToPlay);
-                        localStorage.removeItem('friendToPlay');
-                        setFriendToPlay('');
                         clearInterval(whiteIntervalId);
                     }
                     return currTime;
