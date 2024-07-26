@@ -732,36 +732,60 @@ const Reversi = () => {
                     </div>
                     <div className={styles.gridSelection}>
                         <div style={{color: "black", paddingBottom: "2px"}}>Change the grid size!</div>
-                        <div className={styles.gridButton}>
+                        <div className={styles.gridButtons}>
                             {hasGameStarted 
-                            ? <button onClick={() => handleBoardSizeChange(6)} disabled>6x6</button>
-                            : <button onClick={() => handleBoardSizeChange(6)}>6x6</button>}
+                            ? <button className={styles.gridButton} onClick={() => handleBoardSizeChange(6)} disabled>6x6</button>
+                            : <button className={styles.gridButton} onClick={() => handleBoardSizeChange(6)}>6x6</button>}
                             {hasGameStarted 
-                            ? <button onClick={() => handleBoardSizeChange(8)} disabled>8x8</button>
-                            : <button onClick={() => handleBoardSizeChange(8)}>8x8</button>}
+                            ? <button className={styles.gridButton} onClick={() => handleBoardSizeChange(8)} disabled>8x8</button>
+                            : <button className={styles.gridButton} onClick={() => handleBoardSizeChange(8)}>8x8</button>}
                             {hasGameStarted 
-                            ? <button onClick={() => handleBoardSizeChange(10)} disabled>10x10</button>
-                            : <button onClick={() => handleBoardSizeChange(10)}>10x10</button>}
+                            ? <button className={styles.gridButton} onClick={() => handleBoardSizeChange(10)} disabled>10x10</button>
+                            : <button className={styles.gridButton} onClick={() => handleBoardSizeChange(10)}>10x10</button>}
                             {hasGameStarted 
-                            ? <button onClick={() => handleBoardSizeChange(12)} disabled>12x12</button>
-                            : <button onClick={() => handleBoardSizeChange(12)}>12x12</button>}
+                            ? <button className={styles.gridButton} onClick={() => handleBoardSizeChange(12)} disabled>12x12</button>
+                            : <button className={styles.gridButton} onClick={() => handleBoardSizeChange(12)}>12x12</button>}
                         </div>
                     </div>
                     <div className={styles.modeSelection}>
                     <div style={{color: "black", paddingBottom: "2px"}}>Select a different variant!</div>
                         <div className={styles.modeButton}>
                             {hasGameStarted 
-                            ? <button onClick={() => handleModeChange('standard')} disabled>Standard Reversi</button>
-                            : <button onClick={() => handleModeChange('standard')}>Standard Reversi</button>}
+                            ?   <div className={styles.variantDescription}>
+                                    <button className={styles.variantButton} onClick={() => handleModeChange('standard')} disabled>Standard Reversi</button>
+                                    <p style={{textAlign: "center", fontSize:"11px"}}>Enjoy a standard game of reversi!</p>
+                                </div>
+                            :    <div className={styles.variantDescription}>
+                                    <button className={styles.variantButton} onClick={() => handleModeChange('standard')} >Standard Reversi</button>
+                                    <p style={{textAlign: "center", fontSize:"11px"}}>Enjoy a standard game of reversi!</p>
+                                </div>}
                             {hasGameStarted 
-                            ? <button onClick={() => handleModeChange('reverse')} disabled>Reverse Reversi</button>
-                            : <button onClick={() => handleModeChange('reverse')}>Reverse Reversi</button>}
+                            ?   <div className={styles.variantDescription}>
+                                    <button className={styles.variantButton} onClick={() => handleModeChange('reverse')} disabled>Reverse Reversi</button>
+                                    <p style={{textAlign: "center", fontSize:"11px"}}>Win by having fewer pieces on the board!</p>
+                                </div>
+                            :   <div className={styles.variantDescription}>
+                                    <button className={styles.variantButton} onClick={() => handleModeChange('reverse')} >Reverse Reversi</button>
+                                    <p style={{textAlign: "center", fontSize:"11px"}}>Win by having fewer pieces on the board!</p>
+                                </div>}
                             {hasGameStarted 
-                            ? <button onClick={() => handleModeChange('random')} disabled>Random Reversi</button>
-                            : <button onClick={() => handleModeChange('random')}>Random Reversi</button>}
+                            ?   <div className={styles.variantDescription}> 
+                                    <button className={styles.variantButton} onClick={() => handleModeChange('random')} disabled>Random Reversi</button>
+                                    <p style={{textAlign: "center", fontSize:"11px"}}>Play different starting configurations!</p>
+                                </div>
+                            :   <div className={styles.variantDescription}> 
+                                    <button className={styles.variantButton} onClick={() => handleModeChange('random')}>Random Reversi</button>
+                                    <p style={{textAlign: "center", fontSize:"11px"}}>Play different starting configurations!</p>
+                                </div>}
                             {hasGameStarted 
-                            ? <button onClick={() => handleModeChange('block')} disabled>Obstruction Reversi</button>
-                            : <button onClick={() => handleModeChange('block')}>Obstruction Reversi</button>}
+                            ?  <div className={styles.variantDescription}> 
+                                    <button className={styles.variantButton} onClick={() => handleModeChange('block')} disabled>Obstruction Reversi</button>
+                                    <p style={{textAlign: "center", fontSize:"11px"}}>Block your opponent's move!</p>
+                                </div>
+                            :   <div className={styles.variantDescription}> 
+                                    <button className={styles.variantButton} onClick={() => handleModeChange('block')} >Obstruction Reversi</button>
+                                    <p style={{textAlign: "center", fontSize:"11px"}}>Block your opponent's move!</p>
+                                </div>}
                         </div>
                     </div>
                     {!hasGameStarted && friendToPlay && userColor == 'Black' && <div className={styles.startGame}>
@@ -770,20 +794,28 @@ const Reversi = () => {
                     </div>}
                 </div>
             </div>
-            <div>
-                {message && <div className={styles.message}>{message}</div>}
-                {!isGameActive && status == "local" && <button onClick={() => restartGame('local')} className={styles.restartButton}>Restart game!</button>}
-                {!isGameActive && status == "online" && <button onClick={handleSendInvitation} className={styles.restartButton}>Rematch!</button>}
-            </div>
-            <div className={styles.gameStatus}>
-                <button className={styles.localButton} onClick={() => handleStatusChange('local')}>Local multiplayer</button>
-                <div className={styles.dropDown} ref={dropDownRef}>
-                    <button className={styles.computerButton} onClick={toggleDropDown}>Play against the computer</button>
-                    {isDropDownVisible && <div className={styles.dropDownMenu}>
-                        <button className={styles.easyButton} onClick={() => handleStatusChange('easyAI')}>Easy</button>
-                        <button className={styles.hardButton} onClick={() => handleStatusChange('hardAI')}>Hard</button>
-                    </div>}
+            <div className={styles.gameSelectors}>
+                <div className={styles.messageContainer}>
+                    Game message:
+                    <div className={styles.message}>
+                        {message && <div>{message}</div>}
+                    </div>
                 </div>
+                <div className={styles.gameStatus}>
+                    <button className={styles.localButton} onClick={() => handleStatusChange('local')}>Local multiplayer</button>
+                    <div className={styles.dropDown} ref={dropDownRef}>
+                        <button className={styles.computerButton} onClick={toggleDropDown}>Play against the computer</button>
+                        {isDropDownVisible && <div className={styles.dropDownMenu}>
+                            <button className={styles.easyButton} onClick={() => handleStatusChange('easyAI')}>Easy</button>
+                            <button className={styles.hardButton} onClick={() => handleStatusChange('hardAI')}>Hard</button>
+                        </div>}
+                    </div>
+                    <div className={styles.restartButtons}>
+                    {!isGameActive && status == "local" && <button onClick={() => restartGame('local')} className={styles.restartButton}>Restart game!</button>}
+                    {!isGameActive && status == "online" && <button onClick={handleSendInvitation} className={styles.restartButton}>Rematch!</button>}
+                    </div>
+                </div>
+                
             </div>
         </div>
     );

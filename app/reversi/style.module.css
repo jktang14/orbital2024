@@ -71,7 +71,7 @@
 
 .gameSelection {
     background-color: rgb(92, 95, 92);
-    width: 20rem;
+    width: 25rem;
     border-style: double;
     border-width: 0.4rem;
 }
@@ -90,9 +90,83 @@
     margin-top: 0.5rem;
 }
 
-.gridButton {
+.gridButtons {
     display: flex;
     gap: 10px;
+}
+
+.gridButton {
+    display: inline-block;
+    font-size: 10px;
+    border-radius: 5px;
+    padding: 8px 20px;
+    cursor: pointer;
+    color: black;
+}
+
+.gridButton:hover {
+    background-color: #ffdbdb;
+}
+
+.modeButton {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.variantButton {
+    display: inline-block;
+    font-size: 10px;
+    border-radius: 5px;
+    padding: 5px 20px;
+    cursor: pointer;
+    color: black;
+    width: 120px;
+}
+
+.variantButton:hover {
+    background-color: aqua;
+}
+
+.variantDescription {
+    display: flex;
+    width: 90%;
+    gap: 5px;
+    border: 2px solid rgb(233, 255, 135);
+    border-radius: 5px;
+    padding: 5px 5px;
+    align-items: center;
+}
+
+.gameSelectors {
+    position: relative;
+    top: 5px;
+}
+
+.messageContainer {
+    display: flex;
+    align-items: center;
+    padding-left: 14rem;
+    gap: 30px;
+}
+
+.message {
+    display: flex;
+    border: 5px outset #f48080;
+    background-color: rgb(197, 227, 252);
+    width: 600px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+}
+
+.gameStatus {
+    display: flex;
+    position: absolute;
+    top: 55px;
+    padding-left: 14rem;
+    gap: 20px;
+    padding-bottom: 20px;
 }
 
 .dropDown {
@@ -110,7 +184,15 @@
     background: #333;
 }
 
-.localButton, .computerButton, .easyButton, .hardButton {
+.restartButton {
+    background: #79f76b;
+}
+
+.restartButton:hover {
+    background-color: #97f88c;
+}
+
+.localButton, .computerButton, .easyButton, .hardButton, .restartButton {
     display: inline-block;
     color:#fff;
     font-size: 17px;
