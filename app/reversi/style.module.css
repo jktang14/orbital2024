@@ -85,7 +85,7 @@
     margin-top: 0.5rem;
 }
 
-.timeSelection, .gridSelection, .modeSelection, .startGame {
+.timeSelection, .gridSelection, .modeSelection {
     margin-left: 0.5rem;
     margin-top: 0.5rem;
 }
@@ -97,7 +97,7 @@
 
 .gridButton {
     display: inline-block;
-    font-size: 10px;
+    font-size: 11px;
     border-radius: 5px;
     padding: 8px 20px;
     cursor: pointer;
@@ -112,11 +112,12 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    padding-bottom: 5px;
 }
 
 .variantButton {
     display: inline-block;
-    font-size: 10px;
+    font-size: 11px;
     border-radius: 5px;
     padding: 5px 20px;
     cursor: pointer;
@@ -184,6 +185,14 @@
     background: #333;
 }
 
+.onlineGame {
+    background-color: #4b77f9;
+}
+
+.onlineGame:hover {
+    background-color: #9ab2fd;
+}
+
 .restartButton {
     background: #79f76b;
 }
@@ -192,7 +201,7 @@
     background-color: #97f88c;
 }
 
-.localButton, .computerButton, .easyButton, .hardButton, .restartButton {
+.localButton, .computerButton, .easyButton, .hardButton, .restartButton, .onlineGame {
     display: inline-block;
     color:#fff;
     font-size: 17px;

@@ -788,10 +788,6 @@ const Reversi = () => {
                                 </div>}
                         </div>
                     </div>
-                    {!hasGameStarted && friendToPlay && userColor == 'Black' && <div className={styles.startGame}>
-                        <div style={{color: "black", paddingBottom: "2px"}}>Start an online game!</div>
-                        {<button onClick={handleSendInvitation}>Start</button>}
-                    </div>}
                 </div>
             </div>
             <div className={styles.gameSelectors}>
@@ -810,9 +806,12 @@ const Reversi = () => {
                             <button className={styles.hardButton} onClick={() => handleStatusChange('hardAI')}>Hard</button>
                         </div>}
                     </div>
+                    {!hasGameStarted && friendToPlay && userColor == 'Black' && <div className={styles.startGame}>
+                        {<button className={styles.onlineGame} onClick={handleSendInvitation}>Play your friend!</button>}
+                    </div>}
                     <div className={styles.restartButtons}>
-                    {!isGameActive && status == "local" && <button onClick={() => restartGame('local')} className={styles.restartButton}>Restart game!</button>}
-                    {!isGameActive && status == "online" && <button onClick={handleSendInvitation} className={styles.restartButton}>Rematch!</button>}
+                        {!isGameActive && status == "local" && <button onClick={() => restartGame('local')} className={styles.restartButton}>Restart game!</button>}
+                        {!isGameActive && status == "online" && <button onClick={handleSendInvitation} className={styles.restartButton}>Rematch!</button>}
                     </div>
                 </div>
                 
