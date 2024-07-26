@@ -780,11 +780,11 @@ const Reversi = () => {
                             {hasGameStarted 
                             ?  <div className={styles.variantDescription}> 
                                     <button className={styles.variantButton} onClick={() => handleModeChange('block')} disabled>Obstruction Reversi</button>
-                                    <p style={{textAlign: "center", fontSize:"11px"}}>Block your opponent's move!</p>
+                                    <p style={{textAlign: "center", fontSize:"11px"}}>Block your opponents move!</p>
                                 </div>
                             :   <div className={styles.variantDescription}> 
                                     <button className={styles.variantButton} onClick={() => handleModeChange('block')} >Obstruction Reversi</button>
-                                    <p style={{textAlign: "center", fontSize:"11px"}}>Block your opponent's move!</p>
+                                    <p style={{textAlign: "center", fontSize:"11px"}}>Block your opponents move!</p>
                                 </div>}
                         </div>
                     </div>
