@@ -123,3 +123,20 @@ test('Initial board setup for random mode', () => {
     const score = gameInstance.getBoardScore('standard', newBoard, 'Black', false);
     expect(score).toEqual(-113);
   });
+
+  test('Check if hard AI chooses corner for standard reversi', () => {
+    let gameInstance = new game(6, 'standard');
+    let newBoard = [
+        [null, "Black", null, null, "White", "Black"],
+        [null, "Black", "Black", "White", "White", null],
+        ["White", "White", "White", "Black", "White", null],
+        [null, "White", "White", "Black", "Black", "White"],
+        [null, null, "White", "White", "Black", "Black"],
+        [null, null, "White", "White", "White", "Black"]
+    ]
+    gameInstance.board = newBoard
+    gameInstance.makeBestAiMove('hardAI', 'standard', newBoard, "White", 3, false);
+    expect(gameInstance.board[0][0]).toBe("White")
+  });
+
+  
