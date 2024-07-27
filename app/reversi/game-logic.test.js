@@ -72,9 +72,9 @@ test('Initial board setup for random mode', () => {
 
   test('Flip pieces', () => {
     let gameInstance = new game(8, 'standard')
-    gameInstance.board[2][3] = 'Black';
-    gameInstance.flipPieces(2, 3, 1, 0, 'Black', gameInstance.board);
-    expect(gameInstance.board[3][3]).toBe('Black');
+    gameInstance.board[2][4] = 'Black';
+    gameInstance.flipPieces(2, 4, 1, 0, 'Black', gameInstance.board);
+    expect(gameInstance.board[3][4]).toBe('Black');
   });
 
   test('Make a move', () => {
@@ -99,6 +99,15 @@ test('Initial board setup for random mode', () => {
   test('Check if board is terminal', () => {
     let gameInstance = new game(8, 'standard')
     expect(gameInstance.isTerminal('Black', gameInstance.board)).toBe(false);
+    let endBoard = [
+        ["Black", "Black", "Black", "Black", "Black", "White"],
+        ["White", "Black", "Black", "Black", "Black", "White"],
+        ["White", "Black", "Black", "Black", "Black", "White"],
+        ["White", "Black", "White", "White", "Black", "White"],
+        ["White", "White", "Black", "Black", "White", "White"],
+        ["White", "White", "White", "White", "White", "White"]
+    ]
+    expect(gameInstance.isTerminal("Black", endBoard)).toEqual(true);
   });
 
   test('Calculate board score', () => {
