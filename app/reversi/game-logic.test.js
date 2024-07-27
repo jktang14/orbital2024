@@ -124,6 +124,65 @@ test('Initial board setup for random mode', () => {
     expect(score).toEqual(-113);
   });
 
+  test('Skip turn', () => {
+    const initialBoard = [
+    [null, null, "White", "Black", "Black", "Black"],
+    [null, null, "White", "Black", "Black", "Black"],
+    [null, null, "White", "Black", "Black", "Black"],
+    [null, null, "White", "White", "Black", "Black"],
+    [null, null, "White", "White", "White", "Black"],
+    [null, null, "White", "White", "White", "White"]
+    ];
+    const gameInstance = new game(6, 'standard');
+    gameInstance.board = initialBoard;
+    gameInstance.currentPlayer = 'Black';
+    gameInstance.makeMove('standard', 0, 1, 'Black', gameInstance.board);
+    expect(gameInstance.board[0][2]).toBe('Black');
+    expect(gameInstance.board[1][2]).toBe('Black');
+    const result = gameInstance.checkGameStatus();
+    expect(gameInstance.currentPlayer).toBe('Black');
+    expect(result.message).toBe('Player 2 has no valid moves. Turn skipped.');
+  });
+
+  test('End in draw', () => {
+    const initialBoard = [
+    ["Black", "Black", "Black", "Black", "Black", null, "Black", "White"],
+    ["Black", "White", "Black", "Black", "Black", "Black", "Black", "White"],
+    ["Black", "White", "White", "Black", "Black", "White", "Black", "White"],
+    ["Black", "White", "Black", "White", "White", "Black", "White", "White"],
+    ["Black", "Black", "Black", "White", "White", "Black", "White", "White"],
+    ["Black", "Black", "Black", "White", "Black", "White", "Black", "White"],
+    ["Black", "Black", "Black", "Black", "Black", "Black", "White", "White"],
+    ["Black", "White", "White", "White", "White", "White", "White", "White"]
+    ];
+    const gameInstance = new game(8, 'standard');
+    gameInstance.board = initialBoard;
+    gameInstance.currentPlayer = 'White';
+    gameInstance.makeMove('standard', 0, 5, 'White', gameInstance.board);
+    const result = gameInstance.checkGameStatus();
+    expect(result.status).toBe('draw');
+  });
+
+  test('End in win', () => {
+    const initialBoard = [
+    ["Black", "Black", "Black", "Black", "White", null, "Black", "White"],
+    ["Black", "White", "White", "White", "Black", "Black", "Black", "White"],
+    ["Black", "White", "White", "Black", "Black", "White", "Black", "White"],
+    ["Black", "White", "Black", "White", "White", "Black", "White", "White"],
+    ["Black", "Black", "Black", "White", "White", "Black", "White", "White"],
+    ["Black", "Black", "Black", "White", "Black", "White", "Black", "White"],
+    ["Black", "Black", "Black", "Black", "Black", "Black", "White", "White"],
+    ["Black", "White", "White", "White", "White", "White", "White", "White"]
+    ];
+    const gameInstance = new game(8, 'standard');
+    gameInstance.board = initialBoard;
+    gameInstance.currentPlayer = 'White';
+    gameInstance.makeMove('standard', 0, 5, 'White', gameInstance.board);
+    const result = gameInstance.checkGameStatus();
+    expect(result.status).toBe('win');
+    expect(result.winner).toBe('White');
+  });
+
   test('Check if hard AI chooses corner for standard reversi', () => {
     let gameInstance = new game(6, 'standard');
     let newBoard = [
@@ -138,5 +197,3 @@ test('Initial board setup for random mode', () => {
     gameInstance.makeBestAiMove('hardAI', 'standard', newBoard, "White", 3, false);
     expect(gameInstance.board[0][0]).toBe("White")
   });
-
-  
