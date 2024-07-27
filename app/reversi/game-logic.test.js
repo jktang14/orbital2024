@@ -247,4 +247,21 @@ describe('AI opponent tests', () => {
         expect(gameInstance.board[2][1]).toBe("Blocked");
       });
 
+      test('Check if hard AI chooses best place for reverse reversi', () => {
+        let gameInstance = new game(6, 'reverse');
+        let newBoard = [
+            [null, "White", "White", "White", null, null],
+            ["Black", "White", "White", "White", "White", "White"],
+            ["Black", "Black", "Black", "Black", "White", "Black"],
+            ["Black", "Black", "Black", "White", "Black", "Black"],
+            ["Black", "Black", "Black", "Black", "White", null],
+            [null, "White", "Black", null, "White", null]
+        ]
+        gameInstance.board = newBoard;
+        gameInstance.makeBestReverseMove(newBoard, "White");
+        expect(gameInstance.board[5][3]).toBe("White");
+        expect(gameInstance.board[5][2]).toBe("White");
+        expect(gameInstance.board[4][3]).toBe("White");
+      });
+
 });
