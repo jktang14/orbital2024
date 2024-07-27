@@ -586,14 +586,6 @@ class game {
             return this.minimax(mode, board, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer), blockModeActive);
         }
 
-        // let opponentMoves = this.getValidMoves(this.getOpponent(maximisingPlayer), board);
-        // // don't enter block mode if user has only 1 valid move, block mode currently not active
-        // if (mode == 'block' && opponentMoves.length == 1) {
-        //     let move = opponentMoves[0];
-        //     let newBoard = this.getChildBoard('hardAI', move[0], move[1], maximisingPlayer, board)
-        //     return this.minimax(mode, newBoard, depth - 1, alpha, beta, this.getOpponent(maximisingPlayer), false);
-        // }
-
         if (maximisingPlayer == 'White') {
             let maxValue = {score: -Infinity, board: null};
             for (let move of moves) {
