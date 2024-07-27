@@ -232,4 +232,19 @@ describe('AI opponent tests', () => {
         expect(gameInstance.board[5][5]).toBe("Blocked");
       });
 
+      test('Check if hard AI chooses best place to block for obstruction reversi', () => {
+        let gameInstance = new game(6, 'block');
+        let newBoard = [
+            [null, null, null, null, null, null],
+            [null, null, "White", "Black", null, null],
+            [null, null, "White", "Black", null, null],
+            [null, null, "White", "Black", null, null],
+            [null, null, null, null, null, null],
+            [null, null, null, null, null, null]
+        ]
+        gameInstance.board = newBoard;
+        gameInstance.makeBestAiMove('hardAI', 'block', newBoard, "Black", 3, true);
+        expect(gameInstance.board[2][1]).toBe("Blocked");
+      });
+
 });
