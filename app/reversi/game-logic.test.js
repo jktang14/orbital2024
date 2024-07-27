@@ -111,7 +111,15 @@ test('Initial board setup for random mode', () => {
   });
 
   test('Calculate board score', () => {
-    let gameInstance = new game(8, 'standard')
-    const score = gameInstance.getBoardScore('standard', gameInstance.board, 'Black', false);
-    expect(score).toBeDefined();
+    let gameInstance = new game(6, 'standard')
+    let newBoard = [
+        [null, null, null, null, null, null],
+        ["White", "White", "White", "White", "White", null],
+        [null, null, "Black", "Black", "Black", null],
+        [null, "Black", "Black", "Black", null, null],
+        [null, null, null, null, null, null],
+        [null, null, null, null, null, null]
+    ]
+    const score = gameInstance.getBoardScore('standard', newBoard, 'Black', false);
+    expect(score).toEqual(-113);
   });
