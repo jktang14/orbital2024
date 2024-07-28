@@ -306,7 +306,7 @@ class game {
                         setTimeout(() => {
                             this.aiMove(mode, status, setBoard, setCurrentPlayer, true, setBlockModeActive, setAvailableCellsToBlock, setMessage);
                         }, 3000);
-                    } else {
+                    } else if (validMoves.length == 1) {
                         setMessage(`${this.players[this.currentPlayer.toLowerCase()].name} has only 1 valid move, ${this.players[this.currentPlayer.toLowerCase()].name}'s turn`);
                         // Switch to user's turn
                         setCurrentPlayer(this.currentPlayer);
