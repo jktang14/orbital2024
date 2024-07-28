@@ -65,7 +65,7 @@ const Reversi = () => {
                     setCurrentPlayer(data.currentPlayer);
                     setMessage(data.message);
                     setIsGameActive(data.isGameActive);
-                    setRatingChange(data.ratingChange)
+                    // setRatingChange(data.ratingChange)
                     setHasGameStarted(data.hasGameStarted);
                     setTimer(data.timer);
                     setBlackTime(data.blackTime);
@@ -75,10 +75,13 @@ const Reversi = () => {
                     setMatch(game.fromData(data.boardSize, data.mode, data.board, data.currentPlayer, data.players));
                     if (!data.isGameActive) {
                         setGameId('');
+                        console.log(data.ratingChange);
+                        setRatingChange(data.ratingChange);
                     }
                 }
             });
             return () => {
+                console.log("unsub game");
                 unSub();
             }
         }
@@ -206,9 +209,11 @@ const Reversi = () => {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, -1);
                     if ((status != "online" && currTime == 0) || (status == 'online' && currTime == -1)) {
+                        console.log("time");
                         const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(match.currentPlayer).toLowerCase()].name} wins!`;
                         if (status == 'online') {
                             UpdateRating(match.players["white"].name, match.players["black"].name, 'white', 'black').then((obj) => {
+                                console.log(obj);
                                 setRatingChange(obj);
                                 updateGameState({ratingChange: obj});
                             });
@@ -226,9 +231,13 @@ const Reversi = () => {
                 setWhiteTime(prev => {
                     let currTime = Math.max(prev - 1, -1);
                     if ((status != "online" && currTime == 0) || (status == 'online' && currTime == -1)) {
+                        console.log("time")
+                        console.log(currTime);
                         const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(match.currentPlayer).toLowerCase()].name} wins!`;
                         if (status == 'online') {
+                            console.log("entered if condition");
                             UpdateRating(match.players["black"].name, match.players["white"].name, "black", "white").then((obj) => {
+                                console.log(obj);
                                 setRatingChange(obj);
                                 updateGameState({ratingChange: obj});
                             })
@@ -371,12 +380,10 @@ const Reversi = () => {
         } else if (result.status == 'draw') {
             const text = 'The game is a draw!';
             if (status == 'online') {
-                UpdateRating(match.players[result.winner.toLowerCase()].name, match.players[result.winner == 'Black' ? 
-                    'white' : 'black'].name, result.winner.toLowerCase(), result.winner == 'Black' ? 
-                    'white' : 'black', 'draw').then((obj) => {
+                UpdateRating(match.players['black'].name, match.players['white'].name, 'black', 'white', 'draw').then((obj) => {
                         setRatingChange(obj);
                         updateGameState({ratingChange: obj});
-                    });
+                });
             }
             setMessage(text);
             setIsGameActive(false);
