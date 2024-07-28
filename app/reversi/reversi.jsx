@@ -240,7 +240,7 @@ const Reversi = () => {
                         if (mode == 'block' && status == 'online' && blockedPlayer == 'Black') {
                             text = `${match.players[blockedPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(blockedPlayer).toLowerCase()].name} wins!`;
                         } else {
-                            text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(match.currentPlayer).toLowerCase()].name} wins!`;
+                            text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(currentPlayer).toLowerCase()].name} wins!`;
                         }
                         setMessage(text);
                         setIsGameActive(false);
@@ -259,7 +259,7 @@ const Reversi = () => {
                         if (mode == 'block' && status == 'online' && blockedPlayer == 'White') {
                             text = `${match.players[blockedPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(blockedPlayer).toLowerCase()].name} wins!`;
                         } else {
-                            text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(match.currentPlayer).toLowerCase()].name} wins!`;
+                            text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(currentPlayer).toLowerCase()].name} wins!`;
                         }
                         setMessage(text);
                         setIsGameActive(false);
