@@ -183,6 +183,33 @@ const Reversi = () => {
 
     useEffect(() => {
         if (!isGameActive) {
+            if (status == 'online' && ('dummy' in ratingChange)) {
+                if (mode == 'block') {
+                    if (blockedPlayer == "Black") {
+                        UpdateRating(match.players["white"].name, match.players["black"].name, "white", "black").then((obj) => {
+                            setRatingChange(obj);
+                            updateGameState({ratingChange: obj});
+                        })
+                    } else {
+                        UpdateRating(match.players["black"].name, match.players["white"].name, "black", "white").then((obj) => {
+                            setRatingChange(obj);
+                            updateGameState({ratingChange: obj});
+                        })
+                    }
+                } else {
+                    if (currentPlayer == "Black") {
+                        UpdateRating(match.players["white"].name, match.players["black"].name, "white", "black").then((obj) => {
+                            setRatingChange(obj);
+                            updateGameState({ratingChange: obj});
+                        })
+                    } else {
+                        UpdateRating(match.players["black"].name, match.players["white"].name, "black", "white").then((obj) => {
+                            setRatingChange(obj);
+                            updateGameState({ratingChange: obj});
+                        })
+                    }
+                }
+            }
             setRematchFriend(friendToPlay);
             localStorage.removeItem('friendToPlay');
             setFriendToPlay('');
@@ -209,14 +236,11 @@ const Reversi = () => {
                 setBlackTime(prev => {
                     let currTime = Math.max(prev - 1, -1);
                     if ((status != "online" && currTime == 0) || (status == 'online' && currTime == -1)) {
-                        console.log("time");
-                        const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(match.currentPlayer).toLowerCase()].name} wins!`;
-                        if (status == 'online') {
-                            UpdateRating(match.players["white"].name, match.players["black"].name, 'white', 'black').then((obj) => {
-                                console.log(obj);
-                                setRatingChange(obj);
-                                updateGameState({ratingChange: obj});
-                            });
+                        let text;
+                        if (mode == 'block' && status == 'online' && blockedPlayer == 'Black') {
+                            text = `${match.players[blockedPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(blockedPlayer).toLowerCase()].name} wins!`;
+                        } else {
+                            text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(match.currentPlayer).toLowerCase()].name} wins!`;
                         }
                         setMessage(text);
                         setIsGameActive(false);
@@ -231,16 +255,11 @@ const Reversi = () => {
                 setWhiteTime(prev => {
                     let currTime = Math.max(prev - 1, -1);
                     if ((status != "online" && currTime == 0) || (status == 'online' && currTime == -1)) {
-                        console.log("time")
-                        console.log(currTime);
-                        const text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(match.currentPlayer).toLowerCase()].name} wins!`;
-                        if (status == 'online') {
-                            console.log("entered if condition");
-                            UpdateRating(match.players["black"].name, match.players["white"].name, "black", "white").then((obj) => {
-                                console.log(obj);
-                                setRatingChange(obj);
-                                updateGameState({ratingChange: obj});
-                            })
+                        let text;
+                        if (mode == 'block' && status == 'online' && blockedPlayer == 'White') {
+                            text = `${match.players[blockedPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(blockedPlayer).toLowerCase()].name} wins!`;
+                        } else {
+                            text = `${match.players[currentPlayer.toLowerCase()].name} has run out of time, ${match.players[match.getOpponent(match.currentPlayer).toLowerCase()].name} wins!`;
                         }
                         setMessage(text);
                         setIsGameActive(false);
