@@ -1,30 +1,58 @@
 .root {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.title {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgb(53, 183, 53);
-    height: 100vh;
-}
-
-.buttons {
-    flex: 1;
-    display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    gap: 0.5rem;
-}
-
-.register, .login {
-    background-color: rgb(150, 11, 150);
-    height:5%;
-    width: 15%;
-}
+    min-height: 100vh;
+    background: linear-gradient(0deg, rgb(254, 243, 197), rgb(132, 242, 252));
+  }
+  
+  /* Title styles */
+  .title {
+    margin-bottom: 20px;
+  }
+  
+  .title h1 {
+    font-size: 3rem;
+    color: #333;
+    margin: 0;
+  }
+  
+  /* Buttons container styles */
+  .buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  /* Register button styles */
+  .register {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #0070f3;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .register:hover {
+    background-color: #005bb5;
+  }
+  
+  /* Login button styles */
+  .login {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: #0070f3;
+    background-color: #fff;
+    border: 2px solid #0070f3;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .login:hover {
+    background-color: #0070f3;
+    color: #fff;
+  }
